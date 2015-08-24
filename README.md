@@ -1,12 +1,11 @@
 DEMto3D
 =======
 
-Extensión para impresión 3D de MDE (Modelos Digitales de Elevaciones) sobre Kosmo
+Extensión para impresión 3D de MDE (Modelos Digitales de Elevaciones) sobre los SIG Kosmo y QGIS
 
-DEMto3D es una extensión del software Kosmo que permite la exportación de MDE a formato STL y su impresión 3D.
+DEMto3D es una extensión que permite la exportación de MDE a formato STL y Gcode.
 
 En la siguiente página web http://demto3d.com puede encontrarse más información respecto a este proyecto, así como su descarga, manual de uso y guía de instalación.
-
 
 DEMto3D, ha sido desarrollado como parte del Proyecto Fin de Carrera :
 "Desarrollo de un módulo de impresión 3D de modelos digitales de elevaciones basado en sistema de bajo coste"
@@ -18,12 +17,11 @@ Contacto: demto3d@gmail.com
 
 --------
 
-Extension to 3D printing DEM (Digital Elevation Model) in Kosmo.
+Extension to 3D printing DEM (Digital Elevation Model) in Kosmo and QGIS.
 
-DEMto3D allows export MDE to STL format and 3D printing.
+DEMto3D allows export MDE to STL format and Gcode.
 
 In the following website http://demto3d.com you can find more information regarding this project, as well as download, user manual and installation guide.
-
 
 DEMto3D, has been developed as part of the thesis:
 "Development of a 3D printing module of digital elevation models based on low-cost system"
