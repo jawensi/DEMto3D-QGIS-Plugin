@@ -19,7 +19,7 @@ Contacto: demto3d@gmail.com
 
 Extension to 3D printing DEM (Digital Elevation Model) in Kosmo and QGIS.
 
-DEMto3D allows export MDE to STL format and Gcode.
+DEMto3D allows export DEM to STL format and Gcode.
 
 In the following website http://demto3d.com you can find more information regarding this project, as well as download, user manual and installation guide.
 
