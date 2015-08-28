@@ -20,8 +20,6 @@
  *                                                                         *
  ***************************************************************************/
 """
-import os
-import subprocess
 import math
 
 from PyQt4 import QtCore, QtGui
@@ -31,10 +29,9 @@ from qgis.gui import QgsRubberBand, QgsMapTool, QgsMessageBar
 from osgeo import gdal
 
 import Export_dialog
-import PrintingSettings_dialog
 import SelectLayer_dialog
 from DEMto3D_dialog_base import Ui_DEMto3DDialogBase, _fromUtf8
-from qgis._core import QgsPoint, QgsRectangle, QgsMapLayerRegistry, QgsGeometry, QgsApplication, QgsCoordinateTransform
+from qgis._core import QgsPoint, QgsRectangle, QgsMapLayerRegistry, QgsGeometry, QgsCoordinateTransform
 
 
 def get_layer(layer_name):
@@ -71,14 +68,10 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
     raster_x_min = 0
     raster_y_max = 0
     raster_y_min = 0
-    ''' Printer dimension '''
-    bed_high = 0
-    bed_width = 0
-    printer = ''
 
     def __init__(self, iface):
         """Constructor."""
-        QDialog.__init__(self, None, Qt.WindowStaysOnTopHint)
+        QDialog.__init__(self)
         self.ui = Ui_DEMto3DDialogBase()
         self.ui.setupUi(self)
         self.iface = iface
@@ -97,7 +90,7 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         # endregion
 
         # region Extension actions
-        self.extension = None
+        self.extent = None
         QtCore.QObject.connect(self.ui.FullExtToolButton, QtCore.SIGNAL(_fromUtf8("clicked()")), self.full_extent)
         QtCore.QObject.connect(self.ui.LayerExtToolButton, QtCore.SIGNAL(_fromUtf8("clicked()")), self.layer_extent)
         QtCore.QObject.connect(self.ui.CustomExtToolButton, QtCore.SIGNAL(_fromUtf8("clicked()")), self.custom_extent)
@@ -108,12 +101,6 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         # endregion
 
         # region Dimension actions
-        # fill printer combobox with printer settings defined in Slic3r
-        self.upload_printer()
-        self.get_bed_size(self.ui.PrinterComboBox.currentText())
-        QtCore.QObject.connect(self.ui.PrinterComboBox, QtCore.SIGNAL(_fromUtf8("activated(QString)")),
-                               self.get_bed_size)
-        QtCore.QObject.connect(self.ui.Slic3rToolButton, QtCore.SIGNAL(_fromUtf8("clicked()")), self.call_slicer)
         QtCore.QObject.connect(self.ui.HeightLineEdit, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
                                self.upload_size_from_height)
         QtCore.QObject.connect(self.ui.WidthLineEdit, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
@@ -130,37 +117,20 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         # region Cancel, export, print buttons
         QtCore.QObject.connect(self.ui.CancelToolButton, QtCore.SIGNAL(_fromUtf8("clicked()")), self.reject)
         QtCore.QObject.connect(self.ui.STLToolButton, QtCore.SIGNAL(_fromUtf8("clicked()")), self.do_export)
-        QtCore.QObject.connect(self.ui.GcodeToolButton, QtCore.SIGNAL(_fromUtf8("clicked()")), self.do_gcode)
+        close = QtGui.QAction(self)
+        self.connect(close, QtCore.SIGNAL('clicked()'), self.reject)
         # endregion
 
     def do_export(self):
         parameters = self.get_parameters()
-        layer_name = self.ui.LayerComboBox.currentText() + '_model'
+        layer_name = self.ui.LayerComboBox.currentText() + '_model.stl'
         if parameters != 0:
             f = QFileDialog.getSaveFileNameAndFilter(self, self.tr('Export to STL'), layer_name, filter=".stl")
             stl_file = f[0]
             if stl_file:
-                export_dlg = Export_dialog.Dialog(parameters, stl_file, None)
+                export_dlg = Export_dialog.Dialog(parameters, stl_file)
                 if export_dlg.exec_():
                     QMessageBox.information(self, self.tr("Attention"), self.tr("STL model generated"))
-        else:
-            QMessageBox.warning(self, self.tr("Attention"), self.tr("Fill the data correctly"))
-
-    def do_gcode(self):
-        parameters = self.get_parameters()
-        layer_name = self.ui.LayerComboBox.currentText() + '_model'
-        if parameters != 0:
-            printer = self.get_printer()
-            printing_settings_dlg = PrintingSettings_dialog.Dialog(parameters, printer)
-            if printing_settings_dlg.exec_():
-                gcode_f = QFileDialog.getSaveFileNameAndFilter(self, self.tr('Generate Gcode'), layer_name,
-                                                               filter=".gcode")
-                gcode_file = gcode_f[0]
-                if gcode_file:
-                    slicer_settings = printing_settings_dlg.get_slicer_settings()
-                    export_dlg = Export_dialog.Dialog(parameters, gcode_file, slicer_settings)
-                    if export_dlg.exec_():
-                        QMessageBox.information(self, self.tr("Attention"), self.trUtf8("Gcode model generated"))
         else:
             QMessageBox.warning(self, self.tr("Attention"), self.tr("Fill the data correctly"))
 
@@ -182,7 +152,7 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         self.ui.YMaxLineEdit.clear()
         self.ui.YMinLineEdit.clear()
         canvas = self.iface.mapCanvas()
-        canvas.scene().removeItem(self.extension)
+        canvas.scene().removeItem(self.extent)
 
         self.ini_dimensions()
 
@@ -239,7 +209,7 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         self.iface.messageBar().pushMessage("Info", self.tr("Click and drag the mouse to draw print extent"),
                                             level=QgsMessageBar.INFO, duration=3)
         canvas = self.iface.mapCanvas()
-        canvas.scene().removeItem(self.extension)
+        canvas.scene().removeItem(self.extent)
         ct = RectangleMapTool(canvas, self.get_custom_extent)
         canvas.setMapTool(ct)
 
@@ -283,15 +253,15 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         self.ui.YMaxLineEdit.setText(str(round(rec.yMaximum(), 3)))
 
         canvas = self.iface.mapCanvas()
-        canvas.scene().removeItem(self.extension)
-        self.extension = QgsRubberBand(canvas, True)
+        canvas.scene().removeItem(self.extent)
+        self.extent = QgsRubberBand(canvas, True)
         points = [QgsPoint(self.roi_x_max, self.roi_y_min), QgsPoint(self.roi_x_max, self.roi_y_max),
                   QgsPoint(self.roi_x_min, self.roi_y_max), QgsPoint(self.roi_x_min, self.roi_y_min),
                   QgsPoint(self.roi_x_max, self.roi_y_min)]
-        self.extension.setToGeometry(QgsGeometry.fromPolyline(points), None)
-        self.extension.setColor(QColor(227, 26, 28, 255))
-        self.extension.setWidth(5)
-        self.extension.setLineStyle(Qt.PenStyle(Qt.DashLine))
+        self.extent.setToGeometry(QgsGeometry.fromPolyline(points), None)
+        self.extent.setColor(QColor(227, 26, 28, 255))
+        self.extent.setWidth(5)
+        self.extent.setLineStyle(Qt.PenStyle(Qt.DashLine))
         self.iface.mapCanvas().refresh()
 
     def get_z_max_z_min(self):
@@ -344,44 +314,6 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
     # endregion
 
     # region Dimensions function
-    def upload_printer(self):
-        try:
-            dir_printer = os.getenv("HOME") + '\\AppData\\Roaming\\Slic3r\\printer\\'
-            files = os.listdir(dir_printer)
-            self.ui.PrinterComboBox.clear()
-            for f in files:
-                name = os.path.splitext(f)[0]
-                self.ui.PrinterComboBox.addItem(name)
-        except WindowsError:
-            pass
-
-    def get_bed_size(self, printer):
-        try:
-            self.printer = os.getenv("HOME") + '\\AppData\\Roaming\\Slic3r\\printer\\' + printer + '.ini'
-            f = open(os.getenv("HOME") + '\\AppData\\Roaming\\Slic3r\\printer\\' + printer + '.ini', "r")
-            lines = f.readlines()
-            f.close()
-            for line in lines:
-                if line.__contains__('bed_size'):
-                    l = line.split('=')[1]
-                    self.bed_width = float(l.split(',')[0])
-                    self.bed_high = float(l.split(',')[1])
-            self.ui.PrinterHeightlabel.setText(str(self.bed_high) + ' mm')
-            self.ui.PrinterWidthlabel.setText(str(self.bed_width) + ' mm')
-        except IOError:
-            pass
-
-    def call_slicer(self):
-        slicer = QgsApplication.qgisSettingsDirPath() + 'python/plugins/AppONCE/Slic3r/slic3r.exe'
-        try:
-            result = subprocess.Popen([slicer, '--no-plater'])
-            valor = result.wait()
-            print("Resultado:", valor)
-        except WindowsError:
-            print 'El sistema no puede encontrar el archivo especificado'
-        self.upload_printer()
-        self.get_bed_size(self.ui.PrinterComboBox.currentText())
-
     def get_min_spacing(self):
         min_spacing = 0
         if self.map_crs.mapUnits() == 0:  # Meters
@@ -510,9 +442,6 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
                 "height": self.height, "width": self.width, "z_scale": self.z_scale, "scale": self.scale,
                 "z_inv": z_inv, "z_base": z_base, "projected": projected, "crs_layer": self.layer.crs(),
                 "crs_map": self.map_crs}
-
-    def get_printer(self):
-        return self.printer
 
 
 class RectangleMapTool(QgsMapTool):

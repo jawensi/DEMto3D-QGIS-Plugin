@@ -23,32 +23,23 @@
 
 from PyQt4 import QtCore
 from PyQt4.QtCore import Qt, SIGNAL
-from PyQt4.QtGui import QDialog, QFileDialog
-from qgis._core import QgsApplication
+from PyQt4.QtGui import QDialog
 
 from Export_dialog_base import Ui_ExportDialogBase
 from ..model_builder.Model_Builder import Model
 from ..model_builder.STL_Builder import STL
-from ..model_builder.Gcode_Builder import Gcode
 
 
 class Dialog(QDialog, Ui_ExportDialogBase):
-    def __init__(self, parameters, file_name, slicer_settings):
+    def __init__(self, parameters, file_name):
         """Constructor for the dialog."""
-        QDialog.__init__(self, None, Qt.WindowStaysOnTopHint)
+        QDialog.__init__(self)
         self.ui = Ui_ExportDialogBase()
         self.ui.setupUi(self)
         self.parameters = parameters
-        self.slicer_settings = slicer_settings
 
-        if not self.slicer_settings:
-            self.stl_file = file_name
-            self.do_model()
-
-        elif self.slicer_settings:
-            self.stl_file = QgsApplication.qgisSettingsDirPath() + 'python/plugins/DEMto3D/temp.stl'
-            self.gcode_file = file_name
-            self.do_model()
+        self.stl_file = file_name
+        self.do_model()
 
     def do_model(self):
         self.ui.ProgressLabel.setText(self.tr("Building STL geometry ..."))
@@ -62,18 +53,8 @@ class Dialog(QDialog, Ui_ExportDialogBase):
         dem_matrix = self.Model.get_model()
         self.STL = STL(self.ui.progressBar, self.ui.ProgressLabel, self.parameters, self.stl_file, dem_matrix)
         self.STL.updateProgress.connect(lambda: self.ui.progressBar.setValue(self.ui.progressBar.value() + 1))
-        if not self.slicer_settings:
-            QtCore.QObject.connect(self.STL, SIGNAL("finished()"), self.finish_model)
-        elif self.slicer_settings:
-            QtCore.QObject.connect(self.STL, SIGNAL("finished()"), self.do_gcode_model)
+        QtCore.QObject.connect(self.STL, SIGNAL("finished()"), self.finish_model)
         self.STL.start()
-
-    def do_gcode_model(self):
-        self.ui.ProgressLabel.setText(self.tr("Creating Gcode file ..."))
-        self.gcode = Gcode(self.gcode_file, self.slicer_settings)
-        QtCore.QObject.connect(self.gcode, SIGNAL("finished()"), self.finish_model)
-        self.gcode.start()
-        self.ui.progressBar.setMaximum(0)
 
     def finish_model(self):
         self.accept()

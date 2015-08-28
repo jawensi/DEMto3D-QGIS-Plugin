@@ -20,7 +20,6 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4 import QtGui
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtGui import QAction, QIcon, QMessageBox
 # Initialize Qt resources from file resources.py
@@ -78,10 +77,6 @@ class DEMto3D:
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        # try:
-        #     _encoding = QtGui.QApplication.UnicodeUTF8
-        #     return QCoreApplication.translate('DEMto3D', message, None, _encoding)
-        # except AttributeError:
         return QCoreApplication.translate('DEMto3D', message)
 
     def initGui(self):
@@ -115,9 +110,9 @@ class DEMto3D:
                 demto3d_dlg = DEMto3D_dialog.DEMto3DDialog(self.iface)
                 if demto3d_dlg.exec_():
                     pass
-                if demto3d_dlg.extension:
+                if demto3d_dlg.extent:
                     canvas = self.iface.mapCanvas()
-                    canvas.scene().removeItem(demto3d_dlg.extension)
+                    canvas.scene().removeItem(demto3d_dlg.extent)
                 self.window = True
             elif not raster:
                 QMessageBox.information(self.iface.mainWindow(), "DEMto3D", self.tr("No visible raster layer loaded"))

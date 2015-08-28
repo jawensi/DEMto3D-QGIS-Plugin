@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/plugins/DEMto3D" >
+        <file>icons/downright.png</file>
+        <file>icons/upleft.png</file>
+        <file>icons/cursor_extension.png</file>
+        <file>icons/layer_extension.png</file>
+        <file>icons/full_extension.png</file>
+        <file>icons/tool.png</file>
+        <file>icons/demto3d.png</file>
+    </qresource>
+</RCC>
