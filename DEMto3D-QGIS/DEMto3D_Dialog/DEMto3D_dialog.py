@@ -311,6 +311,8 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
             self.ui.ZMaxLabel.setText(str(self.z_max) + ' m')
             self.ui.ZMinLabel.setText(str(self.z_min) + ' m')
 
+        QApplication.restoreOverrideCursor()
+
     # endregion
 
     # region Dimensions function
