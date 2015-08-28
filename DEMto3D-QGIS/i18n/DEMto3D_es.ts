@@ -174,6 +174,11 @@
         <source>Attention</source>
         <translation>Atención</translation>
     </message>
+ 	<message>
+        <location filename="PrinterSettings_dialog.py" line="44"/>
+        <source>The construction of the STL file could takes several minutes. Do you want to continue?</source>
+        <translation>Es posible que la construcción del archivo STL tarde varios minutos. ¿Desea continuar?</translation>
+    </message>
 	<message>
         <location filename="Export_dialog.py" line="44"/>
         <source>Export to STL</source>
