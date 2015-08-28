@@ -44,10 +44,10 @@ class Model(QThread):
         self.matrix_dem = []
 
     def run(self):
-        QApplication.processEvents()
         row_stl = int(math.ceil(self.parameters["height"] / self.parameters["spacing_mm"]) + 1)
         self.bar.setMaximum(row_stl)
         self.bar.setValue(0)
+        QApplication.processEvents()
 
         dem_dataset = gdal.Open(self.parameters["layer"])
         self.matrix_dem = self.matrix_dem_build(dem_dataset, self.parameters["height"], self.parameters["width"],
@@ -81,6 +81,7 @@ class Model(QThread):
         var_y = height
         for i in range(row_stl):
             self.updateProgress.emit()
+            QApplication.processEvents()
             var_x = 0
             for j in range(col_stl):
                 # Model coordinate x(mm), y(mm)
