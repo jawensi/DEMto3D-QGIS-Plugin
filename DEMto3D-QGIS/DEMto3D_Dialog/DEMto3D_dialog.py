@@ -23,7 +23,7 @@
 import math
 
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import QDialog, QMessageBox, QColor, QFileDialog
+from PyQt4.QtGui import QDialog, QMessageBox, QColor, QFileDialog, QApplication, QCursor
 from PyQt4.QtCore import Qt
 from qgis.gui import QgsRubberBand, QgsMapTool, QgsMessageBar
 from osgeo import gdal
@@ -125,12 +125,25 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         parameters = self.get_parameters()
         layer_name = self.ui.LayerComboBox.currentText() + '_model.stl'
         if parameters != 0:
-            f = QFileDialog.getSaveFileNameAndFilter(self, self.tr('Export to STL'), layer_name, filter=".stl")
-            stl_file = f[0]
-            if stl_file:
-                export_dlg = Export_dialog.Dialog(parameters, stl_file)
-                if export_dlg.exec_():
-                    QMessageBox.information(self, self.tr("Attention"), self.tr("STL model generated"))
+            if parameters["spacing_mm"] < 0.5 and self.height > 100 and self.width > 100:
+                reply = QMessageBox.question(self, self.tr('Export to STL'),
+                                             self.tr('The construction of the STL file could takes several minutes. Do you want to continue?'),
+                                             QMessageBox.Yes |
+                                             QMessageBox.No, QMessageBox.No)
+                if reply == QMessageBox.Yes:
+                    f = QFileDialog.getSaveFileNameAndFilter(self, self.tr('Export to STL'), layer_name, filter=".stl")
+                    stl_file = f[0]
+                    if stl_file:
+                        export_dlg = Export_dialog.Dialog(parameters, stl_file)
+                        if export_dlg.exec_():
+                            QMessageBox.information(self, self.tr("Attention"), self.tr("STL model generated"))
+            else:
+                f = QFileDialog.getSaveFileNameAndFilter(self, self.tr('Export to STL'), layer_name, filter=".stl")
+                stl_file = f[0]
+                if stl_file:
+                    export_dlg = Export_dialog.Dialog(parameters, stl_file)
+                    if export_dlg.exec_():
+                        QMessageBox.information(self, self.tr("Attention"), self.tr("STL model generated"))
         else:
             QMessageBox.warning(self, self.tr("Attention"), self.tr("Fill the data correctly"))
 
@@ -152,8 +165,9 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         self.ui.YMaxLineEdit.clear()
         self.ui.YMinLineEdit.clear()
         canvas = self.iface.mapCanvas()
-        canvas.scene().removeItem(self.extent)
-
+        if self.extent:
+            canvas.scene().removeItem(self.extent)
+            self.extent = None
         self.ini_dimensions()
 
         self.ui.ZMaxLabel.setText('0 m')
@@ -209,7 +223,9 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         self.iface.messageBar().pushMessage("Info", self.tr("Click and drag the mouse to draw print extent"),
                                             level=QgsMessageBar.INFO, duration=3)
         canvas = self.iface.mapCanvas()
-        canvas.scene().removeItem(self.extent)
+        if self.extent:
+            canvas.scene().removeItem(self.extent)
+            self.extent = None
         ct = RectangleMapTool(canvas, self.get_custom_extent)
         canvas.setMapTool(ct)
 
@@ -223,7 +239,7 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         if rec.intersects(layer_extension):
             extension = rec.intersect(layer_extension)
             self.paint_extent(extension)
-            self.iface.actionTouch().trigger()
+            self.iface.actionPan().trigger()
             self.get_z_max_z_min()
             self.ini_dimensions()
         else:
@@ -253,7 +269,9 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         self.ui.YMaxLineEdit.setText(str(round(rec.yMaximum(), 3)))
 
         canvas = self.iface.mapCanvas()
-        canvas.scene().removeItem(self.extent)
+        if self.extent:
+            canvas.scene().removeItem(self.extent)
+            self.extent = None
         self.extent = QgsRubberBand(canvas, True)
         points = [QgsPoint(self.roi_x_max, self.roi_y_min), QgsPoint(self.roi_x_max, self.roi_y_max),
                   QgsPoint(self.roi_x_min, self.roi_y_max), QgsPoint(self.roi_x_min, self.roi_y_min),
@@ -265,6 +283,8 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         self.iface.mapCanvas().refresh()
 
     def get_z_max_z_min(self):
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+
         roi = QgsRectangle(self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
         source = self.map_crs
         target = self.layer.crs()
