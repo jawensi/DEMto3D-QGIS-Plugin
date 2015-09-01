@@ -89,13 +89,13 @@ class DEMto3D:
         self.action.setStatusTip(text)
         self.action.triggered.connect(self.run)
 
-        self.iface.addToolBarIcon(self.action)
-        self.iface.addPluginToMenu(self.menu, self.action)
+        self.iface.addRasterToolBarIcon(self.action)
+        self.iface.addPluginToRasterMenu(self.menu, self.action)
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
-        self.iface.removePluginMenu(self.menu, self.action)
-        self.iface.removeToolBarIcon(self.action)
+        self.iface.removePluginRasterMenu(self.menu, self.action)
+        self.iface.removeRasterToolBarIcon(self.action)
 
     def run(self):
         layers = self.iface.legendInterface().layers()
