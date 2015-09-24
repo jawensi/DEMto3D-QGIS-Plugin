@@ -23,7 +23,7 @@ email=demto3d@gmail.com
 # changelog= Pluging has been moved under raster menu and raster toolbar, instead plugin menu. Dialogs covered all other windows. Now dialogs stop to stay on top. Tooltips have been added to icon buttons. Extension has been added to files (filename_model.stl), when you choose export to STL the raster layer. A warning message has been added when the expected computation time is too long.
 
 # Tags are comma separated with spaces allowed
-tags=dem, 3D printing, raster, 3D, relief terrain
+tags=dem, 3D printing, raster, 3D, relief terrain, STL
 
 homepage=http://demto3d.com/
 tracker=https://github.com/jawensi/DEMto3D/issues
@@ -31,7 +31,7 @@ repository=https://github.com/jawensi/DEMto3D
 category=Raster
 icon=icons/demto3d.png
 # experimental flag
-experimental=False
+experimental=True
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False

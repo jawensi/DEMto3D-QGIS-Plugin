@@ -75,11 +75,15 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         self.ui = Ui_DEMto3DDialogBase()
         self.ui.setupUi(self)
         self.iface = iface
-        self.map_crs = self.iface.mapCanvas().mapRenderer().destinationCrs()
+        self.canvas = iface.mapCanvas()
+        try:
+            self.map_crs = self.canvas.mapSettings().destinationCrs()
+        except:
+            self.map_crs = self.canvas.mapRenderer().destinationCrs()
 
         # region Layer action
         # fill layer combobox with raster visible layers in mapCanvas
-        self.viewLayers = self.iface.mapCanvas().layers()
+        self.viewLayers = self.canvas.layers()
         self.ui.LayerComboBox.clear()
         for layer in self.viewLayers:
             if layer.type() == 1:
@@ -164,9 +168,8 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         self.ui.XMinLineEdit.clear()
         self.ui.YMaxLineEdit.clear()
         self.ui.YMinLineEdit.clear()
-        canvas = self.iface.mapCanvas()
         if self.extent:
-            canvas.scene().removeItem(self.extent)
+            self.canvas.scene().removeItem(self.extent)
             self.extent = None
         self.ini_dimensions()
 
@@ -197,8 +200,7 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
 
     # region Extension functions
     def full_extent(self):
-        canvas = self.iface.mapCanvas()
-        rec = canvas.fullExtent()
+        rec = self.canvas.fullExtent()
         self.paint_extent(rec)
         self.get_z_max_z_min()
         self.ini_dimensions()
@@ -222,12 +224,11 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
     def custom_extent(self):
         self.iface.messageBar().pushMessage("Info", self.tr("Click and drag the mouse to draw print extent"),
                                             level=QgsMessageBar.INFO, duration=3)
-        canvas = self.iface.mapCanvas()
         if self.extent:
-            canvas.scene().removeItem(self.extent)
+            self.canvas.scene().removeItem(self.extent)
             self.extent = None
-        ct = RectangleMapTool(canvas, self.get_custom_extent)
-        canvas.setMapTool(ct)
+        ct = RectangleMapTool(self.canvas, self.get_custom_extent)
+        self.canvas.setMapTool(ct)
 
     def get_custom_extent(self, rec):
         layer_extension = self.layer.extent()
@@ -268,11 +269,10 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         self.roi_y_max = rec.yMaximum()
         self.ui.YMaxLineEdit.setText(str(round(rec.yMaximum(), 3)))
 
-        canvas = self.iface.mapCanvas()
         if self.extent:
-            canvas.scene().removeItem(self.extent)
+            self.canvas.scene().removeItem(self.extent)
             self.extent = None
-        self.extent = QgsRubberBand(canvas, True)
+        self.extent = QgsRubberBand(self.canvas, True)
         points = [QgsPoint(self.roi_x_max, self.roi_y_min), QgsPoint(self.roi_x_max, self.roi_y_max),
                   QgsPoint(self.roi_x_min, self.roi_y_max), QgsPoint(self.roi_x_min, self.roi_y_min),
                   QgsPoint(self.roi_x_max, self.roi_y_min)]
@@ -280,7 +280,7 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         self.extent.setColor(QColor(227, 26, 28, 255))
         self.extent.setWidth(5)
         self.extent.setLineStyle(Qt.PenStyle(Qt.DashLine))
-        self.iface.mapCanvas().refresh()
+        self.canvas.refresh()
 
     def get_z_max_z_min(self):
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
@@ -321,6 +321,7 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
             self.z_max = data.max()
             self.z_min = self.z_max
             no_data = dem_dataset.GetRasterBand(1).GetNoDataValue()
+            dem_dataset = None
             if data.min() == no_data:
                 for row in data:
                     for z in row:
@@ -330,7 +331,8 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
                 self.z_min = data.min()
             self.ui.ZMaxLabel.setText(str(self.z_max) + ' m')
             self.ui.ZMinLabel.setText(str(self.z_min) + ' m')
-
+        dem_dataset = None
+        band = None
         QApplication.restoreOverrideCursor()
 
     # endregion
@@ -450,6 +452,7 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         provider = self.layer.dataProvider()
         path = provider.dataSourceUri()
         path_layer = path.split('|')
+        self.z_scale = self.ui.ZScaleDoubleSpinBox.value()
         try:
             spacing_mm = float(self.ui.SpacingLineEdit.text())
             z_base = float(self.ui.BaseHeightLineEdit.text())
@@ -495,7 +498,8 @@ class RectangleMapTool(QgsMapTool):
             # print "Rectangle:", r.xMinimum(), r.yMinimum(), r.xMaximum(), r.yMaximum()
             self.rubberBand.hide()
             self.callback(r)
-            self.deactivate()
+            # self.deactivate()
+        return None
 
     def canvasMoveEvent(self, e):
         if not self.isEmittingPoint:

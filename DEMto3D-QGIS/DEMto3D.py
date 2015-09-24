@@ -108,8 +108,7 @@ class DEMto3D:
             if raster and self.window:
                 self.window = False
                 demto3d_dlg = DEMto3D_dialog.DEMto3DDialog(self.iface)
-                if demto3d_dlg.exec_():
-                    pass
+                demto3d_dlg.exec_()
                 if demto3d_dlg.extent:
                     canvas = self.iface.mapCanvas()
                     canvas.scene().removeItem(demto3d_dlg.extent)
