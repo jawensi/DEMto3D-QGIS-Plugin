@@ -93,8 +93,8 @@
     </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="386"/>
-        <source>Height (mm):</source>
-        <translation>Haut (mm):</translation>
+        <source>Lenght (mm):</source>
+        <translation>longue (mm):</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="387"/>
