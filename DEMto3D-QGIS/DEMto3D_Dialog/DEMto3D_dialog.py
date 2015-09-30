@@ -105,17 +105,17 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         # endregion
 
         # region Dimension actions
-        QtCore.QObject.connect(self.ui.HeightLineEdit, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+        QtCore.QObject.connect(self.ui.HeightLineEdit, QtCore.SIGNAL(_fromUtf8("textEdited(QString)")),
                                self.upload_size_from_height)
-        QtCore.QObject.connect(self.ui.WidthLineEdit, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+        QtCore.QObject.connect(self.ui.WidthLineEdit, QtCore.SIGNAL(_fromUtf8("textEdited(QString)")),
                                self.upload_size_from_width)
-        QtCore.QObject.connect(self.ui.ScaleLineEdit, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+        QtCore.QObject.connect(self.ui.ScaleLineEdit, QtCore.SIGNAL(_fromUtf8("textEdited(QString)")),
                                self.upload_size_from_scale)
         # endregion
 
         QtCore.QObject.connect(self.ui.ZScaleDoubleSpinBox, QtCore.SIGNAL(_fromUtf8("valueChanged(double)")),
                                self.get_height_model)
-        QtCore.QObject.connect(self.ui.BaseHeightLineEdit, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+        QtCore.QObject.connect(self.ui.BaseHeightLineEdit, QtCore.SIGNAL(_fromUtf8("textEdited(QString)")),
                                self.get_height_model)
 
         # region Cancel, export, print buttons
