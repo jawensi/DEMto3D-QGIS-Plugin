@@ -31,7 +31,7 @@ repository=https://github.com/jawensi/DEMto3D
 category=Raster
 icon=icons/demto3d.png
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
