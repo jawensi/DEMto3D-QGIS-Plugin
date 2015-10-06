@@ -29,6 +29,7 @@ from PyQt4.QtGui import QApplication
 from qgis._core import QgsPoint, QgsCoordinateTransform
 import math
 from osgeo import gdal
+import struct
 
 
 class Model(QThread):
@@ -122,10 +123,10 @@ class Model(QThread):
                     row_dem = 0
 
                 # Model coordinate z(mm)
-                if self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1) <= h_base:
+                if self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] <= h_base:
                     z_model = 2
                 else:
-                    z_model = round((self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1) - h_base) /
+                    z_model = round((self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] - h_base) /
                                     scale * 1000 * z_scale, 2) + 2
 
                 matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
@@ -156,7 +157,11 @@ class Model(QThread):
     @staticmethod
     def get_dem_z(dem_dataset, x_off, y_off, col_size, row_size):
         band = dem_dataset.GetRasterBand(1)
-        data = band.ReadAsArray(x_off, y_off, col_size, row_size)
+        data_types = {'Byte': 'B', 'UInt16': 'H', 'Int16': 'h', 'UInt32': 'I', 'Int32': 'i', 'Float32': 'f',
+                      'Float64': 'd'}
+        data_type = band.DataType
+        data = band.ReadRaster(x_off, y_off, col_size, row_size, col_size, row_size, data_type)
+        data = struct.unpack(data_types[gdal.GetDataTypeName(band.DataType)] * col_size * row_size, data)
         return data
 
     def get_model(self):

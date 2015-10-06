@@ -27,6 +27,7 @@ from PyQt4.QtGui import QDialog, QMessageBox, QColor, QFileDialog, QApplication,
 from PyQt4.QtCore import Qt
 from qgis.gui import QgsRubberBand, QgsMapTool, QgsMessageBar
 from osgeo import gdal
+import struct
 
 import Export_dialog
 import SelectLayer_dialog
@@ -315,20 +316,18 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
         path_layer = path.split('|')
 
         dem_dataset = gdal.Open(path_layer[0])
-        band = dem_dataset.GetRasterBand(1)
-        data = band.ReadAsArray(x_off, y_off, col_size, row_size)
+        data = self.get_dem_z(dem_dataset, x_off, y_off, col_size, row_size)
         if data is not None:
-            self.z_max = data.max()
+            self.z_max = max(data)
             self.z_min = self.z_max
             no_data = dem_dataset.GetRasterBand(1).GetNoDataValue()
             dem_dataset = None
-            if data.min() == no_data:
-                for row in data:
-                    for z in row:
-                        if z != no_data and z < self.z_min:
-                            self.z_min = z
+            if min(data) == no_data:
+                for z_cell in data:
+                    if z_cell != no_data and z_cell < self.z_min:
+                        self.z_min = z_cell
             else:
-                self.z_min = data.min()
+                self.z_min = min(data)
             self.ui.ZMaxLabel.setText(str(self.z_max) + ' m')
             self.ui.ZMinLabel.setText(str(self.z_min) + ' m')
         dem_dataset = None
@@ -467,6 +466,16 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
                 "height": self.height, "width": self.width, "z_scale": self.z_scale, "scale": self.scale,
                 "z_inv": z_inv, "z_base": z_base, "projected": projected, "crs_layer": self.layer.crs(),
                 "crs_map": self.map_crs}
+
+    @staticmethod
+    def get_dem_z(dem_dataset, x_off, y_off, col_size, row_size):
+        band = dem_dataset.GetRasterBand(1)
+        data_types = {'Byte': 'B', 'UInt16': 'H', 'Int16': 'h', 'UInt32': 'I', 'Int32': 'i', 'Float32': 'f',
+                      'Float64': 'd'}
+        data_type = band.DataType
+        data = band.ReadRaster(x_off, y_off, col_size, row_size, col_size, row_size, data_type)
+        data = struct.unpack(data_types[gdal.GetDataTypeName(band.DataType)] * col_size * row_size, data)
+        return data
 
 
 class RectangleMapTool(QgsMapTool):
