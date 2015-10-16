@@ -20,7 +20,7 @@ email=demto3d@gmail.com
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-# changelog= 
+# changelog= Added cancel button to stop the model building process. Changed the access to read heights (band.ReadAsArray for band.ReadRaster). 
 
 # Tags are comma separated with spaces allowed
 tags=dem, 3D printing, raster, 3D, relief terrain, STL
