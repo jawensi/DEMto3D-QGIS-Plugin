@@ -26,6 +26,12 @@ from PyQt4 import QtCore
 from PyQt4.QtCore import QThread
 import math
 
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    def _fromUtf8(s):
+        return s
+
 
 class STL(QThread):
     """Class where is built the stl file from the mesh point that decribe the model surface"""
@@ -33,13 +39,17 @@ class STL(QThread):
     pto = collections.namedtuple('pto', 'x y z')
     updateProgress = QtCore.pyqtSignal()
 
-    def __init__(self, bar, label, parameters, stl_file, dem_matrix):
+    def __init__(self, bar, label, button, parameters, stl_file, dem_matrix):
         QThread.__init__(self)
         self.bar = bar
         self.label = label
+        self.button = button
         self.parameters = parameters
         self.stl_file = stl_file
         self.matrix_dem = dem_matrix
+
+        self.quit = False
+        QtCore.QObject.connect(self.button, QtCore.SIGNAL(_fromUtf8("clicked()")), self.cancel)
 
     def run(self):
         f = open(self.stl_file, "w")
@@ -60,6 +70,9 @@ class STL(QThread):
                     " " + "0" + "\n")
             f.write("       endloop\n")
             f.write("   endfacet\n")
+            if self.quit:
+                f.close()
+                return 0
 
         wall = self.face_wall_vector(self.matrix_dem)
         for face in wall:
@@ -74,6 +87,9 @@ class STL(QThread):
                     " " + str(getattr(face[2], "z")) + "\n")
             f.write("       endloop\n")
             f.write("   endfacet\n")
+            if self.quit:
+                f.close()
+                return 0
 
         for face in dem:
             self.updateProgress.emit()
@@ -88,6 +104,10 @@ class STL(QThread):
                     " " + str(getattr(face[2], "z")) + "\n")
             f.write("       endloop\n")
             f.write("   endfacet\n")
+            if self.quit:
+                f.close()
+
+                return 0
 
         f.write("endsolid model\n")
         f.close()
@@ -172,3 +192,6 @@ class STL(QThread):
         except ZeroDivisionError:
             v_normal = self.normal(normal_x=0, normal_y=0, normal_z=0)
         return v_normal
+
+    def cancel(self):
+        self.quit = True

@@ -20,6 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+import os
 
 from PyQt4 import QtCore
 from PyQt4.QtCore import Qt, SIGNAL
@@ -43,21 +44,29 @@ class Dialog(QDialog, Ui_ExportDialogBase):
 
     def do_model(self):
         self.ui.ProgressLabel.setText(self.tr("Building STL geometry ..."))
-        self.Model = Model(self.ui.progressBar, self.ui.ProgressLabel, self.parameters)
+        self.Model = Model(self.ui.progressBar, self.ui.ProgressLabel, self.ui.cancelButton, self.parameters)
         self.Model.updateProgress.connect(lambda: self.ui.progressBar.setValue(self.ui.progressBar.value() + 1))
         QtCore.QObject.connect(self.Model, SIGNAL("finished()"), self.do_stl_model)
         self.Model.start()
 
     def do_stl_model(self):
-        self.ui.ProgressLabel.setText(self.tr("Creating STL file ..."))
-        dem_matrix = self.Model.get_model()
-        self.STL = STL(self.ui.progressBar, self.ui.ProgressLabel, self.parameters, self.stl_file, dem_matrix)
-        self.STL.updateProgress.connect(lambda: self.ui.progressBar.setValue(self.ui.progressBar.value() + 1))
-        QtCore.QObject.connect(self.STL, SIGNAL("finished()"), self.finish_model)
-        self.STL.start()
+        if self.Model.quit:
+            self.reject()
+        else:
+            self.ui.ProgressLabel.setText(self.tr("Creating STL file ..."))
+            dem_matrix = self.Model.get_model()
+            self.STL = STL(self.ui.progressBar, self.ui.ProgressLabel, self.ui.cancelButton, self.parameters,
+                           self.stl_file, dem_matrix)
+            self.STL.updateProgress.connect(lambda: self.ui.progressBar.setValue(self.ui.progressBar.value() + 1))
+            QtCore.QObject.connect(self.STL, SIGNAL("finished()"), self.finish_model)
+            self.STL.start()
 
     def finish_model(self):
-        self.accept()
+        if self.STL.quit:
+            os.remove(self.stl_file)
+            self.reject()
+        else:
+            self.accept()
 
 
 

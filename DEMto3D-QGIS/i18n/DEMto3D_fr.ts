@@ -204,6 +204,11 @@
         <source>Gcode model generated</source>
         <translation>Modèle Gcode généré</translation>
     </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="155"/>
+        <source>Process canceled</source>
+        <translation>Processus annulé</translation>
+    </message>
 	<message>
         <location filename="DEMto3D_dialog.py" line="249"/>
         <source>Click and drag the mouse to draw print extent</source>
@@ -292,6 +297,14 @@
         <location filename="Export_dialog.py" line="74"/>
         <source>Creating Gcode file ...</source>
         <translation>Création du fichier Gcode ...</translation>
+    </message>
+</context>
+<context>
+    <name>ExportDialogBase</name>
+	<message>
+        <location filename="Export_dialog_base.py" line="74"/>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
     </message>
 </context>
 <context>

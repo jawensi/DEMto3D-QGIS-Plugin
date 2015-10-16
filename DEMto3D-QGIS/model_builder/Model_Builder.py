@@ -31,18 +31,28 @@ import math
 from osgeo import gdal
 import struct
 
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    def _fromUtf8(s):
+        return s
+
 
 class Model(QThread):
     """Class where is built the mesh point that describe the surface model """
     pto = collections.namedtuple('pto', 'x y z')
     updateProgress = QtCore.pyqtSignal()
 
-    def __init__(self, bar, label, parameters):
+    def __init__(self, bar, label, button, parameters):
         QThread.__init__(self)
         self.bar = bar
         self.label = label
+        self.button = button
         self.parameters = parameters
         self.matrix_dem = []
+
+        self.quit = False
+        QtCore.QObject.connect(self.button, QtCore.SIGNAL(_fromUtf8("clicked()")), self.cancel)
 
     def run(self):
         row_stl = int(math.ceil(self.parameters["height"] / self.parameters["spacing_mm"]) + 1)
@@ -112,18 +122,16 @@ class Model(QThread):
                 col_dem = int(math.floor(col_dem))
                 if col_dem == dem_col:
                     col_dem -= 1
-                if col_dem < 0:
-                    col_dem = 0
                 # From y(m) get Row in DEM file
                 row_dem = (dem_y_max - y) * dem_row / (dem_y_max - dem_y_min)
                 row_dem = int(math.floor(row_dem))
                 if row_dem == dem_row:
                     row_dem -= 1
-                if row_dem < 0:
-                    row_dem = 0
 
                 # Model coordinate z(mm)
-                if self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] <= h_base:
+                if col_dem < 0 or row_dem < 0:
+                    z_model = 2
+                elif self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] <= h_base:
                     z_model = 2
                 else:
                     z_model = round((self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] - h_base) /
@@ -135,6 +143,8 @@ class Model(QThread):
                 if var_x > width:
                     var_x = width
             var_y = spacing_mm * (row_stl - (i + 2))
+            if self.quit:
+                return 0
         return matrix_dem
 
     @staticmethod
@@ -169,3 +179,6 @@ class Model(QThread):
 
     def get_model(self):
         return self.matrix_dem
+
+    def cancel(self):
+        self.quit = True

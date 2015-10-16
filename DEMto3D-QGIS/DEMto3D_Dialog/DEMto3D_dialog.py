@@ -142,6 +142,8 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
                         export_dlg = Export_dialog.Dialog(parameters, stl_file)
                         if export_dlg.exec_():
                             QMessageBox.information(self, self.tr("Attention"), self.tr("STL model generated"))
+                        else:
+                            QMessageBox.information(self, self.tr("Attention"), self.tr("Process canceled"))
             else:
                 f = QFileDialog.getSaveFileNameAndFilter(self, self.tr('Export to STL'), layer_name, filter=".stl")
                 stl_file = f[0]
@@ -149,6 +151,8 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
                     export_dlg = Export_dialog.Dialog(parameters, stl_file)
                     if export_dlg.exec_():
                         QMessageBox.information(self, self.tr("Attention"), self.tr("STL model generated"))
+                    else:
+                        QMessageBox.information(self, self.tr("Attention"), self.tr("Process canceled"))
         else:
             QMessageBox.warning(self, self.tr("Attention"), self.tr("Fill the data correctly"))
 
@@ -306,10 +310,15 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
             x_off = 0
         if y_off < 0:
             y_off = 0
-        if col_size > self.cols:
-            col_size = self.cols
-        if row_size > self.rows:
-            row_size = self.rows
+        if x_off >= self.cols:
+            x_off = self.cols - 1
+        if y_off >= self.rows:
+            y_off = self.rows - 1
+
+        if x_off + col_size > self.cols:
+            col_size = self.cols - x_off
+        if row_size + row_size > self.rows:
+            row_size = self.rows - y_off
 
         provider = self.layer.dataProvider()
         path = provider.dataSourceUri()
@@ -340,12 +349,22 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
     def get_min_spacing(self):
         min_spacing = 0
         if self.map_crs.mapUnits() == 0:  # Meters
-            width_roi = self.roi_x_max - self.roi_x_min
-            min_spacing = round(self.cell_size * self.width / width_roi, 2)
+            if self.layer.crs().mapUnits() == 0:
+                width_roi = self.roi_x_max - self.roi_x_min
+                min_spacing = round(self.cell_size * self.width / width_roi, 2)
+            elif self.layer.crs().mapUnits() == 2:
+                width_roi = self.roi_x_max - self.roi_x_min
+                cell_size_m = self.cell_size * math.pi / 180 * math.cos(self.roi_y_max * math.pi / 180) * 6371000
+                min_spacing = round(cell_size_m * self.width / width_roi, 2)
             # min_spacing = self.cell_size/self.scale
         elif self.map_crs.mapUnits() == 2:  # Degree
-            width_roi = self.roi_x_max - self.roi_x_min
-            min_spacing = round(self.cell_size * self.width / width_roi, 2)
+            if self.layer.crs().mapUnits() == 0:
+                width_roi = self.roi_x_max - self.roi_x_min
+                cell_size_deg = self.cell_size / math.pi * 180 / math.cos(self.roi_y_max * math.pi / 180) / 6371000
+                min_spacing = round(cell_size_deg * self.width / width_roi, 2)
+            elif self.layer.crs().mapUnits() == 2:
+                width_roi = self.roi_x_max - self.roi_x_min
+                min_spacing = round(self.cell_size * self.width / width_roi, 2)
 
         if min_spacing < 0.2:
             self.ui.RecomSpacinglabel.setText('0.2 mm')
