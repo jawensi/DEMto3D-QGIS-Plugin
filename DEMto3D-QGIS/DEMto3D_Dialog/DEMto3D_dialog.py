@@ -330,19 +330,33 @@ class DEMto3DDialog(QtGui.QDialog, Ui_DEMto3DDialogBase):
             self.z_max = max(data)
             self.z_min = self.z_max
             no_data = dem_dataset.GetRasterBand(1).GetNoDataValue()
-            dem_dataset = None
+
             if min(data) == no_data:
                 for z_cell in data:
                     if z_cell != no_data and z_cell < self.z_min:
                         self.z_min = z_cell
+            elif math.isnan(min(data)):
+                self.z_max = 0
+                self.z_min = 0
+                for z_cell in data:
+                    if not math.isnan(z_cell):
+                        if self.z_min > z_cell:
+                            self.z_min = z_cell
+                        if self.z_max < z_cell:
+                            self.z_max = z_cell
             else:
                 self.z_min = min(data)
+
+            if self.z_min < 0:
+                self.z_min = 0
+
+            self.z_max = round(self.z_max, 3)
+            self.z_min = round(self.z_min, 3)
             self.ui.ZMaxLabel.setText(str(self.z_max) + ' m')
             self.ui.ZMinLabel.setText(str(self.z_min) + ' m')
         dem_dataset = None
         band = None
         QApplication.restoreOverrideCursor()
-
     # endregion
 
     # region Dimensions function

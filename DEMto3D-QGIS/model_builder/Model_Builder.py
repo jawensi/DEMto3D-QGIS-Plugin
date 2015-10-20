@@ -133,6 +133,8 @@ class Model(QThread):
                     z_model = 2
                 elif self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] <= h_base:
                     z_model = 2
+                elif math.isnan(self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0]):
+                    z_model = 2
                 else:
                     z_model = round((self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] - h_base) /
                                     scale * 1000 * z_scale, 2) + 2
