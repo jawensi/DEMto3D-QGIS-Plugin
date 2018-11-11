@@ -501,7 +501,7 @@
          <double>10.000000000000000</double>
         </property>
         <property name="singleStep">
-         <double>0.500000000000000</double>
+         <double>0.100000000000000</double>
         </property>
         <property name="value">
          <double>1.000000000000000</double>
@@ -731,9 +731,8 @@
   <tabstop>BaseHeightLineEdit</tabstop>
   <tabstop>RevereseZCheckBox</tabstop>
  </tabstops>
- <resources/>
- <!--<resources>-->
-  <!--<include location="../resources.qrc"/>-->
- <!--</resources>-->
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
