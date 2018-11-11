@@ -1,6 +1,3 @@
-# DEMto3D-QGIS-Plugin
-Extensión SIG para impresión 3D de MDE
-
 DEMto3D
 =======
 
