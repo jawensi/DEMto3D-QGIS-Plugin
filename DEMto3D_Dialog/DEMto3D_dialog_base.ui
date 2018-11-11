@@ -5,6 +5,14 @@
   <property name="windowModality">
    <enum>Qt::WindowModal</enum>
   </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>445</width>
+    <height>550</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>DEM 3D printing</string>
   </property>
@@ -723,8 +731,9 @@
   <tabstop>BaseHeightLineEdit</tabstop>
   <tabstop>RevereseZCheckBox</tabstop>
  </tabstops>
- <resources>
-  <include location="../resources.qrc"/>
- </resources>
+ <resources/>
+ <!--<resources>-->
+  <!--<include location="../resources.qrc"/>-->
+ <!--</resources>-->
  <connections/>
 </ui>

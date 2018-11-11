@@ -20,22 +20,17 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4 import QtCore
+from builtins import range
+from qgis.PyQt import QtCore
 import collections
 import copy
 
-from PyQt4.QtCore import QThread
-from PyQt4.QtGui import QApplication
-from qgis._core import QgsPoint, QgsCoordinateTransform
+from qgis.PyQt.QtCore import QThread
+from qgis.PyQt.QtWidgets import QApplication
+from qgis.core import QgsPoint, QgsCoordinateTransform
 import math
 from osgeo import gdal
 import struct
-
-try:
-    _fromUtf8 = QtCore.QString.fromUtf8
-except AttributeError:
-    def _fromUtf8(s):
-        return s
 
 
 class Model(QThread):
@@ -52,7 +47,7 @@ class Model(QThread):
         self.matrix_dem = []
 
         self.quit = False
-        QtCore.QObject.connect(self.button, QtCore.SIGNAL(_fromUtf8("clicked()")), self.cancel)
+        self.button.clicked.connect(self.cancel)
 
     def run(self):
         row_stl = int(math.ceil(self.parameters["height"] / self.parameters["spacing_mm"]) + 1)
@@ -87,7 +82,8 @@ class Model(QThread):
 
         row_stl = int(math.ceil(height / spacing_mm) + 1)
         col_stl = int(math.ceil(width / spacing_mm) + 1)
-        matrix_dem = [range(col_stl) for i in range(row_stl)]
+        # matrix_dem = [range(col_stl) for i in range(row_stl)]
+        matrix_dem = [list(range(col_stl)) for i in range(row_stl)]
 
         var_y = height
         for i in range(row_stl):
