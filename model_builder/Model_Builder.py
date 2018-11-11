@@ -61,6 +61,13 @@ class Model(QThread):
                                                 self.parameters["roi_x_max"], self.parameters["roi_x_min"],
                                                 self.parameters["roi_y_min"], self.parameters["z_base"],
                                                 self.parameters["z_scale"], self.parameters["projected"])
+        # self.matrix_dem = self.matrix_dem_build_interpolation(dem_dataset,
+        #                                         self.parameters["height"], self.parameters["width"],
+        #                                         self.parameters["scale"], self.parameters["scale_h"],
+        #                                         self.parameters["scale_w"], self.parameters["spacing_mm"],
+        #                                         self.parameters["roi_x_max"], self.parameters["roi_x_min"],
+        #                                         self.parameters["roi_y_min"], self.parameters["z_base"],
+        #                                         self.parameters["z_scale"], self.parameters["projected"])
         if self.parameters["z_inv"]:
             self.matrix_dem = self.matrix_dem_inverse_build(self.matrix_dem)
         dem_dataset = None
@@ -145,6 +152,173 @@ class Model(QThread):
                 return 0
         return matrix_dem
 
+    def matrix_dem_build_interpolation(self, dem_dataset, height, width, scale, scale_h, scale_w, spacing_mm,
+                             roi_x_max, roi_x_min, roi_y_min, h_base, z_scale, projected):
+
+        # Calculate DEM parameters
+        dem_col = dem_dataset.RasterXSize
+        dem_row = dem_dataset.RasterYSize
+        geotransform = dem_dataset.GetGeoTransform()
+        dem_x_min = geotransform[0]
+        dem_y_max = geotransform[3]
+        dem_y_min = dem_y_max + dem_row * geotransform[5]
+        dem_x_max = dem_x_min + dem_col * geotransform[1]
+
+        if not projected:
+            spacing_deg = spacing_mm * (roi_x_max - roi_x_min) / width
+
+        row_stl = int(math.ceil(height / spacing_mm) + 1)
+        col_stl = int(math.ceil(width / spacing_mm) + 1)
+        matrix_dem = [range(col_stl) for i in range(row_stl)]
+
+        var_y = height
+        for i in range(row_stl):
+            self.updateProgress.emit()
+            QApplication.processEvents()
+            var_x = 0
+            for j in range(col_stl):
+                # Model coordinate x(mm), y(mm)
+                x_model = round(var_x, 2)
+                y_model = round(var_y, 2)
+
+                # Model maps geo_coordinates
+                if projected:
+                    x = x_model * scale_w / 1000 + roi_x_min
+                    y = y_model * scale_h / 1000 + roi_y_min
+                else:
+                    x = x_model * spacing_deg / spacing_mm + roi_x_min
+                    y = y_model * spacing_deg / spacing_mm + roi_y_min
+
+                # Model layer geo_coordinates to query z value
+                point = QgsPoint(x, y)
+                source = self.parameters["crs_map"]
+                target = self.parameters["crs_layer"]
+                if source != target:
+                    transform = QgsCoordinateTransform(source, target)
+                    point = transform.transform(point)
+                    x = point.x()
+                    y = point.y()
+
+                # From x(m) get Column in DEM file
+                col_dem = (x - dem_x_min) / geotransform[1]
+                if col_dem >= dem_col:
+                    col_dem -= 1
+                # From y(m) get Row in DEM file
+                row_dem = (y - dem_y_max) / geotransform[5]
+                if row_dem >= dem_row:
+                    row_dem -= 1
+
+                # region nearest neighbours interpolation
+                # row_dem = int(math.floor(row_dem))
+                # col_dem = int(math.floor(col_dem))
+                #
+                # # Model coordinate z(mm)
+                # if col_dem < 0 or row_dem < 0:
+                #     z_model = 2
+                # elif self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] <= h_base:
+                #     z_model = 2
+                # elif math.isnan(self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0]):
+                #     z_model = 2
+                # else:
+                #     z_model = round((self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] - h_base) /
+                #                     scale * 1000 * z_scale, 2) + 2
+                #
+                # matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
+                # endregion
+
+                # region Lineal interpolation
+                if 0 < col_dem < dem_col-1 and 0 < row_dem < dem_row-1:
+                    min_col = int(math.floor(col_dem))
+                    max_col = int(math.ceil(col_dem))
+                    min_row = int(math.floor(row_dem))
+                    max_row = int(math.ceil(row_dem))
+
+                    # - a partir de las coordenadas geograficas calculamos coordenadas pixel
+                    # - redondeamos hacia arriba y hacia abajo para ver los 4 pixeles vecinos enteros
+
+                    xP1 = dem_x_min + min_col * geotransform[1]
+                    yP1 = dem_y_max + min_row * geotransform[5]
+                    zP1 = self.get_z(min_col, min_row, dem_dataset, h_base, scale, z_scale)
+
+                    xP2 = dem_x_min + max_col * geotransform[1]
+                    yP2 = dem_y_max + min_row * geotransform[5]
+                    zP2 = self.get_z(max_col, min_row, dem_dataset, h_base, scale, z_scale)
+
+                    xP3 = dem_x_min + min_col * geotransform[1]
+                    yP3 = dem_y_max + max_row * geotransform[5]
+                    zP3 = self.get_z(min_col, max_row, dem_dataset, h_base, scale, z_scale)
+
+                    xP4 = dem_x_min + max_col * geotransform[1]
+                    yP4 = dem_y_max + max_row * geotransform[5]
+                    zP4 = self.get_z(max_col, max_row, dem_dataset, h_base, scale, z_scale)
+
+                    p = self.pto(x=x, y=y, z=0)
+                    p1 = self.pto(x=xP1, y=yP1, z=zP1)
+                    p2 = self.pto(x=xP2, y=yP2, z=zP2)
+                    p3 = self.pto(x=xP3, y=yP3, z=zP3)
+                    p4 = self.pto(x=xP4, y=yP4, z=zP4)
+
+                    z_model = self.interp_line(p, p1, p2, p3, p4)
+                    matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
+
+                else:
+                    # solucion de los limites cuando son col = 0 o col = Nº cols
+                    # Gestion de los bordes
+                    if (col_dem == 0 or col_dem == dem_col-1) and (row_dem == 0 or row_dem == dem_row-1):
+                        col_dem = int(col_dem)
+                        row_dem = int(row_dem)
+                        z_model = self.get_z(col_dem, row_dem, dem_dataset, h_base, scale, z_scale)
+                        matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
+
+                    elif (col_dem == 0 or col_dem == dem_col-1) and 0 < row_dem < dem_row-1:
+                        min_row = int(math.floor(row_dem))
+                        max_row = int(math.ceil(row_dem))
+                        col_dem = int(col_dem)
+
+                        yP1 = dem_y_max + min_row * geotransform[5]
+                        zP1 = self.get_z(col_dem, min_row, dem_dataset, h_base, scale, z_scale)
+
+                        yP2 = dem_y_max + max_row * geotransform[5]
+                        zP2 = self.get_z(col_dem, max_row, dem_dataset, h_base, scale, z_scale)
+
+                        z_model = zP1 + math.fabs(yP1 - y) * (zP1 - zP2) / math.fabs(yP2 - yP1)
+                        matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
+
+                    elif 0 < col_dem < dem_col-1 and (row_dem == 0 or row_dem == dem_row-1):
+                        min_col = int(math.floor(col_dem))
+                        max_col = int(math.ceil(col_dem))
+                        row_dem = int(row_dem)
+
+                        xP1 = dem_x_min + min_col * geotransform[1]
+                        zP1 = self.get_z(min_col, row_dem, dem_dataset, h_base, scale, z_scale)
+
+                        xP2 = dem_x_min + max_col * geotransform[1]
+                        zP2 = self.get_z(max_col, row_dem, dem_dataset, h_base, scale, z_scale)
+
+                        z_model = zP1 + math.fabs(x - xP1) * (zP1 - zP2) / math.fabs(xP2 - xP1)
+                        matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
+                # endregion
+
+                var_x += spacing_mm
+                if var_x > width:
+                    var_x = width
+            var_y = spacing_mm * (row_stl - (i + 2))
+            if self.quit:
+                return 0
+        # print matrix_dem
+        return matrix_dem
+
+    def get_z(self, col_dem, row_dem, dem_dataset, h_base, scale, z_scale):
+        if col_dem < 0 or row_dem < 0:
+            z_model = 2
+        elif self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] <= h_base:
+            z_model = 2
+        elif math.isnan(self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0]):
+            z_model = 2
+        else:
+            z_model = round((self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] - h_base) / scale * 1000 * z_scale, 2) + 2
+        return z_model
+
     @staticmethod
     def matrix_dem_inverse_build(matrix_dem_build):
         rows = matrix_dem_build.__len__()
@@ -174,6 +348,20 @@ class Model(QThread):
             return data
         except struct.error:
             return [0]
+
+    @staticmethod
+    def interp_line(p, p1, p2, p3, p4):
+        try:
+            d1 = math.fabs(p2.x - p1.x)
+            d2 = math.fabs(p1.y - p3.y)
+            dif_z1 = p2.z - p1.z
+            dif_z2 = p4.z - p3.z
+
+            zt = math.fabs(p.x - p1.x) * dif_z1 / d1 + p1.z
+            zb = math.fabs(p.x - p1.x) * dif_z2 / d1 + p3.z
+            return (p1.y - p.y) * (zb - zt) / d2 + zt
+        except ZeroDivisionError as err:
+            print('Interpolation error:', err)
 
     def get_model(self):
         return self.matrix_dem
