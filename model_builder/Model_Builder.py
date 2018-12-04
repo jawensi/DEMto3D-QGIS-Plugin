@@ -56,7 +56,7 @@ class Model(QThread):
         QApplication.processEvents()
 
         dem_dataset = gdal.Open(self.parameters["layer"])
-        if False:
+        if True:
             self.matrix_dem = self.matrix_dem_builder(dem_dataset, self.parameters["height"], self.parameters["width"],
                                                       self.parameters["scale"], self.parameters["spacing_mm"],
                                                       self.parameters["roi_x_max"], self.parameters["roi_x_min"],
@@ -279,6 +279,7 @@ class Model(QThread):
                         matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
 
                     elif (col_dem == 0 or col_dem == columns - 1) and 0 < row_dem < rows - 1:
+                        # First and last column
                         min_row = int(math.floor(row_dem))
                         max_row = int(math.ceil(row_dem))
                         col_dem = int(col_dem)
@@ -297,6 +298,7 @@ class Model(QThread):
                             matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
 
                     elif 0 < col_dem < columns - 1 and (row_dem == 0 or row_dem == rows - 1):
+                        # First and last row
                         min_col = int(math.floor(col_dem))
                         max_col = int(math.ceil(col_dem))
                         row_dem = int(row_dem)
