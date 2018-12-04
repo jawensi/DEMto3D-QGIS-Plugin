@@ -20,17 +20,15 @@
  *                                                                         *
  ***************************************************************************/
 """
+
+from builtins import str
+from builtins import range
 import collections
 
-from PyQt4 import QtCore
-from PyQt4.QtCore import QThread
-import math
+from qgis.PyQt import QtCore
+from qgis.PyQt.QtCore import QThread
 
-try:
-    _fromUtf8 = QtCore.QString.fromUtf8
-except AttributeError:
-    def _fromUtf8(s):
-        return s
+import math
 
 
 class STL(QThread):
@@ -49,7 +47,7 @@ class STL(QThread):
         self.matrix_dem = dem_matrix
 
         self.quit = False
-        QtCore.QObject.connect(self.button, QtCore.SIGNAL(_fromUtf8("clicked()")), self.cancel)
+        self.button.clicked.connect(self.cancel)
 
     def run(self):
         f = open(self.stl_file, "w")

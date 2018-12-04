@@ -5,6 +5,14 @@
   <property name="windowModality">
    <enum>Qt::WindowModal</enum>
   </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>445</width>
+    <height>550</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>DEM 3D printing</string>
   </property>
@@ -493,7 +501,7 @@
          <double>10.000000000000000</double>
         </property>
         <property name="singleStep">
-         <double>0.500000000000000</double>
+         <double>0.100000000000000</double>
         </property>
         <property name="value">
          <double>1.000000000000000</double>

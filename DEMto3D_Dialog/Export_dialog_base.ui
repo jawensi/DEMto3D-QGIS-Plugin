@@ -50,8 +50,9 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../resources.qrc"/>
- </resources>
+ <resources/>
+ <!--<resources>-->
+  <!--<include location="../resources.qrc"/>-->
+ <!--</resources>-->
  <connections/>
 </ui>
