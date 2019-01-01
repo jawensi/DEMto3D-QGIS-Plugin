@@ -198,7 +198,7 @@ class Ui_DEMto3DDialogBase(object):
         self.label_16.setObjectName("label_16")
         self.horizontalLayout_6.addWidget(self.label_16)
         self.ZScaleDoubleSpinBox = QtWidgets.QDoubleSpinBox(self.groupBox_4)
-        self.ZScaleDoubleSpinBox.setDecimals(1)
+        self.ZScaleDoubleSpinBox.setDecimals(3)
         self.ZScaleDoubleSpinBox.setMaximum(10.0)
         self.ZScaleDoubleSpinBox.setSingleStep(0.1)
         self.ZScaleDoubleSpinBox.setProperty("value", 1.0)
@@ -351,3 +351,4 @@ class Ui_DEMto3DDialogBase(object):
         self.RevereseZCheckBox.setText(_translate("DEMto3DDialogBase", "Terrain inversion"))
         self.STLToolButton.setText(_translate("DEMto3DDialogBase", "Export to STL"))
         self.CancelToolButton.setText(_translate("DEMto3DDialogBase", "Cancel"))
+

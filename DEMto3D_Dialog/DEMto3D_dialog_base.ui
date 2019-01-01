@@ -495,7 +495,7 @@
       <item>
        <widget class="QDoubleSpinBox" name="ZScaleDoubleSpinBox">
         <property name="decimals">
-         <number>1</number>
+         <number>3</number>
         </property>
         <property name="maximum">
          <double>10.000000000000000</double>
