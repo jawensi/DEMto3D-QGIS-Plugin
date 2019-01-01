@@ -24,6 +24,7 @@
 
 from __future__ import absolute_import
 from builtins import str
+import os
 import math
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog, QApplication
 from qgis.PyQt.QtGui import QColor, QCursor
@@ -79,6 +80,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     raster_y_min = 0
 
     rect_map_tool = None
+    lastSavingPath = ''
 
     def __init__(self, iface):
 
@@ -155,19 +157,19 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                                                  'The construction of the STL file could takes several minutes. Do you want to continue?'),
                                              QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                 if reply == QMessageBox.Yes:
-                    f, __ = QFileDialog.getSaveFileName(self, self.tr('Export to STL'), layer_name, filter=".stl")
-                    stl_file = f
-                    if stl_file:
-                        export_dlg = Export_dialog.Dialog(parameters, stl_file)
+                    stl_file = QFileDialog.getSaveFileName(self, self.tr('Export to STL'), self.lastSavingPath + layer_name, filter=".stl")
+                    if stl_file[0] != '':
+                        self.lastSavingPath = os.path.dirname(stl_file[0]) + '//'
+                        export_dlg = Export_dialog.Dialog(parameters, stl_file[0])
                         if export_dlg.exec_():
                             QMessageBox.information(self, self.tr("Attention"), self.tr("STL model generated"))
                         else:
                             QMessageBox.information(self, self.tr("Attention"), self.tr("Process canceled"))
             else:
-                f, __ = QFileDialog.getSaveFileName(self, self.tr('Export to STL'), layer_name, filter=".stl")
-                stl_file = f
-                if stl_file:
-                    export_dlg = Export_dialog.Dialog(parameters, stl_file)
+                stl_file = QFileDialog.getSaveFileName(self, self.tr('Export to STL'), self.lastSavingPath + layer_name, filter=".stl")
+                if stl_file[0] != '':
+                    self.lastSavingPath = os.path.dirname(stl_file[0]) + '//'
+                    export_dlg = Export_dialog.Dialog(parameters, stl_file[0])
                     if export_dlg.exec_():
                         QMessageBox.information(self, self.tr("Attention"), self.tr("STL model generated"))
                     else:
