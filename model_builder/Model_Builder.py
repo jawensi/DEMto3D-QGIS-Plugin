@@ -294,7 +294,7 @@ class Model(QThread):
                             yP2 = dem_y_max + max_row * geotransform[5]
                             zP2 = self.get_z(col_dem, max_row, dem_dataset, z_base, scale, z_scale)
 
-                            z_model = zP1 + math.fabs(yP1 - y) * (zP1 - zP2) / math.fabs(yP2 - yP1)
+                            z_model = zP2 + math.fabs(yP2 - y) * (zP1 - zP2) / math.fabs(yP2 - yP1)
                             matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
 
                     elif 0 < col_dem < columns - 1 and (row_dem == 0 or row_dem == rows - 1):
@@ -313,7 +313,7 @@ class Model(QThread):
                             xP2 = dem_x_min + max_col * geotransform[1]
                             zP2 = self.get_z(max_col, row_dem, dem_dataset, z_base, scale, z_scale)
 
-                            z_model = zP1 + math.fabs(x - xP1) * (zP1 - zP2) / math.fabs(xP2 - xP1)
+                            z_model = zP1 + math.fabs(xP1 - x) * (zP2 - zP1) / math.fabs(xP2 - xP1)
                             matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
                 # endregion
 
@@ -374,12 +374,18 @@ class Model(QThread):
             d2 = math.fabs(p1.y - p3.y)
             dif_z1 = p2.z - p1.z
             dif_z2 = p4.z - p3.z
-
-            zt = math.fabs(p.x - p1.x) * dif_z1 / d1 + p1.z
-            zb = math.fabs(p.x - p1.x) * dif_z2 / d1 + p3.z
-            return (p1.y - p.y) * (zb - zt) / d2 + zt
+            if d1 == 0 and d2 == 0 and (p.x - p1.x == 0):
+                return p1.x
+            if d1 == 0 and (p.x - p1.x == 0):
+                return math.fabs(p.y - p3.y) * (p1.z - p3.z) / d2 + p3.z
+            elif d2 == 0 and (p1.y - p.y == 0):
+                return math.fabs(p.x - p1.x) * dif_z1 / d1 + p1.z
+            else:
+                zt = math.fabs(p.x - p1.x) * dif_z1 / d1 + p1.z
+                zb = math.fabs(p.x - p1.x) * dif_z2 / d1 + p3.z
+                return (p1.y - p.y) * (zb - zt) / d2 + zt
         except ZeroDivisionError as err:
-            print('Interpolation error:', err)
+            print('Bilineal interpolation error:', err)
 
     def get_model(self):
         return self.matrix_dem
