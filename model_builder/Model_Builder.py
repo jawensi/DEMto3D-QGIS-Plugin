@@ -271,14 +271,14 @@ class Model(QThread):
                 else:
                     # Solution for boundaries when col = 0 o col = Nº cols
                     # Manage Boundary limits:
-                    if (col_dem == 0 or col_dem == columns - 1) and (row_dem == 0 or row_dem == rows - 1):
+                    if (col_dem == 0 or col_dem >= columns - 1) and (row_dem == 0 or row_dem >= rows - 1):
                         # Corners:
                         col_dem = int(col_dem)
                         row_dem = int(row_dem)
                         z_model = self.get_z(col_dem, row_dem, dem_dataset, z_base, scale, z_scale)
                         matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
 
-                    elif (col_dem == 0 or col_dem == columns - 1) and 0 < row_dem < rows - 1:
+                    elif (col_dem == 0 or col_dem >= columns - 1) and 0 < row_dem < rows - 1:
                         # First and last column
                         min_row = int(math.floor(row_dem))
                         max_row = int(math.ceil(row_dem))
@@ -297,7 +297,7 @@ class Model(QThread):
                             z_model = zP2 + math.fabs(yP2 - y) * (zP1 - zP2) / math.fabs(yP2 - yP1)
                             matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
 
-                    elif 0 < col_dem < columns - 1 and (row_dem == 0 or row_dem == rows - 1):
+                    elif 0 < col_dem < columns - 1 and (row_dem == 0 or row_dem >= rows - 1):
                         # First and last row
                         min_col = int(math.floor(col_dem))
                         max_col = int(math.ceil(col_dem))
