@@ -133,7 +133,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         # endregion
 
         self.ui.ZScaleDoubleSpinBox.valueChanged.connect(self.get_height_model)
-        self.ui.BaseHeightLineEdit.textEdited.connect(self.get_height_model)
+        self.ui.BaseHeightLineEdit.returnPressed.connect(self.get_height_model)
 
         # region BOTTOM BUTTONS ACTION
         self.ui.CancelToolButton.clicked.connect(self.reject)
@@ -361,8 +361,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                             self.z_max = z_cell
             else:
                 self.z_min = min(data)
-            if self.z_min < 0:
-                self.z_min = 0
 
             self.z_max = round(self.z_max, 3)
             self.z_min = round(self.z_min, 3)
@@ -490,7 +488,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     # endregion
 
     def get_height_model(self):
-        if self.ui.BaseHeightLineEdit.text() == '':
+        if self.ui.BaseHeightLineEdit.text() == '' or self.ui.BaseHeightLineEdit.text() == '-':
             return
         try:
             z_base = float(self.ui.BaseHeightLineEdit.text())
@@ -525,6 +523,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         path_layer = path.split('|')
         self.z_scale = self.ui.ZScaleDoubleSpinBox.value()
 
+        self.get_height_model()
         try:
             spacing_mm = float(self.ui.SpacingLineEdit.text())
             z_base = float(self.ui.BaseHeightLineEdit.text())
