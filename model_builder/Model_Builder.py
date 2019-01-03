@@ -56,25 +56,25 @@ class Model(QThread):
         QApplication.processEvents()
 
         dem_dataset = gdal.Open(self.parameters["layer"])
-        if False:
-            self.matrix_dem = self.matrix_dem_builder(dem_dataset, self.parameters["height"], self.parameters["width"],
-                                                      self.parameters["scale"], self.parameters["spacing_mm"],
-                                                      self.parameters["roi_x_max"], self.parameters["roi_x_min"],
-                                                      self.parameters["roi_y_min"], self.parameters["z_base"],
-                                                      self.parameters["z_scale"], self.parameters["projected"])
-        else:
-            self.matrix_dem = self.matrix_dem_builder_interpolation(dem_dataset,
-                                                                    self.parameters["height"], self.parameters["width"],
-                                                                    self.parameters["scale"],
-                                                                    self.parameters["scale_h"],
-                                                                    self.parameters["scale_w"],
-                                                                    self.parameters["spacing_mm"],
-                                                                    self.parameters["roi_x_max"],
-                                                                    self.parameters["roi_x_min"],
-                                                                    self.parameters["roi_y_min"],
-                                                                    self.parameters["z_base"],
-                                                                    self.parameters["z_scale"],
-                                                                    self.parameters["projected"])
+
+        # self.matrix_dem = self.matrix_dem_builder(dem_dataset, self.parameters["height"], self.parameters["width"],
+        #                                           self.parameters["scale"], self.parameters["spacing_mm"],
+        #                                           self.parameters["roi_x_max"], self.parameters["roi_x_min"],
+        #                                           self.parameters["roi_y_min"], self.parameters["z_base"],
+        #                                           self.parameters["z_scale"], self.parameters["projected"])
+
+        self.matrix_dem = self.matrix_dem_builder_interpolation(dem_dataset,
+                                                                self.parameters["height"], self.parameters["width"],
+                                                                self.parameters["scale"],
+                                                                self.parameters["scale_h"],
+                                                                self.parameters["scale_w"],
+                                                                self.parameters["spacing_mm"],
+                                                                self.parameters["roi_x_max"],
+                                                                self.parameters["roi_x_min"],
+                                                                self.parameters["roi_y_min"],
+                                                                self.parameters["z_base"],
+                                                                self.parameters["z_scale"],
+                                                                self.parameters["projected"])
         if self.parameters["z_inv"]:
             self.matrix_dem = self.matrix_dem_inverse_build(self.matrix_dem)
         dem_dataset = None
@@ -145,7 +145,8 @@ class Model(QThread):
                 elif math.isnan(self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0]):
                     z_model = 2
                 else:
-                    z_model = round((self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] - h_base) / scale * 1000 * z_scale, 2) + 2
+                    z_model = round((self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] - h_base) / scale * 1000 * z_scale,
+                                    2) + 2
 
                 matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
 
