@@ -198,12 +198,12 @@ class Model(QThread):
                     y = y_model * spacing_deg / spacing_mm + roi_y_min
 
                 # Model layer geo_coordinates to query z value
-                point = QgsPoint(x, y)
+                # point = QgsPoint(x, y)
                 source = self.parameters["crs_map"]
                 target = self.parameters["crs_layer"]
                 if source != target:
                     transform = QgsCoordinateTransform(source, target, QgsProject.instance())
-                    point = transform.transform(point)
+                    point = transform.transform(x, y)
                     x = point.x()
                     y = point.y()
 

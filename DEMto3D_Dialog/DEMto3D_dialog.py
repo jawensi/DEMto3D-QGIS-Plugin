@@ -227,15 +227,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.raster_y_min = rec.yMinimum()
 
     # region Extension functions
-    def setRoi(self, rec):
-        self.roi_x_max = rec.xMaximum()
-        self.ui.XMaxLineEdit.setText(str(round(rec.xMaximum(), 3)))
-        self.roi_y_min = rec.yMinimum()
-        self.ui.YMinLineEdit.setText(str(round(rec.yMinimum(), 3)))
-        self.roi_x_min = rec.xMinimum()
-        self.ui.XMinLineEdit.setText(str(round(rec.xMinimum(), 3)))
-        self.roi_y_max = rec.yMaximum()
-        self.ui.YMaxLineEdit.setText(str(round(rec.yMaximum(), 3)))
 
     def full_extent(self):
         rec = self.layer.extent()
