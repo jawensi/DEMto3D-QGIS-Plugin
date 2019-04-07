@@ -27,7 +27,7 @@ import copy
 
 from qgis.PyQt.QtCore import QThread
 from qgis.PyQt.QtWidgets import QApplication
-from qgis.core import QgsPoint, QgsCoordinateTransform
+from qgis.core import QgsPoint, QgsCoordinateTransform, QgsProject
 import math
 from osgeo import gdal
 import struct
@@ -121,7 +121,7 @@ class Model(QThread):
                 source = self.parameters["crs_map"]
                 target = self.parameters["crs_layer"]
                 if source != target:
-                    transform = QgsCoordinateTransform(source, target)
+                    transform = QgsCoordinateTransform(source, target, QgsProject.instance())
                     point = transform.transform(point)
                     x = point.x()
                     y = point.y()
@@ -202,7 +202,7 @@ class Model(QThread):
                 source = self.parameters["crs_map"]
                 target = self.parameters["crs_layer"]
                 if source != target:
-                    transform = QgsCoordinateTransform(source, target)
+                    transform = QgsCoordinateTransform(source, target, QgsProject.instance())
                     point = transform.transform(point)
                     x = point.x()
                     y = point.y()

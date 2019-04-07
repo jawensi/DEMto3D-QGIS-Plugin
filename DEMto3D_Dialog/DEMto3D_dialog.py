@@ -23,7 +23,6 @@
 """
 
 from __future__ import absolute_import
-from builtins import str
 import os
 import math
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog, QApplication
@@ -91,16 +90,13 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.iface = iface
         self.canvas = iface.mapCanvas()
 
-        try:
-            self.map_crs = self.canvas.mapSettings().destinationCrs()
-        except:
-            self.map_crs = self.canvas.mapRenderer().destinationCrs()
+        self.canvas.destinationCrsChanged.connect(self.setCanvasCRS)
+        self.setCanvasCRS()
 
         self.units = self.map_crs.mapUnits()
         # 0 Meters. 1 Kilometers. 2 feet. 3 miles. 4 yards. 5 miles. 6 Degrees. 7 Centimeters. 8 Millimeters. 9 Unknown
         if self.units != 0 and self.units != 6:
             QMessageBox.warning(self, self.tr("Attention"), self.tr("Units not supported"))
-
 
         # region LAYER ACTION
         # fill layer combobox with raster visible layers in mapCanvas
@@ -140,6 +136,12 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ui.STLToolButton.clicked.connect(self.do_export)
         self.rejected.connect(self.reject_func)
         # endregion
+
+    def setCanvasCRS(self):
+        try:
+            self.map_crs = self.canvas.mapSettings().destinationCrs()
+        except:
+            self.map_crs = self.canvas.mapRenderer().destinationCrs()
 
     def reject_func(self):
         if self.rect_map_tool is not None:
@@ -225,9 +227,23 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.raster_y_min = rec.yMinimum()
 
     # region Extension functions
+    def setRoi(self, rec):
+        self.roi_x_max = rec.xMaximum()
+        self.ui.XMaxLineEdit.setText(str(round(rec.xMaximum(), 3)))
+        self.roi_y_min = rec.yMinimum()
+        self.ui.YMinLineEdit.setText(str(round(rec.yMinimum(), 3)))
+        self.roi_x_min = rec.xMinimum()
+        self.ui.XMinLineEdit.setText(str(round(rec.xMinimum(), 3)))
+        self.roi_y_max = rec.yMaximum()
+        self.ui.YMaxLineEdit.setText(str(round(rec.yMaximum(), 3)))
 
     def full_extent(self):
         rec = self.layer.extent()
+        canvasCRS = self.map_crs
+        layerCRS = self.layer.crs()
+        if canvasCRS != layerCRS:
+            transform = QgsCoordinateTransform(layerCRS, canvasCRS, QgsProject.instance())
+            rec = transform.transform(rec)
         self.paint_extent(rec)
         self.get_z_max_z_min()
         self.ini_dimensions()
@@ -236,9 +252,15 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         layers = self.canvas.layers()
         select_layer_dialog = SelectLayer_dialog.Dialog(layers)
         if select_layer_dialog.exec_():
-            layer = select_layer_dialog.get_layer()
-            if layer:
-                rec = get_layer(layer).extent()
+            layerName = select_layer_dialog.get_layer()
+            if layerName:
+                layer = get_layer(layerName)
+                rec = layer.extent()
+                canvasCRS = self.map_crs
+                layerCRS = layer.crs()
+                if canvasCRS != layerCRS:
+                    transform = QgsCoordinateTransform(layerCRS, canvasCRS, QgsProject.instance())
+                    rec = transform.transform(rec)
                 self.get_custom_extent(rec)
 
     def custom_extent(self):
@@ -252,10 +274,10 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
     def get_custom_extent(self, rec):
         layer_extension = self.layer.extent()
-        source = self.layer.crs()
-        target = self.map_crs
-        if source != target:
-            transform = QgsCoordinateTransform(source, target, QgsProject.instance())
+        dataCRS = self.layer.crs()
+        canvasCRS = self.map_crs
+        if dataCRS != canvasCRS:
+            transform = QgsCoordinateTransform(dataCRS, canvasCRS, QgsProject.instance())
             layer_extension = transform.transform(layer_extension)
         if rec.intersects(layer_extension):
             extension = rec.intersect(layer_extension)
@@ -308,11 +330,13 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     def get_z_max_z_min(self):
 
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-        roi = QgsRectangle(self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
-        source = self.map_crs
-        target = self.layer.crs()
-        transform = QgsCoordinateTransform(source, target, QgsProject.instance())
-        rec = transform.transform(roi)
+        rec = QgsRectangle(self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
+        canvasCRS = self.map_crs
+        dataCRS = self.layer.crs()
+        if canvasCRS != dataCRS:
+            transform = QgsCoordinateTransform(canvasCRS, dataCRS, QgsProject.instance())
+            rec = transform.transform(rec)
+
         x_max = rec.xMaximum()
         x_min = rec.xMinimum()
         y_max = rec.yMaximum()
