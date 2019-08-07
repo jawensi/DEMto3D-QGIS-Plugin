@@ -82,7 +82,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     lastSavingPath = ''
 
     def __init__(self, iface):
-
         """Constructor."""
         QDialog.__init__(self)
         self.ui = Ui_DEMto3DDialogBase()
@@ -140,7 +139,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     def setCanvasCRS(self):
         try:
             self.map_crs = self.canvas.mapSettings().destinationCrs()
-        except:
+        except BaseException:
             self.map_crs = self.canvas.mapRenderer().destinationCrs()
 
     def reject_func(self):
@@ -255,8 +254,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 self.get_custom_extent(rec)
 
     def custom_extent(self):
-        self.iface.messageBar().pushMessage("Info", self.tr("Click and drag the mouse to draw print extent"),
-                                            level=Qgis.Info, duration=3)
+        self.iface.messageBar().pushMessage("Info", self.tr("Click and drag the mouse to draw print extent"), level=Qgis.Info, duration=3)
         if self.extent:
             self.canvas.scene().removeItem(self.extent)
             self.extent = None
@@ -516,8 +514,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             if z_base <= self.z_max:
                 self.ui.HeightModelLabel.setText(str(h_model) + ' mm')
             else:
-                QMessageBox.warning(self, self.tr("Attention"),
-                                    self.tr("Height of the base must be lower than DEM highest point"))
+                QMessageBox.warning(self, self.tr("Attention"), self.tr("Height of the base must be lower than DEM highest point"))
                 self.ui.BaseHeightLineEdit.clear()
         except ZeroDivisionError:
             if self.scale == 0 and self.roi_x_max != 0:

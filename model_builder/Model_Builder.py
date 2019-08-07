@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- AppONCE
+ DEMto3D
                                  A QGIS plugin
  Creación de mapas en 3D
                               -------------------
@@ -20,17 +20,20 @@
  *                                                                         *
  ***************************************************************************/
 """
-from builtins import range
-from qgis.PyQt import QtCore
 import collections
 import copy
+
+import math
+import struct
+
+from osgeo import gdal
+
+from builtins import range
+from qgis.PyQt import QtCore
 
 from qgis.PyQt.QtCore import QThread
 from qgis.PyQt.QtWidgets import QApplication
 from qgis.core import QgsPoint, QgsCoordinateTransform, QgsProject
-import math
-from osgeo import gdal
-import struct
 
 
 class Model(QThread):
@@ -48,9 +51,11 @@ class Model(QThread):
 
         self.quit = False
         self.button.clicked.connect(self.cancel)
+        self.baseModel = 2
 
     def run(self):
-        row_stl = int(math.ceil(self.parameters["height"] / self.parameters["spacing_mm"]) + 1)
+        row_stl = int(
+            math.ceil(self.parameters["height"] / self.parameters["spacing_mm"]) + 1)
         self.bar.setMaximum(row_stl)
         self.bar.setValue(0)
         QApplication.processEvents()
@@ -121,7 +126,8 @@ class Model(QThread):
                 source = self.parameters["crs_map"]
                 target = self.parameters["crs_layer"]
                 if source != target:
-                    transform = QgsCoordinateTransform(source, target, QgsProject.instance())
+                    transform = QgsCoordinateTransform(
+                        source, target, QgsProject.instance())
                     point = transform.transform(point)
                     x = point.x()
                     y = point.y()
@@ -139,14 +145,14 @@ class Model(QThread):
 
                 # Model coordinate z(mm)
                 if col_dem < 0 or row_dem < 0:
-                    z_model = 2
+                    z_model = self.baseModel
                 elif self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] <= h_base:
-                    z_model = 2
+                    z_model = self.baseModel
                 elif math.isnan(self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0]):
-                    z_model = 2
+                    z_model = self.baseModel
                 else:
                     z_model = round((self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] - h_base) / scale * 1000 * z_scale,
-                                    2) + 2
+                                    2) + self.baseModel
 
                 matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
 
@@ -181,8 +187,10 @@ class Model(QThread):
 
         var_y = height
         for i in range(row_stl):
+
             self.updateProgress.emit()
             QApplication.processEvents()
+
             var_x = 0
             for j in range(col_stl):
                 # Model coordinate x(mm), y(mm)
@@ -202,7 +210,8 @@ class Model(QThread):
                 source = self.parameters["crs_map"]
                 target = self.parameters["crs_layer"]
                 if source != target:
-                    transform = QgsCoordinateTransform(source, target, QgsProject.instance())
+                    transform = QgsCoordinateTransform(
+                        source, target, QgsProject.instance())
                     point = transform.transform(x, y)
                     x = point.x()
                     y = point.y()
@@ -222,14 +231,14 @@ class Model(QThread):
                 #
                 # # Model coordinate z(mm)
                 # if col_dem < 0 or row_dem < 0:
-                #     z_model = 2
+                #     z_model = self.baseModel
                 # elif self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] <= h_base:
-                #     z_model = 2
+                #     z_model = self.baseModel
                 # elif math.isnan(self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0]):
-                #     z_model = 2
+                #     z_model = self.baseModel
                 # else:
                 #     z_model = round((self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] - h_base) /
-                #                     scale * 1000 * z_scale, 2) + 2
+                #                     scale * 1000 * z_scale, 2) + self.baseModel
                 #
                 # matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
                 # endregion
@@ -246,19 +255,23 @@ class Model(QThread):
 
                     xP1 = dem_x_min + min_col * geotransform[1]
                     yP1 = dem_y_max + min_row * geotransform[5]
-                    zP1 = self.get_z(min_col, min_row, dem_dataset, z_base, scale, z_scale)
+                    zP1 = self.get_z(min_col, min_row,
+                                     dem_dataset, z_base, scale, z_scale)
 
                     xP2 = dem_x_min + max_col * geotransform[1]
                     yP2 = dem_y_max + min_row * geotransform[5]
-                    zP2 = self.get_z(max_col, min_row, dem_dataset, z_base, scale, z_scale)
+                    zP2 = self.get_z(max_col, min_row,
+                                     dem_dataset, z_base, scale, z_scale)
 
                     xP3 = dem_x_min + min_col * geotransform[1]
                     yP3 = dem_y_max + max_row * geotransform[5]
-                    zP3 = self.get_z(min_col, max_row, dem_dataset, z_base, scale, z_scale)
+                    zP3 = self.get_z(min_col, max_row,
+                                     dem_dataset, z_base, scale, z_scale)
 
                     xP4 = dem_x_min + max_col * geotransform[1]
                     yP4 = dem_y_max + max_row * geotransform[5]
-                    zP4 = self.get_z(max_col, max_row, dem_dataset, z_base, scale, z_scale)
+                    zP4 = self.get_z(max_col, max_row,
+                                     dem_dataset, z_base, scale, z_scale)
 
                     p = self.pto(x=x, y=y, z=0)
                     p1 = self.pto(x=xP1, y=yP1, z=zP1)
@@ -267,17 +280,20 @@ class Model(QThread):
                     p4 = self.pto(x=xP4, y=yP4, z=zP4)
 
                     z_model = self.interp_line(p, p1, p2, p3, p4)
-                    matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
+                    matrix_dem[i][j] = self.pto(
+                        x=x_model, y=y_model, z=z_model)
 
                 else:
-                    # Solution for boundaries when col = 0 o col = Nº cols
+                    # Solution for boundaries when col = 0 or col = Nº cols
                     # Manage Boundary limits:
                     if (col_dem == 0 or col_dem >= columns - 1) and (row_dem == 0 or row_dem >= rows - 1):
                         # Corners:
                         col_dem = int(col_dem)
                         row_dem = int(row_dem)
-                        z_model = self.get_z(col_dem, row_dem, dem_dataset, z_base, scale, z_scale)
-                        matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
+                        z_model = self.get_z(
+                            col_dem, row_dem, dem_dataset, z_base, scale, z_scale)
+                        matrix_dem[i][j] = self.pto(
+                            x=x_model, y=y_model, z=z_model)
 
                     elif (col_dem == 0 or col_dem >= columns - 1) and 0 < row_dem < rows - 1:
                         # First and last column
@@ -286,17 +302,24 @@ class Model(QThread):
                         col_dem = int(col_dem)
 
                         if min_row == max_row:
-                            z_model = self.get_z(col_dem, max_row, dem_dataset, z_base, scale, z_scale)
-                            matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
+                            z_model = self.get_z(
+                                col_dem, max_row, dem_dataset, z_base, scale, z_scale)
+                            matrix_dem[i][j] = self.pto(
+                                x=x_model, y=y_model, z=z_model)
                         else:
                             yP1 = dem_y_max + min_row * geotransform[5]
-                            zP1 = self.get_z(col_dem, min_row, dem_dataset, z_base, scale, z_scale)
+                            zP1 = self.get_z(
+                                col_dem, min_row, dem_dataset, z_base, scale, z_scale)
 
                             yP2 = dem_y_max + max_row * geotransform[5]
-                            zP2 = self.get_z(col_dem, max_row, dem_dataset, z_base, scale, z_scale)
+                            zP2 = self.get_z(
+                                col_dem, max_row, dem_dataset, z_base, scale, z_scale)
 
-                            z_model = zP2 + math.fabs(yP2 - y) * (zP1 - zP2) / math.fabs(yP2 - yP1)
-                            matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
+                            z_model = zP2 + \
+                                math.fabs(yP2 - y) * (zP1 - zP2) / \
+                                math.fabs(yP2 - yP1)
+                            matrix_dem[i][j] = self.pto(
+                                x=x_model, y=y_model, z=z_model)
 
                     elif 0 < col_dem < columns - 1 and (row_dem == 0 or row_dem >= rows - 1):
                         # First and last row
@@ -305,17 +328,24 @@ class Model(QThread):
                         row_dem = int(row_dem)
 
                         if min_col == max_col:
-                            z_model = self.get_z(min_col, row_dem, dem_dataset, z_base, scale, z_scale)
-                            matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
+                            z_model = self.get_z(
+                                min_col, row_dem, dem_dataset, z_base, scale, z_scale)
+                            matrix_dem[i][j] = self.pto(
+                                x=x_model, y=y_model, z=z_model)
                         else:
                             xP1 = dem_x_min + min_col * geotransform[1]
-                            zP1 = self.get_z(min_col, row_dem, dem_dataset, z_base, scale, z_scale)
+                            zP1 = self.get_z(
+                                min_col, row_dem, dem_dataset, z_base, scale, z_scale)
 
                             xP2 = dem_x_min + max_col * geotransform[1]
-                            zP2 = self.get_z(max_col, row_dem, dem_dataset, z_base, scale, z_scale)
+                            zP2 = self.get_z(
+                                max_col, row_dem, dem_dataset, z_base, scale, z_scale)
 
-                            z_model = zP1 + math.fabs(xP1 - x) * (zP2 - zP1) / math.fabs(xP2 - xP1)
-                            matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
+                            z_model = zP1 + \
+                                math.fabs(xP1 - x) * (zP2 - zP1) / \
+                                math.fabs(xP2 - xP1)
+                            matrix_dem[i][j] = self.pto(
+                                x=x_model, y=y_model, z=z_model)
                 # endregion
 
                 var_x += spacing_mm
@@ -329,15 +359,15 @@ class Model(QThread):
 
     def get_z(self, col_dem, row_dem, dem_dataset, h_base, scale, z_scale):
         if col_dem < 0 or row_dem < 0:
-            return 2
+            return self.baseModel
         else:
             z = self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0]
             if z <= h_base:
-                return 2
+                return self.baseModel
             elif math.isnan(z):
-                return 2
+                return self.baseModel
             else:
-                return round((z - h_base) / scale * 1000 * z_scale, 2) + 2
+                return round((z - h_base) / scale * 1000 * z_scale, 2) + self.baseModel
 
     @staticmethod
     def matrix_dem_inverse_build(matrix_dem_build):
@@ -360,10 +390,13 @@ class Model(QThread):
     def get_dem_z(dem_dataset, x_off, y_off, col_size, row_size):
         try:
             band = dem_dataset.GetRasterBand(1)
-            data_types = {'Byte': 'B', 'UInt16': 'H', 'Int16': 'h', 'UInt32': 'I', 'Int32': 'i', 'Float32': 'f', 'Float64': 'd'}
+            data_types = {'Byte': 'B', 'UInt16': 'H', 'Int16': 'h',
+                          'UInt32': 'I', 'Int32': 'i', 'Float32': 'f', 'Float64': 'd'}
             data_type = band.DataType
-            data = band.ReadRaster(x_off, y_off, col_size, row_size, col_size, row_size, data_type)
-            data = struct.unpack(data_types[gdal.GetDataTypeName(band.DataType)] * col_size * row_size, data)
+            data = band.ReadRaster(
+                x_off, y_off, col_size, row_size, col_size, row_size, data_type)
+            data = struct.unpack(data_types[gdal.GetDataTypeName(
+                band.DataType)] * col_size * row_size, data)
             return data
         except struct.error:
             return [0]
