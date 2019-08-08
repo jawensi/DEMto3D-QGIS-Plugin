@@ -5,14 +5,6 @@
   <property name="windowModality">
    <enum>Qt::WindowModal</enum>
   </property>
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>445</width>
-    <height>550</height>
-   </rect>
-  </property>
   <property name="windowTitle">
    <string>DEM 3D printing</string>
   </property>
@@ -23,18 +15,6 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBox">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>53</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>53</height>
-      </size>
-     </property>
      <property name="title">
       <string>Layer to print</string>
      </property>
@@ -47,18 +27,6 @@
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox_2">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>118</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>118</height>
-      </size>
-     </property>
      <property name="title">
       <string>Print extent</string>
      </property>
@@ -463,18 +431,6 @@
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox_4">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>53</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>53</height>
-      </size>
-     </property>
      <property name="title">
       <string>Exaggeration terrain</string>
      </property>
@@ -495,7 +451,7 @@
       <item>
        <widget class="QDoubleSpinBox" name="ZScaleDoubleSpinBox">
         <property name="decimals">
-         <number>1</number>
+         <number>3</number>
         </property>
         <property name="maximum">
          <double>10.000000000000000</double>
@@ -513,18 +469,6 @@
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox_5">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>81</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>81</height>
-      </size>
-     </property>
      <property name="title">
       <string>Height base</string>
      </property>
@@ -627,18 +571,6 @@
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox_6">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>53</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>53</height>
-      </size>
-     </property>
      <property name="title">
       <string>Other parameters</string>
      </property>

@@ -23,7 +23,7 @@
 """
 
 from __future__ import absolute_import
-from builtins import str
+import os
 import math
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog, QApplication
 from qgis.PyQt.QtGui import QColor, QCursor
@@ -79,9 +79,9 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     raster_y_min = 0
 
     rect_map_tool = None
+    lastSavingPath = ''
 
     def __init__(self, iface):
-
         """Constructor."""
         QDialog.__init__(self)
         self.ui = Ui_DEMto3DDialogBase()
@@ -89,16 +89,13 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.iface = iface
         self.canvas = iface.mapCanvas()
 
-        try:
-            self.map_crs = self.canvas.mapSettings().destinationCrs()
-        except:
-            self.map_crs = self.canvas.mapRenderer().destinationCrs()
+        self.canvas.destinationCrsChanged.connect(self.setCanvasCRS)
+        self.setCanvasCRS()
 
         self.units = self.map_crs.mapUnits()
         # 0 Meters. 1 Kilometers. 2 feet. 3 miles. 4 yards. 5 miles. 6 Degrees. 7 Centimeters. 8 Millimeters. 9 Unknown
         if self.units != 0 and self.units != 6:
             QMessageBox.warning(self, self.tr("Attention"), self.tr("Units not supported"))
-
 
         # region LAYER ACTION
         # fill layer combobox with raster visible layers in mapCanvas
@@ -131,13 +128,19 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         # endregion
 
         self.ui.ZScaleDoubleSpinBox.valueChanged.connect(self.get_height_model)
-        self.ui.BaseHeightLineEdit.textEdited.connect(self.get_height_model)
+        self.ui.BaseHeightLineEdit.returnPressed.connect(self.get_height_model)
 
         # region BOTTOM BUTTONS ACTION
         self.ui.CancelToolButton.clicked.connect(self.reject)
         self.ui.STLToolButton.clicked.connect(self.do_export)
         self.rejected.connect(self.reject_func)
         # endregion
+
+    def setCanvasCRS(self):
+        try:
+            self.map_crs = self.canvas.mapSettings().destinationCrs()
+        except BaseException:
+            self.map_crs = self.canvas.mapRenderer().destinationCrs()
 
     def reject_func(self):
         if self.rect_map_tool is not None:
@@ -155,19 +158,19 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                                                  'The construction of the STL file could takes several minutes. Do you want to continue?'),
                                              QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                 if reply == QMessageBox.Yes:
-                    f, __ = QFileDialog.getSaveFileName(self, self.tr('Export to STL'), layer_name, filter=".stl")
-                    stl_file = f
-                    if stl_file:
-                        export_dlg = Export_dialog.Dialog(parameters, stl_file)
+                    stl_file = QFileDialog.getSaveFileName(self, self.tr('Export to STL'), self.lastSavingPath + layer_name, filter=".stl")
+                    if stl_file[0] != '':
+                        self.lastSavingPath = os.path.dirname(stl_file[0]) + '//'
+                        export_dlg = Export_dialog.Dialog(parameters, stl_file[0])
                         if export_dlg.exec_():
                             QMessageBox.information(self, self.tr("Attention"), self.tr("STL model generated"))
                         else:
                             QMessageBox.information(self, self.tr("Attention"), self.tr("Process canceled"))
             else:
-                f, __ = QFileDialog.getSaveFileName(self, self.tr('Export to STL'), layer_name, filter=".stl")
-                stl_file = f
-                if stl_file:
-                    export_dlg = Export_dialog.Dialog(parameters, stl_file)
+                stl_file = QFileDialog.getSaveFileName(self, self.tr('Export to STL'), self.lastSavingPath + layer_name, filter=".stl")
+                if stl_file[0] != '':
+                    self.lastSavingPath = os.path.dirname(stl_file[0]) + '//'
+                    export_dlg = Export_dialog.Dialog(parameters, stl_file[0])
                     if export_dlg.exec_():
                         QMessageBox.information(self, self.tr("Attention"), self.tr("STL model generated"))
                     else:
@@ -226,6 +229,11 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
     def full_extent(self):
         rec = self.layer.extent()
+        canvasCRS = self.map_crs
+        layerCRS = self.layer.crs()
+        if canvasCRS != layerCRS:
+            transform = QgsCoordinateTransform(layerCRS, canvasCRS, QgsProject.instance())
+            rec = transform.transform(rec)
         self.paint_extent(rec)
         self.get_z_max_z_min()
         self.ini_dimensions()
@@ -234,14 +242,19 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         layers = self.canvas.layers()
         select_layer_dialog = SelectLayer_dialog.Dialog(layers)
         if select_layer_dialog.exec_():
-            layer = select_layer_dialog.get_layer()
-            if layer:
-                rec = get_layer(layer).extent()
+            layerName = select_layer_dialog.get_layer()
+            if layerName:
+                layer = get_layer(layerName)
+                rec = layer.extent()
+                canvasCRS = self.map_crs
+                layerCRS = layer.crs()
+                if canvasCRS != layerCRS:
+                    transform = QgsCoordinateTransform(layerCRS, canvasCRS, QgsProject.instance())
+                    rec = transform.transform(rec)
                 self.get_custom_extent(rec)
 
     def custom_extent(self):
-        self.iface.messageBar().pushMessage("Info", self.tr("Click and drag the mouse to draw print extent"),
-                                            level=Qgis.Info, duration=3)
+        self.iface.messageBar().pushMessage("Info", self.tr("Click and drag the mouse to draw print extent"), level=Qgis.Info, duration=3)
         if self.extent:
             self.canvas.scene().removeItem(self.extent)
             self.extent = None
@@ -250,10 +263,10 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
     def get_custom_extent(self, rec):
         layer_extension = self.layer.extent()
-        source = self.layer.crs()
-        target = self.map_crs
-        if source != target:
-            transform = QgsCoordinateTransform(source, target, QgsProject.instance())
+        dataCRS = self.layer.crs()
+        canvasCRS = self.map_crs
+        if dataCRS != canvasCRS:
+            transform = QgsCoordinateTransform(dataCRS, canvasCRS, QgsProject.instance())
             layer_extension = transform.transform(layer_extension)
         if rec.intersects(layer_extension):
             extension = rec.intersect(layer_extension)
@@ -306,11 +319,13 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     def get_z_max_z_min(self):
 
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-        roi = QgsRectangle(self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
-        source = self.map_crs
-        target = self.layer.crs()
-        transform = QgsCoordinateTransform(source, target, QgsProject.instance())
-        rec = transform.transform(roi)
+        rec = QgsRectangle(self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
+        canvasCRS = self.map_crs
+        dataCRS = self.layer.crs()
+        if canvasCRS != dataCRS:
+            transform = QgsCoordinateTransform(canvasCRS, dataCRS, QgsProject.instance())
+            rec = transform.transform(rec)
+
         x_max = rec.xMaximum()
         x_min = rec.xMinimum()
         y_max = rec.yMaximum()
@@ -359,8 +374,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                             self.z_max = z_cell
             else:
                 self.z_min = min(data)
-            if self.z_min < 0:
-                self.z_min = 0
 
             self.z_max = round(self.z_max, 3)
             self.z_min = round(self.z_min, 3)
@@ -488,7 +501,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     # endregion
 
     def get_height_model(self):
-        if self.ui.BaseHeightLineEdit.text() == '':
+        if self.ui.BaseHeightLineEdit.text() == '' or self.ui.BaseHeightLineEdit.text() == '-':
             return
         try:
             z_base = float(self.ui.BaseHeightLineEdit.text())
@@ -501,8 +514,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             if z_base <= self.z_max:
                 self.ui.HeightModelLabel.setText(str(h_model) + ' mm')
             else:
-                QMessageBox.warning(self, self.tr("Attention"),
-                                    self.tr("Height of the base must be lower than DEM highest point"))
+                QMessageBox.warning(self, self.tr("Attention"), self.tr("Height of the base must be lower than DEM highest point"))
                 self.ui.BaseHeightLineEdit.clear()
         except ZeroDivisionError:
             if self.scale == 0 and self.roi_x_max != 0:
@@ -523,6 +535,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         path_layer = path.split('|')
         self.z_scale = self.ui.ZScaleDoubleSpinBox.value()
 
+        self.get_height_model()
         try:
             spacing_mm = float(self.ui.SpacingLineEdit.text())
             z_base = float(self.ui.BaseHeightLineEdit.text())

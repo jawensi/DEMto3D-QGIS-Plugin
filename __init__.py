@@ -23,13 +23,10 @@
 """
 
 
-# noinspection PyPep8Naming
-def classFactory(iface):  # pylint: disable=invalid-name
+def classFactory(iface):
     """Load DEMto3D class from file DEMto3D.
-
     :param iface: A QGIS interface instance.
     :type iface: QgsInterface
     """
-    #
     from .DEMto3D import DEMto3D
     return DEMto3D(iface)
