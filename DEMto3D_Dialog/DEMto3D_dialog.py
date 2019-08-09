@@ -36,6 +36,8 @@ from . import SelectLayer_dialog
 from .DEMto3D_dialog_base import Ui_DEMto3DDialogBase
 from qgis.core import QgsPointXY, QgsPoint, QgsRectangle, QgsProject, QgsGeometry, QgsCoordinateTransform, Qgis
 
+from ..model_builder.Model_Builder import Model
+
 
 def get_layer(layer_name):
     layermap = QgsProject.instance().mapLayers()
@@ -154,8 +156,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         if parameters != 0:
             if parameters["spacing_mm"] < 0.5 and self.height > 100 and self.width > 100:
                 reply = QMessageBox.question(self, self.tr('Export to STL'),
-                                             self.tr(
-                                                 'The construction of the STL file could takes several minutes. Do you want to continue?'),
+                                             self.tr('The construction of the STL file could takes several minutes. Do you want to continue?'),
                                              QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                 if reply == QMessageBox.Yes:
                     stl_file = QFileDialog.getSaveFileName(self, self.tr('Export to STL'), self.lastSavingPath + layer_name, filter=".stl")
@@ -352,7 +353,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         path = provider.dataSourceUri()
         path_layer = path.split('|')
         dem_dataset = gdal.Open(path_layer[0])
-        data = self.get_dem_z(dem_dataset, x_off, y_off, col_size, row_size)
+        data = Model.get_dem_z(dem_dataset, x_off, y_off, col_size, row_size)
 
         if data is not None:
             self.z_max = max(data)
@@ -554,15 +555,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 "z_inv": z_inv, "z_base": z_base,
                 "projected": projected, "crs_layer": self.layer.crs(), "crs_map": self.map_crs}
 
-    @staticmethod
-    def get_dem_z(dem_dataset, x_off, y_off, col_size, row_size):
-        band = dem_dataset.GetRasterBand(1)
-        data_types = {'Byte': 'B', 'UInt16': 'H', 'Int16': 'h', 'UInt32': 'I', 'Int32': 'i', 'Float32': 'f', 'Float64': 'd'}
-        data_type = band.DataType
-        data = band.ReadRaster(x_off, y_off, col_size, row_size, col_size, row_size, data_type)
-        data = struct.unpack(data_types[gdal.GetDataTypeName(band.DataType)] * col_size * row_size, data)
-        band = None
-        return data
 
 
 class RectangleMapTool(QgsMapTool):
