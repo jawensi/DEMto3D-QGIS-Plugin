@@ -71,6 +71,3 @@ class Dialog(QDialog, Ui_ExportDialogBase):
             self.reject()
         else:
             self.accept()
-
-
-
