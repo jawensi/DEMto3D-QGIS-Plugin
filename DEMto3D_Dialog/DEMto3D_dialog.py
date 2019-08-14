@@ -170,7 +170,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             QMessageBox.warning(self, self.tr("Attention"), self.tr("Fill the data correctly"))
 
     def get_currlayer(self, layer):
-        if self.layer != layer:
+        if layer and self.layer != layer:
             self.ini_dialog()
             # bands = layer.bandCount()
             self.layer = layer
