@@ -172,7 +172,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     def get_currlayer(self, layer):
         if self.layer != layer:
             self.ini_dialog()
-            # bands = layer.bandCount()
+            bands = layer.bandCount()
             self.layer = layer
             self.get_raster_properties()
 
