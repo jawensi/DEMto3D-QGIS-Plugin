@@ -20,7 +20,7 @@ email=demto3d@gmail.com
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-# changelog= Fix display of 3D printing settings dialog. Fix CRS settins reading extensions.
+# changelog= Fix display of 3D printing settings dialog. Fix CRS settins reading extensions. Use of some QGIS Qt widget (LayerWidget, ScaleWidget).
 
 # Tags are comma separated with spaces allowed
 tags=dem, 3D printing, raster, 3D, relief terrain, STL

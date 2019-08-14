@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_SelectLayer_dialog_base(object):
     def setupUi(self, SelectLayer_dialog_base):
         SelectLayer_dialog_base.setObjectName("SelectLayer_dialog_base")
-        SelectLayer_dialog_base.resize(227, 144)
+        SelectLayer_dialog_base.resize(227, 86)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/plugins/DEMto3D/icons/demto3d.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         SelectLayer_dialog_base.setWindowIcon(icon)
@@ -21,10 +21,9 @@ class Ui_SelectLayer_dialog_base(object):
         self.label.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.label.setObjectName("label")
         self.verticalLayout.addWidget(self.label)
-        self.LayerList = QtWidgets.QListWidget(SelectLayer_dialog_base)
-        self.LayerList.setFocusPolicy(QtCore.Qt.StrongFocus)
-        self.LayerList.setObjectName("LayerList")
-        self.verticalLayout.addWidget(self.LayerList)
+        self.mMapLayerComboBox = QgsMapLayerComboBox(SelectLayer_dialog_base)
+        self.mMapLayerComboBox.setObjectName("mMapLayerComboBox")
+        self.verticalLayout.addWidget(self.mMapLayerComboBox)
         self.buttonBox = QtWidgets.QDialogButtonBox(SelectLayer_dialog_base)
         self.buttonBox.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.buttonBox.setLocale(QtCore.QLocale(QtCore.QLocale.English, QtCore.QLocale.UnitedStates))
@@ -37,11 +36,12 @@ class Ui_SelectLayer_dialog_base(object):
         self.buttonBox.accepted.connect(SelectLayer_dialog_base.accept)
         self.buttonBox.rejected.connect(SelectLayer_dialog_base.reject)
         QtCore.QMetaObject.connectSlotsByName(SelectLayer_dialog_base)
-        SelectLayer_dialog_base.setTabOrder(self.label, self.LayerList)
-        SelectLayer_dialog_base.setTabOrder(self.LayerList, self.buttonBox)
+        SelectLayer_dialog_base.setTabOrder(self.label, self.mMapLayerComboBox)
+        SelectLayer_dialog_base.setTabOrder(self.mMapLayerComboBox, self.buttonBox)
 
     def retranslateUi(self, SelectLayer_dialog_base):
         _translate = QtCore.QCoreApplication.translate
         SelectLayer_dialog_base.setWindowTitle(_translate("SelectLayer_dialog_base", "Layer extent"))
         self.label.setText(_translate("SelectLayer_dialog_base", "Select a layer:"))
 
+from qgsmaplayercombobox import QgsMapLayerComboBox

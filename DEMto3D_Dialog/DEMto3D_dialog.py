@@ -34,19 +34,9 @@ import struct
 from . import Export_dialog
 from . import SelectLayer_dialog
 from .DEMto3D_dialog_base import Ui_DEMto3DDialogBase
-from qgis.core import QgsPointXY, QgsPoint, QgsRectangle, QgsProject, QgsGeometry, QgsCoordinateTransform, Qgis
+from qgis.core import QgsPointXY, QgsPoint, QgsRectangle, QgsProject, QgsGeometry, QgsCoordinateTransform, Qgis, QgsMapLayerProxyModel
 
 from ..model_builder.Model_Builder import Model
-
-
-def get_layer(layer_name):
-    layermap = QgsProject.instance().mapLayers()
-    for name, layer in list(layermap.items()):
-        if layer.name() == layer_name:
-            if layer.isValid():
-                return layer
-            else:
-                return None
 
 
 class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
@@ -83,6 +73,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     rect_map_tool = None
     lastSavingPath = ''
 
+    changeScale = True
+
     def __init__(self, iface):
         """Constructor."""
         QDialog.__init__(self)
@@ -102,13 +94,11 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         # region LAYER ACTION
         # fill layer combobox with raster visible layers in mapCanvas
         self.viewLayers = self.canvas.layers()
-        self.ui.LayerComboBox.clear()
-        for layer in self.viewLayers:
-            if layer.type() == 1:
-                self.ui.LayerComboBox.addItem(layer.name())
-        self.layer = get_layer(self.ui.LayerComboBox.currentText())
+        self.ui.mMapLayerComboBox.clear()
+        self.ui.mMapLayerComboBox.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.layer = self.ui.mMapLayerComboBox.currentLayer()
         self.get_raster_properties()
-        self.ui.LayerComboBox.currentTextChanged.connect(self.get_layer)
+        self.ui.mMapLayerComboBox.layerChanged.connect(self.get_currlayer)
         # endregion
 
         # region EXTENSION ACTION
@@ -126,7 +116,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         # region DIMENSION ACTION
         self.ui.HeightLineEdit.textEdited.connect(self.upload_size_from_height)
         self.ui.WidthLineEdit.textEdited.connect(self.upload_size_from_width)
-        self.ui.ScaleLineEdit.textEdited.connect(self.upload_size_from_scale)
+        self.ui.ScaleLineEdit.scaleChanged.connect(self.upload_size_from_scale)
         # endregion
 
         self.ui.ZScaleDoubleSpinBox.valueChanged.connect(self.get_height_model)
@@ -152,7 +142,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
     def do_export(self):
         parameters = self.get_parameters()
-        layer_name = self.ui.LayerComboBox.currentText() + '_model.stl'
+        layer_name = self.layer.name() + '_model.stl'
         if parameters != 0:
             if parameters["spacing_mm"] < 0.5 and self.height > 100 and self.width > 100:
                 reply = QMessageBox.question(self, self.tr('Export to STL'),
@@ -179,17 +169,12 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         else:
             QMessageBox.warning(self, self.tr("Attention"), self.tr("Fill the data correctly"))
 
-    def get_layer(self, layer_name):
-        if self.layer.name() != layer_name:
+    def get_currlayer(self, layer):
+        if self.layer != layer:
             self.ini_dialog()
-        layermap = QgsProject.instance().mapLayers()
-        for name, layer in list(layermap.items()):
-            if layer.name() == layer_name:
-                if layer.isValid():
-                    self.layer = layer
-                    self.get_raster_properties()
-                else:
-                    self.layer = None
+            # bands = layer.bandCount()
+            self.layer = layer
+            self.get_raster_properties()
 
     def ini_dialog(self):
         self.ui.XMaxLineEdit.clear()
@@ -208,7 +193,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.height = 0
         self.ui.WidthLineEdit.clear()
         self.width = 0
-        self.ui.ScaleLineEdit.clear()
+        self.changeScale = False
+        self.ui.ScaleLineEdit.setScale(1)
         self.scale_h = 0
         self.scale_w = 0
         self.scale = 0
@@ -240,12 +226,10 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ini_dimensions()
 
     def layer_extent(self):
-        layers = self.canvas.layers()
-        select_layer_dialog = SelectLayer_dialog.Dialog(layers)
+        select_layer_dialog = SelectLayer_dialog.Dialog()
         if select_layer_dialog.exec_():
-            layerName = select_layer_dialog.get_layer()
-            if layerName:
-                layer = get_layer(layerName)
+            layer = select_layer_dialog.get_layer()
+            if layer:
                 rec = layer.extent()
                 canvasCRS = self.map_crs
                 layerCRS = layer.crs()
@@ -423,13 +407,15 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 self.scale_h = height_roi / self.height * 1000
                 self.scale_w = width_roi / self.width * 1000
                 self.scale = round((self.scale_h + self.scale_w) / 2, 6)
-                self.ui.ScaleLineEdit.setText(str(int(self.scale)))
+                self.changeScale = False
+                self.ui.ScaleLineEdit.setScale(int(self.scale))
             elif self.units == 6:  # Degree
                 dist = width_roi * math.pi / 180 * math.cos(self.roi_y_max * math.pi / 180) * 6371000 * 1000
                 self.scale = round(dist / self.width, 6)
                 self.scale_h = self.scale
                 self.scale_w = self.scale
-                self.ui.ScaleLineEdit.setText(str(int(self.scale)))
+                self.changeScale = False
+                self.ui.ScaleLineEdit.setScale(int(self.scale))
             self.get_min_spacing()
             self.get_height_model()
         except ZeroDivisionError:
@@ -450,13 +436,15 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 self.scale_h = height_roi / self.height * 1000
                 self.scale_w = width_roi / self.width * 1000
                 self.scale = round((self.scale_h + self.scale_w) / 2, 6)
-                self.ui.ScaleLineEdit.setText(str(int(self.scale)))
+                self.changeScale = False
+                self.ui.ScaleLineEdit.setScale(int(self.scale))
             elif self.units == 6:  # Degree
                 dist = width_roi * math.pi / 180 * math.cos(self.roi_y_max * math.pi / 180) * 6371000 * 1000
                 self.scale = round(dist / self.width, 6)
                 self.scale_h = self.scale
                 self.scale_w = self.scale
-                self.ui.ScaleLineEdit.setText(str(int(self.scale)))
+                self.changeScale = False
+                self.ui.ScaleLineEdit.setScale(int(self.scale))
             self.get_min_spacing()
             self.get_height_model()
         except ZeroDivisionError:
@@ -467,37 +455,42 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.ui.WidthLineEdit.clear()
 
     def upload_size_from_scale(self):
-        try:
-            width_roi = self.roi_x_max - self.roi_x_min
-            height_roi = self.roi_y_max - self.roi_y_min
-            self.scale = float(self.ui.ScaleLineEdit.text())
-            self.scale_h = self.scale
-            self.scale_w = self.scale
-            if self.units == 6:  # Degree
-                dist = width_roi * math.pi / 180 * math.cos(self.roi_y_max * math.pi / 180) * 6371000 * 1000
-                self.width = round(dist / self.scale, 2)
-                self.ui.WidthLineEdit.setText(str(self.width))
-                self.height = round(height_roi * self.width / width_roi, 2)
-                self.ui.HeightLineEdit.setText(str(self.height))
-            elif self.units == 0:  # Meters
-                self.height = round(height_roi / self.scale * 1000, 2)
-                self.ui.HeightLineEdit.setText(str(self.height))
-                self.width = round(width_roi / self.scale * 1000, 2)
-                self.ui.WidthLineEdit.setText(str(self.width))
-            self.get_min_spacing()
-            self.get_height_model()
+        if self.changeScale == False:
+            self.changeScale = True
+        else:
+            try:
+                width_roi = self.roi_x_max - self.roi_x_min
+                height_roi = self.roi_y_max - self.roi_y_min
+                self.scale = float(self.ui.ScaleLineEdit.scale())
+                self.scale_h = self.scale
+                self.scale_w = self.scale
+                if self.units == 6:  # Degree
+                    dist = width_roi * math.pi / 180 * math.cos(self.roi_y_max * math.pi / 180) * 6371000 * 1000
+                    self.width = round(dist / self.scale, 2)
+                    self.ui.WidthLineEdit.setText(str(self.width))
+                    self.height = round(height_roi * self.width / width_roi, 2)
+                    self.ui.HeightLineEdit.setText(str(self.height))
+                elif self.units == 0:  # Meters
+                    self.height = round(height_roi / self.scale * 1000, 2)
+                    self.ui.HeightLineEdit.setText(str(self.height))
+                    self.width = round(width_roi / self.scale * 1000, 2)
+                    self.ui.WidthLineEdit.setText(str(self.width))
+                self.get_min_spacing()
+                self.get_height_model()
 
-        except ZeroDivisionError:
-            QMessageBox.warning(self, self.tr("Attention"), self.tr("Define print extent"))
-            self.ui.ScaleLineEdit.clear()
-            self.scale = 0
-            self.ui.WidthLineEdit.clear()
-        except ValueError:
-            QMessageBox.warning(self, self.tr("Attention"), self.tr("Value entered incorrect"))
-            self.ui.ScaleLineEdit.clear()
-            self.scale = 0
-            self.ui.WidthLineEdit.clear()
-            self.ui.HeightLineEdit.clear()
+            except ZeroDivisionError:
+                QMessageBox.warning(self, self.tr("Attention"), self.tr("Define print extent"))
+                self.changeScale = False
+                self.ui.ScaleLineEdit.setScale(1)
+                self.scale = 0
+                self.ui.WidthLineEdit.clear()
+            except ValueError:
+                QMessageBox.warning(self, self.tr("Attention"), self.tr("Value entered incorrect"))
+                self.changeScale = False
+                self.ui.ScaleLineEdit.setScale(1)
+                self.scale = 0
+                self.ui.WidthLineEdit.clear()
+                self.ui.HeightLineEdit.clear()
 
     # endregion
 
@@ -554,7 +547,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 "z_scale": self.z_scale, "scale": self.scale, "scale_h": self.scale_h, "scale_w": self.scale_w,
                 "z_inv": z_inv, "z_base": z_base,
                 "projected": projected, "crs_layer": self.layer.crs(), "crs_map": self.map_crs}
-
 
 
 class RectangleMapTool(QgsMapTool):

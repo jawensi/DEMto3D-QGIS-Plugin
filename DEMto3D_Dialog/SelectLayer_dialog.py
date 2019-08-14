@@ -24,28 +24,19 @@
 from __future__ import absolute_import
 
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtWidgets import QDialog, QListWidgetItem
+from qgis.PyQt.QtWidgets import QDialog
 from .SelectLayer_dialog_base import Ui_SelectLayer_dialog_base
 
 
 class Dialog(QDialog, Ui_SelectLayer_dialog_base):
-    def __init__(self, layers):
+    def __init__(self):
         """Constructor for the dialog."""
         QDialog.__init__(self, None, Qt.WindowStaysOnTopHint)
         self.ui = Ui_SelectLayer_dialog_base()
         self.ui.setupUi(self)
 
-        self.ui.LayerList.clear()
-        for layer in layers:
-            item = QListWidgetItem()
-            item.setText(layer.name())
-            self.ui.LayerList.addItem(item)
-
         self.ui.buttonBox.accepted.connect(self.accept)
         self.ui.buttonBox.rejected.connect(self.reject)
 
     def get_layer(self):
-        try:
-            return self.ui.LayerList.currentItem().text()
-        except AttributeError:
-            pass
+        return self.ui.mMapLayerComboBox.currentLayer()
