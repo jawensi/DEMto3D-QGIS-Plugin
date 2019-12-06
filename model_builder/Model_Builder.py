@@ -22,18 +22,16 @@
 """
 import collections
 import copy
-
 import math
 import struct
-
 from builtins import range
+
 from osgeo import gdal
 
+from qgis.core import QgsCoordinateTransform, QgsPoint, QgsProject
 from qgis.PyQt import QtCore
-
 from qgis.PyQt.QtCore import QThread
 from qgis.PyQt.QtWidgets import QApplication
-from qgis.core import QgsPoint, QgsCoordinateTransform, QgsProject
 
 
 class Model(QThread):
@@ -41,9 +39,9 @@ class Model(QThread):
     pto = collections.namedtuple('pto', 'x y z')
     updateProgress = QtCore.pyqtSignal()
 
-    def __init__(self, bar, label, button, parameters):
+    def __init__(self, progBar, label, button, parameters):
         QThread.__init__(self)
-        self.bar = bar
+        self.progBar = progBar
         self.label = label
         self.button = button
         self.parameters = parameters
@@ -55,8 +53,8 @@ class Model(QThread):
 
     def run(self):
         row_stl = int(math.ceil(self.parameters["height"] / self.parameters["spacing_mm"]) + 1)
-        self.bar.setMaximum(row_stl)
-        self.bar.setValue(0)
+        self.progBar.setMaximum(row_stl)
+        self.progBar.setValue(0)
         QApplication.processEvents()
 
         dem_dataset = gdal.Open(self.parameters["layer"])
@@ -395,7 +393,7 @@ class Model(QThread):
             dif_z1 = p2.z - p1.z
             dif_z2 = p4.z - p3.z
             if d1 == 0 and d2 == 0 and (p.x - p1.x == 0):
-                return p1.x
+                return p1.z
             if d1 == 0 and (p.x - p1.x == 0):
                 return math.fabs(p.y - p3.y) * (p1.z - p3.z) / d2 + p3.z
             elif d2 == 0 and (p1.y - p.y == 0):

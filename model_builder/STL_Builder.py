@@ -25,10 +25,10 @@ from builtins import str
 from builtins import range
 import collections
 
+import math
+
 from qgis.PyQt import QtCore
 from qgis.PyQt.QtCore import QThread
-
-import math
 
 
 class STL(QThread):
@@ -37,9 +37,9 @@ class STL(QThread):
     pto = collections.namedtuple('pto', 'x y z')
     updateProgress = QtCore.pyqtSignal()
 
-    def __init__(self, bar, label, button, parameters, stl_file, dem_matrix):
+    def __init__(self, progbar, label, button, parameters, stl_file, dem_matrix):
         QThread.__init__(self)
-        self.bar = bar
+        self.progbar = progbar
         self.label = label
         self.button = button
         self.parameters = parameters

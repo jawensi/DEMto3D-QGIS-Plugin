@@ -23,6 +23,8 @@
 from __future__ import absolute_import
 from builtins import object
 
+import os.path
+
 from qgis.core import QgsProject
 from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from qgis.PyQt.QtWidgets import QAction, QMessageBox
@@ -31,7 +33,6 @@ from qgis.PyQt.QtGui import QIcon
 from . import resources_rc
  # Import the code for the dialog
 from .DEMto3D_Dialog import DEMto3D_dialog
-import os.path
 
 
 class DEMto3D(object):
