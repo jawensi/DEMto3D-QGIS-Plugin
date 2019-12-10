@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- AppONCE
+ DEMto3D
                                  A QGIS plugin
  Creación de mapas en 3D
                               -------------------
@@ -21,36 +21,22 @@
  ***************************************************************************/
 """
 
-from PyQt4 import QtCore
-from PyQt4 import QtGui
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QDialog
-from SelectLayer_dialog_base import Ui_SelectLayer_dialog_base
+from __future__ import absolute_import
 
-try:
-    _fromUtf8 = QtCore.QString.fromUtf8
-except AttributeError:
-    _fromUtf8 = lambda s: s
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QDialog
+from .SelectLayer_dialog_base import Ui_SelectLayer_dialog_base
 
 
 class Dialog(QDialog, Ui_SelectLayer_dialog_base):
-    def __init__(self, layers):
+    def __init__(self):
         """Constructor for the dialog."""
         QDialog.__init__(self, None, Qt.WindowStaysOnTopHint)
         self.ui = Ui_SelectLayer_dialog_base()
         self.ui.setupUi(self)
 
-        self.ui.LayerList.clear()
-        for layer in layers:
-            item = QtGui.QListWidgetItem()
-            item.setText(layer.name())
-            self.ui.LayerList.addItem(item)
-
-        QtCore.QObject.connect(self.ui.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), self.accept)
-        QtCore.QObject.connect(self.ui.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), self.reject)
+        self.ui.buttonBox.accepted.connect(self.accept)
+        self.ui.buttonBox.rejected.connect(self.reject)
 
     def get_layer(self):
-        try:
-            return self.ui.LayerList.currentItem().text()
-        except AttributeError:
-            pass
+        return self.ui.mMapLayerComboBox.currentLayer()

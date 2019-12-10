@@ -1,2 +1,8 @@
 
-\.idea/
+\.vscode/
+
+\__pycache__
+
+resourcesCompile.bat
+
+.gitignore

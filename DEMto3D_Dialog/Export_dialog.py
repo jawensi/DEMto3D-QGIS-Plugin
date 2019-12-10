@@ -20,18 +20,22 @@
  *                                                                         *
  ***************************************************************************/
 """
+
+from __future__ import absolute_import
 import os
 
-from PyQt4 import QtCore
-from PyQt4.QtCore import Qt, SIGNAL
-from PyQt4.QtGui import QDialog
+from qgis.PyQt.QtWidgets import QDialog
 
-from Export_dialog_base import Ui_ExportDialogBase
+from .Export_dialog_base import Ui_ExportDialogBase
 from ..model_builder.Model_Builder import Model
 from ..model_builder.STL_Builder import STL
 
 
 class Dialog(QDialog, Ui_ExportDialogBase):
+
+    Model = None
+    STL = None
+
     def __init__(self, parameters, file_name):
         """Constructor for the dialog."""
         QDialog.__init__(self)
@@ -46,7 +50,7 @@ class Dialog(QDialog, Ui_ExportDialogBase):
         self.ui.ProgressLabel.setText(self.tr("Building STL geometry ..."))
         self.Model = Model(self.ui.progressBar, self.ui.ProgressLabel, self.ui.cancelButton, self.parameters)
         self.Model.updateProgress.connect(lambda: self.ui.progressBar.setValue(self.ui.progressBar.value() + 1))
-        QtCore.QObject.connect(self.Model, SIGNAL("finished()"), self.do_stl_model)
+        self.Model.finished.connect(self.do_stl_model)
         self.Model.start()
 
     def do_stl_model(self):
@@ -58,7 +62,7 @@ class Dialog(QDialog, Ui_ExportDialogBase):
             self.STL = STL(self.ui.progressBar, self.ui.ProgressLabel, self.ui.cancelButton, self.parameters,
                            self.stl_file, dem_matrix)
             self.STL.updateProgress.connect(lambda: self.ui.progressBar.setValue(self.ui.progressBar.value() + 1))
-            QtCore.QObject.connect(self.STL, SIGNAL("finished()"), self.finish_model)
+            self.STL.finished.connect(self.finish_model)
             self.STL.start()
 
     def finish_model(self):
@@ -67,6 +71,3 @@ class Dialog(QDialog, Ui_ExportDialogBase):
             self.reject()
         else:
             self.accept()
-
-
-

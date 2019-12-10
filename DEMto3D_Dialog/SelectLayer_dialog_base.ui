@@ -7,14 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>227</width>
-    <height>144</height>
+    <height>86</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Layer extent</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../resources.qrc">
+   <iconset>
     <normaloff>:/plugins/DEMto3D/icons/demto3d.png</normaloff>:/plugins/DEMto3D/icons/demto3d.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -29,11 +29,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QListWidget" name="LayerList">
-     <property name="focusPolicy">
-      <enum>Qt::StrongFocus</enum>
-     </property>
-    </widget>
+    <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox"/>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -53,14 +49,19 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QgsMapLayerComboBox</class>
+   <extends>QComboBox</extends>
+   <header>qgsmaplayercombobox.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>label</tabstop>
-  <tabstop>LayerList</tabstop>
+  <tabstop>mMapLayerComboBox</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
- <resources>
-  <include location="../resources.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

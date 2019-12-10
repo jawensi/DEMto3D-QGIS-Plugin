@@ -5,6 +5,14 @@
   <property name="windowModality">
    <enum>Qt::WindowModal</enum>
   </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>445</width>
+    <height>539</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>DEM 3D printing</string>
   </property>
@@ -15,42 +23,22 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBox">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>53</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>53</height>
-      </size>
-     </property>
      <property name="title">
       <string>Layer to print</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QComboBox" name="LayerComboBox"/>
+       <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox">
+        <property name="showCrs">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox_2">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>118</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>118</height>
-      </size>
-     </property>
      <property name="title">
       <string>Print extent</string>
      </property>
@@ -395,39 +383,17 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <property name="rightMargin">
-         <number>230</number>
+         <number>201</number>
         </property>
         <item>
          <widget class="QLabel" name="label_15">
           <property name="text">
            <string>Scale:</string>
           </property>
-          <property name="buddy">
-           <cstring>ScaleLineEdit</cstring>
-          </property>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label_14">
-          <property name="minimumSize">
-           <size>
-            <width>12</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>1:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="ScaleLineEdit">
+         <widget class="QgsScaleWidget" name="ScaleLineEdit">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -436,13 +402,13 @@
           </property>
           <property name="minimumSize">
            <size>
-            <width>85</width>
+            <width>100</width>
             <height>20</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>85</width>
+            <width>100</width>
             <height>20</height>
            </size>
           </property>
@@ -455,18 +421,6 @@
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox_4">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>53</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>53</height>
-      </size>
-     </property>
      <property name="title">
       <string>Exaggeration terrain</string>
      </property>
@@ -487,13 +441,13 @@
       <item>
        <widget class="QDoubleSpinBox" name="ZScaleDoubleSpinBox">
         <property name="decimals">
-         <number>1</number>
+         <number>3</number>
         </property>
         <property name="maximum">
          <double>10.000000000000000</double>
         </property>
         <property name="singleStep">
-         <double>0.500000000000000</double>
+         <double>0.100000000000000</double>
         </property>
         <property name="value">
          <double>1.000000000000000</double>
@@ -505,18 +459,6 @@
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox_5">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>81</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>81</height>
-      </size>
-     </property>
      <property name="title">
       <string>Height base</string>
      </property>
@@ -619,18 +561,6 @@
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox_6">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>53</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>53</height>
-      </size>
-     </property>
      <property name="title">
       <string>Other parameters</string>
      </property>
@@ -704,10 +634,20 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QgsMapLayerComboBox</class>
+   <extends>QComboBox</extends>
+   <header>qgsmaplayercombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QgsScaleWidget</class>
+   <extends>QWidget</extends>
+   <header>qgsscalewidget.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
-  <tabstop>CancelToolButton</tabstop>
-  <tabstop>STLToolButton</tabstop>
-  <tabstop>LayerComboBox</tabstop>
+  <tabstop>mMapLayerComboBox</tabstop>
   <tabstop>XMinLineEdit</tabstop>
   <tabstop>YMaxLineEdit</tabstop>
   <tabstop>XMaxLineEdit</tabstop>
@@ -718,10 +658,11 @@
   <tabstop>SpacingLineEdit</tabstop>
   <tabstop>HeightLineEdit</tabstop>
   <tabstop>WidthLineEdit</tabstop>
-  <tabstop>ScaleLineEdit</tabstop>
   <tabstop>ZScaleDoubleSpinBox</tabstop>
   <tabstop>BaseHeightLineEdit</tabstop>
   <tabstop>RevereseZCheckBox</tabstop>
+  <tabstop>STLToolButton</tabstop>
+  <tabstop>CancelToolButton</tabstop>
  </tabstops>
  <resources>
   <include location="../resources.qrc"/>

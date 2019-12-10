@@ -20,17 +20,15 @@
  *                                                                         *
  ***************************************************************************/
 """
+
+from builtins import str
+from builtins import range
 import collections
 
-from PyQt4 import QtCore
-from PyQt4.QtCore import QThread
 import math
 
-try:
-    _fromUtf8 = QtCore.QString.fromUtf8
-except AttributeError:
-    def _fromUtf8(s):
-        return s
+from qgis.PyQt import QtCore
+from qgis.PyQt.QtCore import QThread
 
 
 class STL(QThread):
@@ -39,9 +37,9 @@ class STL(QThread):
     pto = collections.namedtuple('pto', 'x y z')
     updateProgress = QtCore.pyqtSignal()
 
-    def __init__(self, bar, label, button, parameters, stl_file, dem_matrix):
+    def __init__(self, progbar, label, button, parameters, stl_file, dem_matrix):
         QThread.__init__(self)
-        self.bar = bar
+        self.progbar = progbar
         self.label = label
         self.button = button
         self.parameters = parameters
@@ -49,7 +47,7 @@ class STL(QThread):
         self.matrix_dem = dem_matrix
 
         self.quit = False
-        QtCore.QObject.connect(self.button, QtCore.SIGNAL(_fromUtf8("clicked()")), self.cancel)
+        self.button.clicked.connect(self.cancel)
 
     def run(self):
         f = open(self.stl_file, "w")
