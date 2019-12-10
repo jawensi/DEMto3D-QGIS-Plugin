@@ -1,7 +1,7 @@
-# This file contains metadata for your plugin. Since 
-# version 2.0 of QGIS this is the proper way to supply 
-# information about a plugin. The old method of 
-# embedding metadata in __init__.py will 
+# This file contains metadata for your plugin. Since
+# version 2.0 of QGIS this is the proper way to supply
+# information about a plugin. The old method of
+# embedding metadata in __init__.py will
 # is no longer supported since version 2.0.
 
 # This file should be included when you package your plugin.# Mandatory items:
@@ -9,6 +9,7 @@
 [general]
 name=DEMto3D
 qgisMinimumVersion=2.0
+qgisMaximumVersion=2.99
 description=3D Printing of terrain models.
 about=DEMto3D is the first tool that links GIS (Geographic Information System) and 3D printing. DEMto3D allows export DEM to STL format ready to 3D printing.
 version=2.3.3
@@ -20,14 +21,14 @@ email=demto3d@gmail.com
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-# changelog=Added cancel button to stop the model building process. Changed the access to read heights (band.ReadAsArray for band.ReadRaster). 
+# changelog=Added cancel button to stop the model building process. Changed the access to read heights (band.ReadAsArray for band.ReadRaster).
 
 # Tags are comma separated with spaces allowed
 tags=dem, 3D printing, raster, 3D, relief terrain, STL
 
 homepage=http://demto3d.com/
-tracker=https://github.com/jawensi/DEMto3D/issues
-repository=https://github.com/jawensi/DEMto3D
+tracker=https://github.com/jawensi/DEMto3D-QGIS-Plugin/issues
+repository=https://github.com/jawensi/DEMto3D-QGIS-Plugin
 category=Raster
 icon=icons/demto3d.png
 # experimental flag
@@ -35,4 +36,3 @@ experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
-
