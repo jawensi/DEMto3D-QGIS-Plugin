@@ -54,8 +54,8 @@ class STL(QThread):
         f.write("solid model\n")
 
         dem = self.face_dem_vector(self.matrix_dem)
-        self.bar.setMaximum(dem.__len__() * 2)
-        self.bar.setValue(0)
+        self.progbar.setMaximum(dem.__len__() * 2)
+        self.progbar.setValue(0)
         for face in dem:
             self.updateProgress.emit()
             f.write("   facet normal 0 0 -1 " + "\n")

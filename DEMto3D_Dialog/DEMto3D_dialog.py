@@ -122,6 +122,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ui.BaseHeightLineEdit.returnPressed.connect(self.get_height_model)
 
         # region BOTTOM BUTTONS ACTION
+        self.ui.ParamToolButton.clicked.connect(self.export_params)
         self.ui.CancelToolButton.clicked.connect(self.reject)
         self.ui.STLToolButton.clicked.connect(self.do_export)
         self.rejected.connect(self.reject_func)
@@ -138,6 +139,20 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.rect_map_tool.reset()
             self.rect_map_tool.deactivate()
             self.iface.actionPan().trigger()
+
+    def export_params(self):
+        parameters = self.get_parameters()
+        file_name = self.layer.name() + '_param.txt'
+        if parameters != 0:
+            stl_file = QFileDialog.getSaveFileName(self, self.tr('Export Parameters'), self.lastSavingPath + file_name, filter=".txt")
+            if stl_file[0] != '':
+                self.lastSavingPath = os.path.dirname(stl_file[0]) + '//'
+                f = open(self.lastSavingPath + file_name, "w")
+                f.write("solid model\n")
+                f.close()
+                print("saving parameters")
+        else:
+            QMessageBox.warning(self, self.tr("Attention"), self.tr("Fill the data correctly"))
 
     def do_export(self):
         parameters = self.get_parameters()

@@ -589,9 +589,41 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_9">
-     <property name="leftMargin">
-      <number>220</number>
-     </property>
+     <item>
+      <widget class="QToolButton" name="ParamToolButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Export Param.</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="spacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
      <item>
       <widget class="QToolButton" name="STLToolButton">
        <property name="minimumSize">

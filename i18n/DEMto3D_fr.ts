@@ -158,8 +158,8 @@
     </message>
 	<message>
         <location filename="DEMto3D_dialog.py" line="403"/>
-        <source>Generate Gcode</source>
-        <translation>Générer Gcode</translation>
+        <source>Export Param.</source>
+        <translation>Exporter Param.</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog.py" line="404"/>
@@ -186,8 +186,8 @@
     </message>
 	<message>
         <location filename="Export_dialog.py" line="48"/>
-        <source>Generate Gcode</source>
-        <translation>Générer Gcode</translation>
+        <source>Export Param.</source>
+        <translation>Exporter Param.</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="142"/>
