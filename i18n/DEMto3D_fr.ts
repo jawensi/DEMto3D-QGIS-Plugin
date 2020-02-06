@@ -186,8 +186,8 @@
     </message>
 	<message>
         <location filename="Export_dialog.py" line="48"/>
-        <source>Export Param.</source>
-        <translation>Exporter Param.</translation>
+        <source>Settings</source>
+        <translation>paramètres</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="142"/>

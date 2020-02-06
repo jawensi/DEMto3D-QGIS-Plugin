@@ -590,7 +590,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_9">
      <item>
-      <widget class="QToolButton" name="ParamToolButton">
+      <widget class="QPushButton" name="ParamPushButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -604,7 +604,10 @@
         </size>
        </property>
        <property name="text">
-        <string>Export Param.</string>
+        <string>Settings</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -695,6 +698,7 @@
   <tabstop>RevereseZCheckBox</tabstop>
   <tabstop>STLToolButton</tabstop>
   <tabstop>CancelToolButton</tabstop>
+  <tabstop>ParamPushButton</tabstop>
  </tabstops>
  <resources>
   <include location="../resources.qrc"/>
