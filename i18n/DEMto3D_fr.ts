@@ -57,26 +57,6 @@
         <translation>Dimensions du modèle</translation>
     </message>
 	<message>
-        <location filename="DEMto3D_dialog_base.py" line="375"/>
-        <source>Printer:</source>
-        <translation>Imprimante:</translation>
-    </message>
-	<message>
-        <location filename="DEMto3D_dialog_base.py" line="377"/>
-        <source>Printer size:</source>
-        <translation>Dimensions d'impression:</translation>
-    </message>
-	<message>
-        <location filename="DEMto3D_dialog_base.py" line="378"/>
-        <source>Height:</source>
-        <translation>Haut:</translation>
-    </message>
-	<message>
-        <location filename="DEMto3D_dialog_base.py" line="380"/>
-        <source>Width:</source>
-        <translation>Largeur:</translation>
-    </message>
-	<message>
         <location filename="DEMto3D_dialog_base.py" line="382"/>
         <source>Spacing (mm):</source>
         <translation>Espacement (mm):</translation>
@@ -152,14 +132,14 @@
         <translation>Inversion du relief</translation>
     </message>
 	<message>
+        <location filename="DEMto3D_dialog.py" line="48"/>
+        <source>Settings</source>
+        <translation>paramètres</translation>
+    </message>
+	<message>
         <location filename="DEMto3D_dialog.py" line="402"/>
         <source>Export to STL</source>
         <translation>Exporter STL</translation>
-    </message>
-	<message>
-        <location filename="DEMto3D_dialog.py" line="403"/>
-        <source>Export Param.</source>
-        <translation>Exporter Param.</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog.py" line="404"/>
@@ -184,11 +164,6 @@
         <source>Export to STL</source>
         <translation>Exporter STL</translation>
     </message>
-	<message>
-        <location filename="Export_dialog.py" line="48"/>
-        <source>Settings</source>
-        <translation>paramètres</translation>
-    </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="142"/>
         <source>STL model generated</source>
@@ -199,15 +174,25 @@
         <source>Fill the data correctly</source>
         <translation>Remplissez correctement les données</translation>
     </message>
-	<message>
-        <location filename="DEMto3D_dialog.py" line="155"/>
-        <source>Gcode model generated</source>
-        <translation>Modèle Gcode généré</translation>
-    </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="155"/>
-        <source>Process canceled</source>
+        <source>Process cancelled</source>
         <translation>Processus annulé</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Open settings file</source>
+        <translation>Ouvrir le fichier de paramètres</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Export settings</source>
+        <translation>Exporter les paramètres</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Import settings</source>
+        <translation>Importer des paramètres</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog.py" line="249"/>
@@ -254,34 +239,6 @@
     </message>
 </context>
 <context>
-    <name>PrinterSettingsDialogBase</name>
-    <message>
-        <location filename="PrinterSettings_dialog_base.py" line="84"/>
-        <source>Generate Gcode</source>
-        <translation>Générer GCode</translation>
-    </message>
-    <message>
-        <location filename="PrinterSettings_dialog_base.py" line="85"/>
-        <source>Printer:</source>
-        <translation>Imprimante:</translation>
-    </message>
-    <message>
-        <location filename="PrinterSettings_dialog_base.py" line="67"/>
-        <source>Filament:</source>
-        <translation>Filament:</translation>
-    </message>
-    <message>
-        <location filename="PrinterSettings_dialog_base.py" line="67"/>
-        <source>Print settings:</source>
-        <translation>Réglages d'impression:</translation>
-    </message>
-    <message>
-        <location filename="PrinterSettings_dialog_base.py" line="67"/>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-</context>
-<context>
     <name>Dialog</name>
 	<message>
         <location filename="Export_dialog.py" line="74"/>
@@ -293,11 +250,6 @@
         <source>Creating STL file ...</source>
         <translation>Création du fichier STL ...</translation>
     </message>
-    <message>
-        <location filename="Export_dialog.py" line="74"/>
-        <source>Creating Gcode file ...</source>
-        <translation>Création du fichier Gcode ...</translation>
-    </message>
 </context>
 <context>
     <name>ExportDialogBase</name>
@@ -307,18 +259,4 @@
         <translation>Annuler</translation>
     </message>
 </context>
-<context>
-    <name>Dialog</name>
-	<message>
-        <location filename="PrinterSettings_dialog.py" line="44"/>
-        <source>Export model to Gcode</source>
-        <translation>Exportation du modèle à Gcode</translation>
-    </message>
-	<message>
-        <location filename="PrinterSettings_dialog.py" line="44"/>
-        <source>The construction of the G-CODE file could takes several minutes. Do you want to continue?</source>
-        <translation>La construction du fichier Gcode peut prendre plusieurs minutes. Voulez-vous continuer?</translation>
-    </message>
-</context>
 </TS>
-

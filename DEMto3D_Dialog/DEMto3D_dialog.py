@@ -128,8 +128,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         # region BOTTOM BUTTONS ACTION
 
         menu = QMenu(self.iface.mainWindow())
-        menu.addAction('Export settings', self.export_params)
-        menu.addAction('Import settings', self.import_params)
+        menu.addAction(self.tr('Export settings'), self.export_params)
+        menu.addAction(self.tr('Import settings'), self.import_params)
         self.ui.ParamPushButton.setMenu(menu)
 
         self.ui.CancelToolButton.clicked.connect(self.reject)
@@ -154,7 +154,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         file_name = self.layer.name() + '_param.txt'
         if parameters != 0:
             setting_file = QFileDialog.getSaveFileName(self, self.tr(
-                'Export Parameters'), self.lastSavingPath + file_name, "*.txt")
+                'Export settings'), self.lastSavingPath + file_name, "*.txt")
             if setting_file[0] != '':
                 self.lastSavingPath = os.path.dirname(setting_file[0]) + '//'
                 obj_info = {
@@ -183,7 +183,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                                 self.tr("Fill the data correctly"))
 
     def import_params(self):
-        setting_file = QFileDialog.getOpenFileName(self, "Open settings file", self.lastSavingPath, "*.txt")
+        setting_file = QFileDialog.getOpenFileName(self, self.tr("Open settings file"), self.lastSavingPath, "*.txt")
         if setting_file[0] != '':
             with open(setting_file[0]) as json_file:
                 parameters = json.load(json_file)
@@ -233,7 +233,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                                 "Attention"), self.tr("STL model generated"))
                         else:
                             QMessageBox.information(self, self.tr(
-                                "Attention"), self.tr("Process canceled"))
+                                "Attention"), self.tr("Process cancelled"))
             else:
                 stl_file = QFileDialog.getSaveFileName(self, self.tr(
                     'Export to STL'), self.lastSavingPath + layer_name, filter=".stl")
@@ -245,7 +245,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                             "Attention"), self.tr("STL model generated"))
                     else:
                         QMessageBox.information(self, self.tr(
-                            "Attention"), self.tr("Process canceled"))
+                            "Attention"), self.tr("Process cancelled"))
         else:
             QMessageBox.warning(self, self.tr("Attention"),
                                 self.tr("Fill the data correctly"))
