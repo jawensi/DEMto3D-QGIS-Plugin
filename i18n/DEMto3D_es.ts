@@ -63,13 +63,8 @@
     </message>
     <message>
         <location filename="DEMto3D_dialog_base.py" line="383"/>
-        <source>Minimum recommended</source>
-        <translation>Mínimo recomendado</translation>
-    </message>
-    <message>
-        <location filename="DEMto3D_dialog_base.py" line="385"/>
-        <source>Size:</source>
-        <translation>Dimensiones:</translation>
+        <source>Recommended</source>
+        <translation>Recomendado</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog_base.py" line="386"/>
@@ -88,18 +83,13 @@
     </message>
     <message>
         <location filename="DEMto3D_dialog_base.py" line="390"/>
-        <source>Exaggeration terrain</source>
-        <translation>Exagerado de la elevación</translation>
-    </message>
-    <message>
-        <location filename="DEMto3D_dialog_base.py" line="391"/>
-        <source>Exaggeration factor:</source>
-        <translation>Factor de exagerado:</translation>
+        <source>Exaggeration Z factor:</source>
+        <translation>Factor de exagerado Z:</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog_base.py" line="392"/>
-        <source>Height base</source>
-        <translation>Cota de la base</translation>
+        <source>Model height</source>
+        <translation>Altura del modelo</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog_base.py" line="394"/>
@@ -121,15 +111,15 @@
         <source>Model height:</source>
         <translation>Altura del modelo:</translation>
     </message>
-    <message>
-        <location filename="DEMto3D_dialog.py" line="400"/>
-        <source>Other parameters</source>
-        <translation>Otros parámetros</translation>
+	<message>
+        <location filename="DEMto3D_dialog.py" line="401"/>
+        <source>Terrain inversion:</source>
+        <translation>Inversion del relieve:</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="401"/>
-        <source>Terrain inversion</source>
-        <translation>Inversión de relieve</translation>
+        <source>enable</source>
+        <translation>habilitar</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="402"/>
@@ -145,6 +135,11 @@
         <location filename="DEMto3D_dialog.py" line="404"/>
         <source>Cancel</source>
         <translation>Cancelar</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="404"/>
+        <source>Close</source>
+        <translation>Cerrar</translation>
     </message>
 </context>
 <context>

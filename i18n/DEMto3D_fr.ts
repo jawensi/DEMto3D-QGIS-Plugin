@@ -63,13 +63,8 @@
     </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="383"/>
-        <source>Minimum recommended</source>
-        <translation>Minimun recommandé</translation>
-    </message>
-	<message>
-        <location filename="DEMto3D_dialog_base.py" line="385"/>
-        <source>Size:</source>
-        <translation>Dimensions:</translation>
+        <source>Recommended</source>
+        <translation>Recommandé</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="386"/>
@@ -88,18 +83,13 @@
     </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="390"/>
-        <source>Exaggeration terrain</source>
-        <translation>Exagération du terrain</translation>
-    </message>
-	<message>
-        <location filename="DEMto3D_dialog_base.py" line="391"/>
-        <source>Exaggeration factor:</source>
+        <source>Exaggeration Z factor:</source>
         <translation>Facteur d'exagération:</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="392"/>
-        <source>Height base</source>
-        <translation>Cote de la base</translation>
+        <source>Model height</source>
+        <translation>Hauteur du modèle</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="394"/>
@@ -122,14 +112,14 @@
         <translation>Hauteur du modèle:</translation>
     </message>
 	<message>
-        <location filename="DEMto3D_dialog.py" line="400"/>
-        <source>Other parameters</source>
-        <translation>Autres paramètres</translation>
+        <location filename="DEMto3D_dialog.py" line="401"/>
+        <source>Terrain inversion:</source>
+        <translation>Inversion du relief:</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog.py" line="401"/>
-        <source>Terrain inversion</source>
-        <translation>Inversion du relief</translation>
+        <source>enable</source>
+        <translation>activer</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog.py" line="48"/>
@@ -145,6 +135,11 @@
         <location filename="DEMto3D_dialog.py" line="404"/>
         <source>Cancel</source>
         <translation>Annuler</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="404"/>
+        <source>Close</source>
+        <translation>Fermer </translation>
     </message>
 </context>
 <context>
