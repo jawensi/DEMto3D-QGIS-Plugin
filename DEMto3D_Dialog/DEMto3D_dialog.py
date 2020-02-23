@@ -186,30 +186,33 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         setting_file = QFileDialog.getOpenFileName(self, self.tr("Open settings file"), self.lastSavingPath, "*.txt")
         if setting_file[0] != '':
             with open(setting_file[0]) as json_file:
-                parameters = json.load(json_file)
-                self.roi_x_max = parameters["roi_x_max"]
-                self.ui.XMaxLineEdit.setText(str(round(self.roi_x_max, 3)))
-                self.roi_y_min = parameters["roi_y_min"]
-                self.ui.YMinLineEdit.setText(str(round(self.roi_y_min, 3)))
-                self.roi_x_min = parameters["roi_x_min"]
-                self.ui.XMinLineEdit.setText(str(round(self.roi_x_min, 3)))
-                self.roi_y_max = parameters["roi_y_max"]
-                self.ui.YMaxLineEdit.setText(str(round(self.roi_y_max, 3)))
-                rec = QgsRectangle(self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
-                self.paint_extent(rec)
-                self.get_z_max_z_min()
+                try:
+                    parameters = json.load(json_file)
+                    self.roi_x_max = parameters["roi_x_max"]
+                    self.ui.XMaxLineEdit.setText(str(round(self.roi_x_max, 3)))
+                    self.roi_y_min = parameters["roi_y_min"]
+                    self.ui.YMinLineEdit.setText(str(round(self.roi_y_min, 3)))
+                    self.roi_x_min = parameters["roi_x_min"]
+                    self.ui.XMinLineEdit.setText(str(round(self.roi_x_min, 3)))
+                    self.roi_y_max = parameters["roi_y_max"]
+                    self.ui.YMaxLineEdit.setText(str(round(self.roi_y_max, 3)))
+                    rec = QgsRectangle(self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
+                    self.paint_extent(rec)
+                    self.get_z_max_z_min()
 
-                self.ui.SpacingLineEdit.setText(str(round(parameters["spacing_mm"], 2)))
-                self.scale = parameters['scale']
-                self.scale_h = parameters['scale_h']
-                self.scale_w = parameters['scale_w']
-                self.ui.ScaleLineEdit.setScale(int(parameters["scale"]))
-                self.upload_size_from_scale()
-                self.ui.ZScaleDoubleSpinBox.setValue(parameters["z_scale"])
+                    self.ui.SpacingLineEdit.setText(str(round(parameters["spacing_mm"], 2)))
+                    self.scale = parameters['scale']
+                    self.scale_h = parameters['scale_h']
+                    self.scale_w = parameters['scale_w']
+                    self.ui.ScaleLineEdit.setScale(int(parameters["scale"]))
+                    self.upload_size_from_scale()
+                    self.ui.ZScaleDoubleSpinBox.setValue(parameters["z_scale"])
 
-                self.ui.BaseHeightLineEdit.setText(str(round(parameters["z_base"], 3)))
-                self.ui.RevereseZCheckBox.setChecked(parameters["z_inv"])
-                self.get_height_model()
+                    self.ui.BaseHeightLineEdit.setText(str(round(parameters["z_base"], 3)))
+                    self.ui.RevereseZCheckBox.setChecked(parameters["z_inv"])
+                    self.get_height_model()
+                except:
+                    QMessageBox.warning(self, self.tr("Attention"), self.tr("wrong file"))
 
     def do_export(self):
         parameters = self.get_parameters()
