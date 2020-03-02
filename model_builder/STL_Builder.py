@@ -28,19 +28,18 @@ import collections
 import math
 
 from qgis.PyQt import QtCore
-from qgis.PyQt.QtCore import QThread
+from qgis.PyQt.QtCore import QThread, pyqtSignal
 
 
 class STL(QThread):
     """Class where is built the stl file from the mesh point that decribe the model surface"""
     normal = collections.namedtuple('normal', 'normal_x normal_y normal_z')
     pto = collections.namedtuple('pto', 'x y z')
-    updateProgress = QtCore.pyqtSignal()
+    updateProgress = pyqtSignal()
 
-    def __init__(self, progbar, label, button, parameters, stl_file, dem_matrix):
+    def __init__(self, progbar, button, parameters, stl_file, dem_matrix):
         QThread.__init__(self)
         self.progbar = progbar
-        self.label = label
         self.button = button
         self.parameters = parameters
         self.stl_file = stl_file

@@ -150,14 +150,9 @@
         <translation>Attention</translation>
     </message>
     <message>
-        <location filename="PrinterSettings_dialog.py" line="44"/>
+        <location filename="DEMto3D_dialog.py" line="44"/>
         <source>The construction of the STL file could takes several minutes. Do you want to continue?</source>
         <translation>La construction du fichier STL peut prendre plusieurs minutes. Voulez-vous continuer?</translation>
-    </message>
-	<message>
-        <location filename="Export_dialog.py" line="44"/>
-        <source>Export to STL</source>
-        <translation>Exporter STL</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="142"/>
@@ -234,24 +229,16 @@
     </message>
 </context>
 <context>
-    <name>Dialog</name>
+    <name>Export</name>
 	<message>
         <location filename="Export_dialog.py" line="74"/>
-        <source>Building STL geometry ...</source>
-        <translation>Génération géométrie STL ...</translation>
+        <source>Building STL geometry</source>
+        <translation>Génération géométrie STL</translation>
     </message>
 	<message>
         <location filename="Export_dialog.py" line="74"/>
-        <source>Creating STL file ...</source>
-        <translation>Création du fichier STL ...</translation>
-    </message>
-</context>
-<context>
-    <name>ExportDialogBase</name>
-	<message>
-        <location filename="Export_dialog_base.py" line="74"/>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
+        <source>Creating STL file</source>
+        <translation>Création du fichier STL</translation>
     </message>
 </context>
 </TS>

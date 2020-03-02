@@ -30,19 +30,18 @@ from osgeo import gdal
 
 from qgis.core import QgsCoordinateTransform, QgsPoint, QgsProject
 from qgis.PyQt import QtCore
-from qgis.PyQt.QtCore import QThread
+from qgis.PyQt.QtCore import QThread, pyqtSignal
 from qgis.PyQt.QtWidgets import QApplication
 
 
 class Model(QThread):
     """Class where is built the mesh point that describe the surface model """
     pto = collections.namedtuple('pto', 'x y z')
-    updateProgress = QtCore.pyqtSignal()
+    updateProgress = pyqtSignal()
 
-    def __init__(self, progBar, label, button, parameters):
+    def __init__(self, progBar, button, parameters):
         QThread.__init__(self)
         self.progBar = progBar
-        self.label = label
         self.button = button
         self.parameters = parameters
         self.matrix_dem = []

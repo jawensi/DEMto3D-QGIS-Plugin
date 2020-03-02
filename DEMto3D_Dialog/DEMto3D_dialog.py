@@ -25,7 +25,6 @@ from __future__ import absolute_import
 import os
 import math
 import json
-import struct
 
 from osgeo import gdal
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog, QApplication, QMenu
@@ -39,7 +38,6 @@ from .DEMto3D_dialog_base import Ui_DEMto3DDialogBase
 from qgis.core import QgsPointXY, QgsPoint, QgsRectangle, QgsProject, QgsGeometry, QgsCoordinateTransform, Qgis, QgsMapLayerProxyModel
 
 from ..model_builder.Model_Builder import Model
-
 
 class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     """ Layer to print. """
@@ -136,6 +134,10 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.rejected.connect(self.reject_func)
         # endregion
 
+        self.ui.ProgressLabel.hide()
+        self.ui.progressBar.hide()
+        self.ui.cancelProgressToolButton.hide()
+
     def setCanvasCRS(self):
         try:
             self.map_crs = self.canvas.mapSettings().destinationCrs()
@@ -217,16 +219,15 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             stl_file = QFileDialog.getSaveFileName(self, self.tr('Export to STL'), self.lastSavingPath + layer_name, filter=".stl")
             if stl_file[0] != '':
                 self.lastSavingPath = os.path.dirname(stl_file[0]) + '//'
-                export_dlg = Export_dialog.Dialog(parameters, stl_file[0])
-                if export_dlg.exec_():
-                    QMessageBox.information(self, self.tr("Attention"), self.tr("STL model generated"))
-                else:
-                    QMessageBox.information(self, self.tr("Attention"), self.tr("Process cancelled"))
+                Export_dialog.Export(self, parameters, stl_file[0])
 
         parameters = self.get_parameters()
         layer_name = self.layer.name() + '_model.stl'
         if parameters != 0:
-            if parameters["spacing_mm"] < 0.5 and self.height > 100 and self.width > 100:
+            row_stl = int(math.ceil(self.height / parameters["spacing_mm"]) + 1)
+            col_stl = int(math.ceil(self.width / parameters["spacing_mm"]) + 1)
+            tooMuchPoints = row_stl * col_stl > 500000
+            if tooMuchPoints:
                 reply = QMessageBox.question(self, self.tr('Export to STL'),
                                              self.tr('The construction of the STL file could takes several minutes. Do you want to continue?'),
                                              QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
