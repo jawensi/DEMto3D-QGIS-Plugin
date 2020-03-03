@@ -22,10 +22,10 @@
 """
 
 from __future__ import absolute_import
+import math
 import os
 
 from qgis.PyQt.QtWidgets import QMessageBox
-from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QDialog
 
 from ..model_builder.Model_Builder import Model
@@ -46,24 +46,41 @@ class Export(QDialog):
         self.do_model()
 
     def do_model(self):
+        maxVal = int(math.ceil(self.parameters["height"] / self.parameters["spacing_mm"]) + 1)
+        self.mainDlg.ui.progressBar.setMaximum(maxVal)
+        self.mainDlg.ui.progressBar.setValue(0)
+        self.mainDlg.ui.cancelProgressToolButton.clicked.connect(self.cancel_model)
         self.mainDlg.ui.ProgressLabel.setText(self.tr("Building STL geometry"))
-        self.Model = Model(self.mainDlg.ui.progressBar, self.mainDlg.ui.cancelProgressToolButton, self.parameters)
+
+        self.Model = Model(self.parameters)
         self.Model.updateProgress.connect(lambda: self.mainDlg.ui.progressBar.setValue(self.mainDlg.ui.progressBar.value() + 1))
         self.Model.finished.connect(self.do_stl_model)
         self.Model.start()
 
+    def cancel_model(self):
+        self.Model.quit = True
+
     def do_stl_model(self):
+        self.mainDlg.ui.progressBar.setValue(0)
         if self.Model.quit:
             self.prepareUi(False)
-            self.mainDlg.ui.progressBar.setValue(0)
             QMessageBox.information(self.mainDlg, self.mainDlg.tr("Attention"), self.mainDlg.tr("Process cancelled"))
         else:
+            self.mainDlg.ui.cancelProgressToolButton.clicked.connect(self.cancel_stl_model)
             self.mainDlg.ui.ProgressLabel.setText(self.tr("Creating STL file"))
             dem_matrix = self.Model.get_model()
-            self.STL = STL(self.mainDlg.ui.progressBar, self.mainDlg.ui.cancelProgressToolButton, self.parameters, self.stl_file, dem_matrix)
+            rows = dem_matrix.__len__()
+            cols = dem_matrix[0].__len__()
+            maxVal = rows * cols * 2
+            self.mainDlg.ui.progressBar.setMaximum(maxVal)
+
+            self.STL = STL(self.parameters, self.stl_file, dem_matrix)
             self.STL.updateProgress.connect(lambda: self.mainDlg.ui.progressBar.setValue(self.mainDlg.ui.progressBar.value() + 1))
             self.STL.finished.connect(self.finish_model)
             self.STL.start()
+
+    def cancel_stl_model(self):
+        self.STL.quit = True
 
     def finish_model(self):
         self.prepareUi(False)
@@ -75,7 +92,7 @@ class Export(QDialog):
             QMessageBox.information(self.mainDlg, self.mainDlg.tr("Attention"), self.mainDlg.tr("STL model generated"))
 
     def prepareUi(self, start):
-        if start: 
+        if start:
             self.mainDlg.ui.ProgressLabel.show()
             self.mainDlg.ui.progressBar.show()
             self.mainDlg.ui.cancelProgressToolButton.show()

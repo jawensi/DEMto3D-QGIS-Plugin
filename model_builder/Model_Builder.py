@@ -29,9 +29,7 @@ from builtins import range
 from osgeo import gdal
 
 from qgis.core import QgsCoordinateTransform, QgsPoint, QgsProject
-from qgis.PyQt import QtCore
 from qgis.PyQt.QtCore import QThread, pyqtSignal
-from qgis.PyQt.QtWidgets import QApplication
 
 
 class Model(QThread):
@@ -39,23 +37,14 @@ class Model(QThread):
     pto = collections.namedtuple('pto', 'x y z')
     updateProgress = pyqtSignal()
 
-    def __init__(self, progBar, button, parameters):
+    def __init__(self, parameters):
         QThread.__init__(self)
-        self.progBar = progBar
-        self.button = button
         self.parameters = parameters
         self.matrix_dem = []
-
         self.quit = False
-        self.button.clicked.connect(self.cancel)
         self.baseModel = 2
 
     def run(self):
-        row_stl = int(math.ceil(self.parameters["height"] / self.parameters["spacing_mm"]) + 1)
-        self.progBar.setMaximum(row_stl)
-        self.progBar.setValue(0)
-        QApplication.processEvents()
-
         dem_dataset = gdal.Open(self.parameters["layer"])
 
         # self.matrix_dem = self.matrix_dem_builder(dem_dataset, self.parameters["height"], self.parameters["width"],
@@ -102,7 +91,6 @@ class Model(QThread):
         var_y = height
         for i in range(row_stl):
             self.updateProgress.emit()
-            QApplication.processEvents()
             var_x = 0
             for j in range(col_stl):
                 # Model coordinate x(mm), y(mm)
@@ -122,8 +110,7 @@ class Model(QThread):
                 source = self.parameters["crs_map"]
                 target = self.parameters["crs_layer"]
                 if source != target:
-                    transform = QgsCoordinateTransform(
-                        source, target, QgsProject.instance())
+                    transform = QgsCoordinateTransform(source, target, QgsProject.instance())
                     point = transform.transform(point)
                     x = point.x()
                     y = point.y()
@@ -183,9 +170,7 @@ class Model(QThread):
 
         var_y = height
         for i in range(row_stl):
-
             self.updateProgress.emit()
-            QApplication.processEvents()
 
             var_x = 0
             for j in range(col_stl):
@@ -206,8 +191,7 @@ class Model(QThread):
                 source = self.parameters["crs_map"]
                 target = self.parameters["crs_layer"]
                 if source != target:
-                    transform = QgsCoordinateTransform(
-                        source, target, QgsProject.instance())
+                    transform = QgsCoordinateTransform(source, target, QgsProject.instance())
                     point = transform.transform(x, y)
                     x = point.x()
                     y = point.y()
@@ -349,9 +333,6 @@ class Model(QThread):
 
     def get_model(self):
         return self.matrix_dem
-
-    def cancel(self):
-        self.quit = True
 
     @staticmethod
     def get_dem_z(dem_dataset, x_off, y_off, col_size, row_size):

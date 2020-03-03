@@ -39,6 +39,7 @@ from qgis.core import QgsPointXY, QgsPoint, QgsRectangle, QgsProject, QgsGeometr
 
 from ..model_builder.Model_Builder import Model
 
+
 class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     """ Layer to print. """
     layer = None
