@@ -108,11 +108,10 @@ class STL(QThread):
         f.close()
 
     def write_binary(self):
-
         counter = 0
         stream = open(self.stl_file, "wb")
         stream.seek(0)
-        stream.write(struct.pack(BINARY_HEADER, b'DEMto3D Binary STL Writer', counter))
+        stream.write(struct.pack(BINARY_HEADER, b'Python Binary STL Writer', counter))
 
         dem = self.face_dem_vector(self.matrix_dem)
         for face in dem:
@@ -161,7 +160,7 @@ class STL(QThread):
                 return 0
 
         stream.seek(0)
-        stream.write(struct.pack(BINARY_HEADER, b'DEMto3D Binary STL Writer', counter))
+        stream.write(struct.pack(BINARY_HEADER, b'Python Binary STL Writer', counter))
         stream.close()
 
     def face_wall_vector(self, matrix_dem):
