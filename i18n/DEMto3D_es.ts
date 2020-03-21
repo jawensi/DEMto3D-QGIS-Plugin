@@ -13,12 +13,8 @@
         <source>No visible raster layer loaded</source>
         <translation>No hay ninguna capa raster cargada y visible</translation>
     </message>
-    <message>
-        <location filename="DEMto3D.py" line="121"/>
-        <source>No layer loaded</source>
-        <translation>No hay ninguna capa cargada</translation>
-    </message>
 </context>
+
 <context>
     <name>DEMto3DDialogBase</name>
     <message>
@@ -52,6 +48,22 @@
         <translation>Dibujar extensión</translation>
     </message>
     <message>
+        <location filename="DEMto3D_dialog_base.py" line="373"/>
+        <source>Width:</source>
+        <translation>Ancho:</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="373"/>
+        <source>Length:</source>
+        <translation>Largo:</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="373"/>
+        <source>Show width/length</source>
+        <translation>Mostrar ancho/largo</translation>
+    </message>
+
+    <message>
         <location filename="DEMto3D_dialog_base.py" line="374"/>
         <source>Model size</source>
         <translation>Dimensiones del modelo</translation>
@@ -83,9 +95,20 @@
     </message>
     <message>
         <location filename="DEMto3D_dialog_base.py" line="390"/>
-        <source>Exaggeration Z factor:</source>
-        <translation>Factor de exagerado Z:</translation>
+        <source>Vertical exaggeration:</source>
+        <translation>Exageración vertical:</translation>
     </message>
+	<message>
+        <location filename="DEMto3D_dialog.py" line="401"/>
+        <source>Terrain inversion:</source>
+        <translation>Inversion del relieve:</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="401"/>
+        <source>enable</source>
+        <translation>habilitar</translation>
+    </message>
+
     <message>
         <location filename="DEMto3D_dialog_base.py" line="392"/>
         <source>Model height</source>
@@ -111,25 +134,16 @@
         <source>Model height:</source>
         <translation>Altura del modelo:</translation>
     </message>
-	<message>
-        <location filename="DEMto3D_dialog.py" line="401"/>
-        <source>Terrain inversion:</source>
-        <translation>Inversion del relieve:</translation>
-    </message>
+
     <message>
-        <location filename="DEMto3D_dialog.py" line="401"/>
-        <source>enable</source>
-        <translation>habilitar</translation>
+        <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Settings</source>
+        <translation>Parametros</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="402"/>
         <source>Export to STL</source>
         <translation>Exportar a STL</translation>
-    </message>
-    <message>
-        <location filename="DEMto3D_dialog.py" line="403"/>
-        <source>Settings</source>
-        <translation>Parametros</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="404"/>
@@ -142,8 +156,14 @@
         <translation>Cerrar</translation>
     </message>
 </context>
+
 <context>
     <name>DEMto3DDialog</name>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="471"/>
+        <source>Units not supported</source>
+        <translation>Unidades no soportadas</translation>
+    </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="144"/>
         <source>Attention</source>
@@ -214,7 +234,13 @@
         <source>Height of the base must be lower than DEM highest point</source>
         <translation>La cota de la base debe ser inferior a la cota máxima del MDE</translation>
     </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="471"/>
+        <source>Wrong file</source>
+        <translation>Archivo incorrecto</translation>
+    </message>
 </context>
+
 <context>
     <name>SelectLayer_dialog_base</name>
     <message>
@@ -228,6 +254,7 @@
         <translation>Seleccione una capa:</translation>
     </message>
 </context>
+
 <context>
     <name>Export</name>
     <message>

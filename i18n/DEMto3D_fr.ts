@@ -13,12 +13,8 @@
         <source>No visible raster layer loaded</source>
         <translation>Aucune couche raster chargée et visible</translation>
     </message>
-    <message>
-        <location filename="DEMto3D.py" line="121"/>
-        <source>No layer loaded</source>
-        <translation>Aucune couche chargée</translation>
-    </message>
 </context>
+
 <context>
     <name>DEMto3DDialogBase</name>
 	<message>
@@ -51,6 +47,22 @@
         <source>Draw extent</source>
         <translation>Dessiner l'emprise</translation>
     </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="373"/>
+        <source>Width:</source>
+        <translation>Largeur:</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="373"/>
+        <source>Length:</source>
+        <translation>Longue:</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="373"/>
+        <source>Show width/length</source>
+        <translation>Afficher  largeur/longue</translation>
+    </message>
+
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="374"/>
         <source>Model size</source>
@@ -69,7 +81,7 @@
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="386"/>
         <source>Lenght (mm):</source>
-        <translation>longue (mm):</translation>
+        <translation>Longue (mm):</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="387"/>
@@ -83,9 +95,20 @@
     </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="390"/>
-        <source>Exaggeration Z factor:</source>
-        <translation>Facteur d'exagération:</translation>
+        <source>Vertical exaggeration:</source>
+        <translation>Exagération verticale:</translation>
     </message>
+	<message>
+        <location filename="DEMto3D_dialog.py" line="401"/>
+        <source>Terrain inversion:</source>
+        <translation>Inversion du relief:</translation>
+    </message>
+	<message>
+        <location filename="DEMto3D_dialog.py" line="401"/>
+        <source>enable</source>
+        <translation>activer</translation>
+    </message>
+
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="392"/>
         <source>Model height</source>
@@ -111,16 +134,7 @@
         <source>Model height:</source>
         <translation>Hauteur du modèle:</translation>
     </message>
-	<message>
-        <location filename="DEMto3D_dialog.py" line="401"/>
-        <source>Terrain inversion:</source>
-        <translation>Inversion du relief:</translation>
-    </message>
-	<message>
-        <location filename="DEMto3D_dialog.py" line="401"/>
-        <source>enable</source>
-        <translation>activer</translation>
-    </message>
+
 	<message>
         <location filename="DEMto3D_dialog.py" line="48"/>
         <source>Settings</source>
@@ -142,8 +156,14 @@
         <translation>Fermer </translation>
     </message>
 </context>
+
 <context>
     <name>DEMto3DDialog</name>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="471"/>
+        <source>Units not supported</source>
+        <translation>Unités non prises en charge</translation>
+    </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="144"/>
         <source>Attention</source>
@@ -214,7 +234,13 @@
         <source>Height of the base must be lower than DEM highest point</source>
         <translation>La cote de la base doit être inferieur à la cote maxime du MDE</translation>
     </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="471"/>
+        <source>Wrong file</source>
+        <translation>Mauvais fichier</translation>
+    </message>
 </context>
+
 <context>
     <name>SelectLayer_dialog_base</name>
     <message>
@@ -228,6 +254,7 @@
         <translation>Sélectionnez une couche:</translation>
     </message>
 </context>
+
 <context>
     <name>Export</name>
 	<message>

@@ -2,6 +2,8 @@
     <qresource prefix="/plugins/DEMto3D" >
         <file>icons/downright.png</file>
         <file>icons/upleft.png</file>
+        <file>icons/downleft.png</file>
+        <file>icons/upright.png</file>
         <file>icons/zoom-region.png</file>
         <file>icons/zoom-extent.png</file>
         <file>icons/zoom-layer.png</file>

@@ -104,6 +104,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
         # region EXTENSION ACTION
         self.extent = None
+
         self.ui.FullExtToolButton.clicked.connect(self.full_extent)
         self.ui.LayerExtToolButton.clicked.connect(self.layer_extent)
         self.ui.CustomExtToolButton.clicked.connect(self.custom_extent)
@@ -112,6 +113,12 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ui.XMaxLineEdit.returnPressed.connect(self.upload_extent)
         self.ui.YMaxLineEdit.returnPressed.connect(self.upload_extent)
         self.ui.YMinLineEdit.returnPressed.connect(self.upload_extent)
+
+        self.ui.WidthGeoLineEdit.returnPressed.connect(self.upload_extent_fromWH)
+        self.ui.HeightGeoLineEdit.returnPressed.connect(self.upload_extent_fromWH)
+
+        self.ui.LimitsParamGframe.hide()
+
         # endregion
 
         # region DIMENSION ACTION
@@ -124,7 +131,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ui.BaseHeightLineEdit.returnPressed.connect(self.get_height_model)
 
         # region BOTTOM BUTTONS ACTION
-
         menu = QMenu(self.iface.mainWindow())
         menu.addAction(self.tr('Export settings'), self.export_params)
         menu.addAction(self.tr('Import settings'), self.import_params)
@@ -136,8 +142,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         # endregion
 
         self.ui.ProgressLabel.hide()
-        self.ui.progressBar.hide()
-        self.ui.cancelProgressToolButton.hide()
 
     def setCanvasCRS(self):
         try:
@@ -196,6 +200,12 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                     self.ui.XMinLineEdit.setText(str(round(self.roi_x_min, 3)))
                     self.roi_y_max = parameters["roi_y_max"]
                     self.ui.YMaxLineEdit.setText(str(round(self.roi_y_max, 3)))
+
+                    self.ui.WidthGeoLineEdit.setText(str(round(rec.xMaximum() - rec.xMinimum(), 3)))
+                    self.ui.HeightGeoLineEdit.setText(str(round(rec.yMaximum() - rec.yMinimum(), 3)))
+
+                    # distX = math.sqrt()
+
                     rec = QgsRectangle(self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
                     self.paint_extent(rec)
                     self.get_z_max_z_min()
@@ -212,7 +222,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                     self.ui.RevereseZCheckBox.setChecked(parameters["z_inv"])
                     self.get_height_model()
                 except:
-                    QMessageBox.warning(self, self.tr("Attention"), self.tr("wrong file"))
+                    QMessageBox.warning(self, self.tr("Attention"), self.tr("Wrong file"))
 
     def do_export(self):
 
@@ -345,6 +355,23 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         except ValueError:
             QMessageBox.warning(self, self.tr("Attention"), self.tr("Value entered incorrect"))
 
+    def upload_extent_fromWH(self):
+        if self.ui.WidthGeoLineEdit.text() == '' or self.ui.HeightGeoLineEdit.text() == '':
+            return
+        if self.roi_x_min == 0 and self.roi_y_min == 0 and self.roi_x_max == 0 and self.roi_y_max == 0:
+            return
+        try:
+            widthGeo = float(self.ui.WidthGeoLineEdit.text())
+            heightGeo = float(self.ui.HeightGeoLineEdit.text())
+            self.roi_x_max = self.roi_x_min + widthGeo
+            self.roi_y_max = self.roi_y_min + heightGeo
+            rec = QgsRectangle(self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
+            self.paint_extent(rec)
+            self.get_z_max_z_min()
+            self.ini_dimensions()
+        except ValueError:
+            QMessageBox.warning(self, self.tr("Attention"), self.tr("Value entered incorrect"))
+
     def paint_extent(self, rec):
         self.roi_x_max = rec.xMaximum()
         self.ui.XMaxLineEdit.setText(str(round(rec.xMaximum(), 3)))
@@ -354,6 +381,9 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ui.XMinLineEdit.setText(str(round(rec.xMinimum(), 3)))
         self.roi_y_max = rec.yMaximum()
         self.ui.YMaxLineEdit.setText(str(round(rec.yMaximum(), 3)))
+
+        self.ui.WidthGeoLineEdit.setText(str(round(rec.xMaximum() - rec.xMinimum(), 3)))
+        self.ui.HeightGeoLineEdit.setText(str(round(rec.yMaximum() - rec.yMinimum(), 3)))
 
         if self.extent:
             self.canvas.scene().removeItem(self.extent)

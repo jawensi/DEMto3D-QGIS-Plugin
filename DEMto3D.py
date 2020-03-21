@@ -108,7 +108,7 @@ class DEMto3D(object):
         raster = False
         if layers:
             for layer in layers:
-                if layer.type() == 1 and QgsProject.instance().layerTreeRoot().findLayer(layer).isVisible():
+                if layer.type() == layer.RasterLayer and QgsProject.instance().layerTreeRoot().findLayer(layer).isVisible():
                     raster = True
                     break
             if raster and self.window:
@@ -122,4 +122,4 @@ class DEMto3D(object):
             elif not raster:
                 QMessageBox.information(self.iface.mainWindow(), "DEMto3D", self.tr("No visible raster layer loaded"))
         elif not layers:
-            QMessageBox.information(self.iface.mainWindow(), "DEMto3D", self.tr("No layer loaded"))
+            QMessageBox.information(self.iface.mainWindow(), "DEMto3D", self.tr("No visible raster layer loaded"))

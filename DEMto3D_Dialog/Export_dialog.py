@@ -94,12 +94,9 @@ class Export(QDialog):
     def prepareUi(self, start):
         if start:
             self.mainDlg.ui.ProgressLabel.show()
-            self.mainDlg.ui.progressBar.show()
-            self.mainDlg.ui.cancelProgressToolButton.show()
         else:
             self.mainDlg.ui.ProgressLabel.hide()
-            self.mainDlg.ui.progressBar.hide()
-            self.mainDlg.ui.cancelProgressToolButton.hide()
+        self.mainDlg.ui.cancelProgressToolButton.setEnabled(start)
         self.mainDlg.ui.groupBox.setEnabled(not start)
         self.mainDlg.ui.groupBox_1.setEnabled(not start)
         self.mainDlg.ui.groupBox_3.setEnabled(not start)
