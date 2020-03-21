@@ -13,12 +13,8 @@
         <source>No visible raster layer loaded</source>
         <translation>Aucune couche raster chargée et visible</translation>
     </message>
-    <message>
-        <location filename="DEMto3D.py" line="121"/>
-        <source>No layer loaded</source>
-        <translation>Aucune couche chargée</translation>
-    </message>
 </context>
+
 <context>
     <name>DEMto3DDialogBase</name>
 	<message>
@@ -51,30 +47,26 @@
         <source>Draw extent</source>
         <translation>Dessiner l'emprise</translation>
     </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="373"/>
+        <source>Width:</source>
+        <translation>Largeur:</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="373"/>
+        <source>Length:</source>
+        <translation>Longue:</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="373"/>
+        <source>Show width/length</source>
+        <translation>Afficher  largeur/longue</translation>
+    </message>
+
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="374"/>
         <source>Model size</source>
         <translation>Dimensions du modèle</translation>
-    </message>
-	<message>
-        <location filename="DEMto3D_dialog_base.py" line="375"/>
-        <source>Printer:</source>
-        <translation>Imprimante:</translation>
-    </message>
-	<message>
-        <location filename="DEMto3D_dialog_base.py" line="377"/>
-        <source>Printer size:</source>
-        <translation>Dimensions d'impression:</translation>
-    </message>
-	<message>
-        <location filename="DEMto3D_dialog_base.py" line="378"/>
-        <source>Height:</source>
-        <translation>Haut:</translation>
-    </message>
-	<message>
-        <location filename="DEMto3D_dialog_base.py" line="380"/>
-        <source>Width:</source>
-        <translation>Largeur:</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="382"/>
@@ -83,18 +75,13 @@
     </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="383"/>
-        <source>Minimum recommended</source>
-        <translation>Minimun recommandé</translation>
-    </message>
-	<message>
-        <location filename="DEMto3D_dialog_base.py" line="385"/>
-        <source>Size:</source>
-        <translation>Dimensions:</translation>
+        <source>Recommended</source>
+        <translation>Recommandé</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="386"/>
         <source>Lenght (mm):</source>
-        <translation>longue (mm):</translation>
+        <translation>Longue (mm):</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="387"/>
@@ -108,18 +95,24 @@
     </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="390"/>
-        <source>Exaggeration terrain</source>
-        <translation>Exagération du terrain</translation>
+        <source>Vertical exaggeration:</source>
+        <translation>Exagération verticale:</translation>
     </message>
 	<message>
-        <location filename="DEMto3D_dialog_base.py" line="391"/>
-        <source>Exaggeration factor:</source>
-        <translation>Facteur d'exagération:</translation>
+        <location filename="DEMto3D_dialog.py" line="401"/>
+        <source>Terrain inversion:</source>
+        <translation>Inversion du relief:</translation>
     </message>
+	<message>
+        <location filename="DEMto3D_dialog.py" line="401"/>
+        <source>enable</source>
+        <translation>activer</translation>
+    </message>
+
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="392"/>
-        <source>Height base</source>
-        <translation>Cote de la base</translation>
+        <source>Model height</source>
+        <translation>Hauteur du modèle</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="394"/>
@@ -141,15 +134,11 @@
         <source>Model height:</source>
         <translation>Hauteur du modèle:</translation>
     </message>
+
 	<message>
-        <location filename="DEMto3D_dialog.py" line="400"/>
-        <source>Other parameters</source>
-        <translation>Autres paramètres</translation>
-    </message>
-	<message>
-        <location filename="DEMto3D_dialog.py" line="401"/>
-        <source>Terrain inversion</source>
-        <translation>Inversion du relief</translation>
+        <location filename="DEMto3D_dialog.py" line="48"/>
+        <source>Settings</source>
+        <translation>paramètres</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog.py" line="402"/>
@@ -157,37 +146,33 @@
         <translation>Exporter STL</translation>
     </message>
 	<message>
-        <location filename="DEMto3D_dialog.py" line="403"/>
-        <source>Generate Gcode</source>
-        <translation>Générer Gcode</translation>
-    </message>
-	<message>
         <location filename="DEMto3D_dialog.py" line="404"/>
         <source>Cancel</source>
         <translation>Annuler</translation>
     </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="404"/>
+        <source>Close</source>
+        <translation>Fermer </translation>
+    </message>
 </context>
+
 <context>
     <name>DEMto3DDialog</name>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="471"/>
+        <source>Units not supported</source>
+        <translation>Unités non prises en charge</translation>
+    </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="144"/>
         <source>Attention</source>
         <translation>Attention</translation>
     </message>
     <message>
-        <location filename="PrinterSettings_dialog.py" line="44"/>
+        <location filename="DEMto3D_dialog.py" line="44"/>
         <source>The construction of the STL file could takes several minutes. Do you want to continue?</source>
         <translation>La construction du fichier STL peut prendre plusieurs minutes. Voulez-vous continuer?</translation>
-    </message>
-	<message>
-        <location filename="Export_dialog.py" line="44"/>
-        <source>Export to STL</source>
-        <translation>Exporter STL</translation>
-    </message>
-	<message>
-        <location filename="Export_dialog.py" line="48"/>
-        <source>Generate Gcode</source>
-        <translation>Générer Gcode</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="142"/>
@@ -199,15 +184,25 @@
         <source>Fill the data correctly</source>
         <translation>Remplissez correctement les données</translation>
     </message>
-	<message>
-        <location filename="DEMto3D_dialog.py" line="155"/>
-        <source>Gcode model generated</source>
-        <translation>Modèle Gcode généré</translation>
-    </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="155"/>
-        <source>Process canceled</source>
+        <source>Process cancelled</source>
         <translation>Processus annulé</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Open settings file</source>
+        <translation>Ouvrir le fichier de paramètres</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Export settings</source>
+        <translation>Exporter les paramètres</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Import settings</source>
+        <translation>Importer des paramètres</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog.py" line="249"/>
@@ -239,7 +234,13 @@
         <source>Height of the base must be lower than DEM highest point</source>
         <translation>La cote de la base doit être inferieur à la cote maxime du MDE</translation>
     </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="471"/>
+        <source>Wrong file</source>
+        <translation>Mauvais fichier</translation>
+    </message>
 </context>
+
 <context>
     <name>SelectLayer_dialog_base</name>
     <message>
@@ -253,72 +254,18 @@
         <translation>Sélectionnez une couche:</translation>
     </message>
 </context>
+
 <context>
-    <name>PrinterSettingsDialogBase</name>
-    <message>
-        <location filename="PrinterSettings_dialog_base.py" line="84"/>
-        <source>Generate Gcode</source>
-        <translation>Générer GCode</translation>
-    </message>
-    <message>
-        <location filename="PrinterSettings_dialog_base.py" line="85"/>
-        <source>Printer:</source>
-        <translation>Imprimante:</translation>
-    </message>
-    <message>
-        <location filename="PrinterSettings_dialog_base.py" line="67"/>
-        <source>Filament:</source>
-        <translation>Filament:</translation>
-    </message>
-    <message>
-        <location filename="PrinterSettings_dialog_base.py" line="67"/>
-        <source>Print settings:</source>
-        <translation>Réglages d'impression:</translation>
-    </message>
-    <message>
-        <location filename="PrinterSettings_dialog_base.py" line="67"/>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-</context>
-<context>
-    <name>Dialog</name>
+    <name>Export</name>
 	<message>
         <location filename="Export_dialog.py" line="74"/>
-        <source>Building STL geometry ...</source>
-        <translation>Génération géométrie STL ...</translation>
+        <source>Building STL geometry</source>
+        <translation>Génération géométrie STL</translation>
     </message>
 	<message>
         <location filename="Export_dialog.py" line="74"/>
-        <source>Creating STL file ...</source>
-        <translation>Création du fichier STL ...</translation>
-    </message>
-    <message>
-        <location filename="Export_dialog.py" line="74"/>
-        <source>Creating Gcode file ...</source>
-        <translation>Création du fichier Gcode ...</translation>
-    </message>
-</context>
-<context>
-    <name>ExportDialogBase</name>
-	<message>
-        <location filename="Export_dialog_base.py" line="74"/>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-</context>
-<context>
-    <name>Dialog</name>
-	<message>
-        <location filename="PrinterSettings_dialog.py" line="44"/>
-        <source>Export model to Gcode</source>
-        <translation>Exportation du modèle à Gcode</translation>
-    </message>
-	<message>
-        <location filename="PrinterSettings_dialog.py" line="44"/>
-        <source>The construction of the G-CODE file could takes several minutes. Do you want to continue?</source>
-        <translation>La construction du fichier Gcode peut prendre plusieurs minutes. Voulez-vous continuer?</translation>
+        <source>Creating STL file</source>
+        <translation>Création du fichier STL</translation>
     </message>
 </context>
 </TS>
-

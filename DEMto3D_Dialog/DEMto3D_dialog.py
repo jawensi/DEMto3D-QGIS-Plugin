@@ -24,12 +24,14 @@
 from __future__ import absolute_import
 import os
 import math
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog, QApplication
+import json
+
+from osgeo import gdal
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog, QApplication, QMenu
 from qgis.PyQt.QtGui import QColor, QCursor
 from qgis.PyQt.QtCore import Qt
 from qgis.gui import QgsRubberBand, QgsMapTool
-from osgeo import gdal
-import struct
+
 from . import Export_dialog
 from . import SelectLayer_dialog
 from .DEMto3D_dialog_base import Ui_DEMto3DDialogBase
@@ -102,6 +104,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
         # region EXTENSION ACTION
         self.extent = None
+
         self.ui.FullExtToolButton.clicked.connect(self.full_extent)
         self.ui.LayerExtToolButton.clicked.connect(self.layer_extent)
         self.ui.CustomExtToolButton.clicked.connect(self.custom_extent)
@@ -110,6 +113,12 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ui.XMaxLineEdit.returnPressed.connect(self.upload_extent)
         self.ui.YMaxLineEdit.returnPressed.connect(self.upload_extent)
         self.ui.YMinLineEdit.returnPressed.connect(self.upload_extent)
+
+        self.ui.WidthGeoLineEdit.returnPressed.connect(self.upload_extent_fromWH)
+        self.ui.HeightGeoLineEdit.returnPressed.connect(self.upload_extent_fromWH)
+
+        self.ui.LimitsParamGframe.hide()
+
         # endregion
 
         # region DIMENSION ACTION
@@ -122,10 +131,17 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ui.BaseHeightLineEdit.returnPressed.connect(self.get_height_model)
 
         # region BOTTOM BUTTONS ACTION
+        menu = QMenu(self.iface.mainWindow())
+        menu.addAction(self.tr('Export settings'), self.export_params)
+        menu.addAction(self.tr('Import settings'), self.import_params)
+        self.ui.ParamPushButton.setMenu(menu)
+
         self.ui.CancelToolButton.clicked.connect(self.reject)
         self.ui.STLToolButton.clicked.connect(self.do_export)
         self.rejected.connect(self.reject_func)
         # endregion
+
+        self.ui.ProgressLabel.hide()
 
     def setCanvasCRS(self):
         try:
@@ -139,32 +155,97 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.rect_map_tool.deactivate()
             self.iface.actionPan().trigger()
 
+    def export_params(self):
+        parameters = self.get_parameters()
+        file_name = self.layer.name() + '_param.txt'
+        if parameters != 0:
+            setting_file = QFileDialog.getSaveFileName(self, self.tr('Export settings'), self.lastSavingPath + file_name, "*.txt")
+            if setting_file[0] != '':
+                self.lastSavingPath = os.path.dirname(setting_file[0]) + '//'
+                obj_info = {
+                    "layer": parameters['layer'],
+                    "roi_x_max": parameters['roi_x_max'],
+                    "roi_x_min": parameters['roi_x_min'],
+                    "roi_y_max": parameters['roi_y_max'],
+                    "roi_y_min": parameters['roi_y_min'],
+                    "spacing_mm": parameters['spacing_mm'],
+                    "height": parameters['height'],
+                    "width": parameters['width'],
+                    "z_scale": parameters['z_scale'],
+                    "scale": parameters['scale'],
+                    "scale_h": parameters['scale_h'],
+                    "scale_w": parameters['scale_w'],
+                    "z_inv": parameters['z_inv'],
+                    "z_base": parameters['z_base'],
+                    "projected": parameters['projected'],
+                    "crs_layer": parameters['crs_layer'].toProj4(),
+                    "crs_map": parameters['crs_map'].toProj4(),
+                }
+                with open(setting_file[0], 'w') as fp:
+                    json.dump(obj_info, fp, indent=4)
+        else:
+            QMessageBox.warning(self, self.tr("Attention"), self.tr("Fill the data correctly"))
+
+    def import_params(self):
+        setting_file = QFileDialog.getOpenFileName(self, self.tr("Open settings file"), self.lastSavingPath, "*.txt")
+        if setting_file[0] != '':
+            with open(setting_file[0]) as json_file:
+                try:
+                    parameters = json.load(json_file)
+                    self.roi_x_max = parameters["roi_x_max"]
+                    self.ui.XMaxLineEdit.setText(str(round(self.roi_x_max, 3)))
+                    self.roi_y_min = parameters["roi_y_min"]
+                    self.ui.YMinLineEdit.setText(str(round(self.roi_y_min, 3)))
+                    self.roi_x_min = parameters["roi_x_min"]
+                    self.ui.XMinLineEdit.setText(str(round(self.roi_x_min, 3)))
+                    self.roi_y_max = parameters["roi_y_max"]
+                    self.ui.YMaxLineEdit.setText(str(round(self.roi_y_max, 3)))
+
+                    self.ui.WidthGeoLineEdit.setText(str(round(rec.xMaximum() - rec.xMinimum(), 3)))
+                    self.ui.HeightGeoLineEdit.setText(str(round(rec.yMaximum() - rec.yMinimum(), 3)))
+
+                    # distX = math.sqrt()
+
+                    rec = QgsRectangle(self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
+                    self.paint_extent(rec)
+                    self.get_z_max_z_min()
+
+                    self.ui.SpacingLineEdit.setText(str(round(parameters["spacing_mm"], 2)))
+                    self.scale = parameters['scale']
+                    self.scale_h = parameters['scale_h']
+                    self.scale_w = parameters['scale_w']
+                    self.ui.ScaleLineEdit.setScale(int(parameters["scale"]))
+                    self.upload_size_from_scale()
+                    self.ui.ZScaleDoubleSpinBox.setValue(parameters["z_scale"])
+
+                    self.ui.BaseHeightLineEdit.setText(str(round(parameters["z_base"], 3)))
+                    self.ui.RevereseZCheckBox.setChecked(parameters["z_inv"])
+                    self.get_height_model()
+                except:
+                    QMessageBox.warning(self, self.tr("Attention"), self.tr("Wrong file"))
+
     def do_export(self):
+
+        def export():
+            stl_file = QFileDialog.getSaveFileName(self, self.tr('Export to STL'), self.lastSavingPath + layer_name, filter=".stl")
+            if stl_file[0] != '':
+                self.lastSavingPath = os.path.dirname(stl_file[0]) + '//'
+                Export_dialog.Export(self, parameters, stl_file[0])
+
         parameters = self.get_parameters()
         layer_name = self.layer.name() + '_model.stl'
         if parameters != 0:
-            if parameters["spacing_mm"] < 0.5 and self.height > 100 and self.width > 100:
+            row_stl = int(math.ceil(self.height / parameters["spacing_mm"]) + 1)
+            col_stl = int(math.ceil(self.width / parameters["spacing_mm"]) + 1)
+            tooMuchPoints = row_stl * col_stl > 500000
+            if tooMuchPoints:
                 reply = QMessageBox.question(self, self.tr('Export to STL'),
                                              self.tr('The construction of the STL file could takes several minutes. Do you want to continue?'),
                                              QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                 if reply == QMessageBox.Yes:
-                    stl_file = QFileDialog.getSaveFileName(self, self.tr('Export to STL'), self.lastSavingPath + layer_name, filter=".stl")
-                    if stl_file[0] != '':
-                        self.lastSavingPath = os.path.dirname(stl_file[0]) + '//'
-                        export_dlg = Export_dialog.Dialog(parameters, stl_file[0])
-                        if export_dlg.exec_():
-                            QMessageBox.information(self, self.tr("Attention"), self.tr("STL model generated"))
-                        else:
-                            QMessageBox.information(self, self.tr("Attention"), self.tr("Process canceled"))
+                    export()
             else:
-                stl_file = QFileDialog.getSaveFileName(self, self.tr('Export to STL'), self.lastSavingPath + layer_name, filter=".stl")
-                if stl_file[0] != '':
-                    self.lastSavingPath = os.path.dirname(stl_file[0]) + '//'
-                    export_dlg = Export_dialog.Dialog(parameters, stl_file[0])
-                    if export_dlg.exec_():
-                        QMessageBox.information(self, self.tr("Attention"), self.tr("STL model generated"))
-                    else:
-                        QMessageBox.information(self, self.tr("Attention"), self.tr("Process canceled"))
+                export()
         else:
             QMessageBox.warning(self, self.tr("Attention"), self.tr("Fill the data correctly"))
 
@@ -274,6 +355,23 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         except ValueError:
             QMessageBox.warning(self, self.tr("Attention"), self.tr("Value entered incorrect"))
 
+    def upload_extent_fromWH(self):
+        if self.ui.WidthGeoLineEdit.text() == '' or self.ui.HeightGeoLineEdit.text() == '':
+            return
+        if self.roi_x_min == 0 and self.roi_y_min == 0 and self.roi_x_max == 0 and self.roi_y_max == 0:
+            return
+        try:
+            widthGeo = float(self.ui.WidthGeoLineEdit.text())
+            heightGeo = float(self.ui.HeightGeoLineEdit.text())
+            self.roi_x_max = self.roi_x_min + widthGeo
+            self.roi_y_max = self.roi_y_min + heightGeo
+            rec = QgsRectangle(self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
+            self.paint_extent(rec)
+            self.get_z_max_z_min()
+            self.ini_dimensions()
+        except ValueError:
+            QMessageBox.warning(self, self.tr("Attention"), self.tr("Value entered incorrect"))
+
     def paint_extent(self, rec):
         self.roi_x_max = rec.xMaximum()
         self.ui.XMaxLineEdit.setText(str(round(rec.xMaximum(), 3)))
@@ -283,6 +381,9 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ui.XMinLineEdit.setText(str(round(rec.xMinimum(), 3)))
         self.roi_y_max = rec.yMaximum()
         self.ui.YMaxLineEdit.setText(str(round(rec.yMaximum(), 3)))
+
+        self.ui.WidthGeoLineEdit.setText(str(round(rec.xMaximum() - rec.xMinimum(), 3)))
+        self.ui.HeightGeoLineEdit.setText(str(round(rec.yMaximum() - rec.yMinimum(), 3)))
 
         if self.extent:
             self.canvas.scene().removeItem(self.extent)

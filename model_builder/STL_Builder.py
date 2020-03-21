@@ -24,38 +24,36 @@
 from builtins import str
 from builtins import range
 import collections
-
+import struct
 import math
 
-from qgis.PyQt import QtCore
-from qgis.PyQt.QtCore import QThread
+from qgis.PyQt.QtCore import QThread, pyqtSignal
+
+BINARY_HEADER = "80sI"
+BINARY_FACET = "12fH"
 
 
 class STL(QThread):
     """Class where is built the stl file from the mesh point that decribe the model surface"""
     normal = collections.namedtuple('normal', 'normal_x normal_y normal_z')
     pto = collections.namedtuple('pto', 'x y z')
-    updateProgress = QtCore.pyqtSignal()
+    updateProgress = pyqtSignal()
 
-    def __init__(self, progbar, label, button, parameters, stl_file, dem_matrix):
+    def __init__(self, parameters, stl_file, dem_matrix):
         QThread.__init__(self)
-        self.progbar = progbar
-        self.label = label
-        self.button = button
         self.parameters = parameters
         self.stl_file = stl_file
         self.matrix_dem = dem_matrix
-
         self.quit = False
-        self.button.clicked.connect(self.cancel)
 
     def run(self):
+        self.write_binary()
+
+    def write_ascii(self):
         f = open(self.stl_file, "w")
         f.write("solid model\n")
 
         dem = self.face_dem_vector(self.matrix_dem)
-        self.bar.setMaximum(dem.__len__() * 2)
-        self.bar.setValue(0)
         for face in dem:
             self.updateProgress.emit()
             f.write("   facet normal 0 0 -1 " + "\n")
@@ -104,11 +102,66 @@ class STL(QThread):
             f.write("   endfacet\n")
             if self.quit:
                 f.close()
-
                 return 0
 
         f.write("endsolid model\n")
         f.close()
+
+    def write_binary(self):
+        counter = 0
+        stream = open(self.stl_file, "wb")
+        stream.seek(0)
+        stream.write(struct.pack(BINARY_HEADER, b'Python Binary STL Writer', counter))
+
+        dem = self.face_dem_vector(self.matrix_dem)
+        for face in dem:
+            self.updateProgress.emit()
+            counter += 1
+            data = [
+                0, 0, -1,
+                getattr(face[1], "x"), getattr(face[1], "y"), 0,
+                getattr(face[0], "x"), getattr(face[0], "y"), 0,
+                getattr(face[2], "x"), getattr(face[2], "y"), 0,
+                0
+            ]
+            stream.write(struct.pack(BINARY_FACET, *data))
+            if self.quit:
+                stream.close()
+                return 0
+
+        wall = self.face_wall_vector(self.matrix_dem)
+        for face in wall:
+            counter += 1
+            data = [
+                getattr(face[3], "normal_x"), getattr(face[3], "normal_y"), getattr(face[3], "normal_z"),
+                getattr(face[0], "x"), getattr(face[0], "y"), getattr(face[0], "z"),
+                getattr(face[1], "x"), getattr(face[1], "y"), getattr(face[1], "z"),
+                getattr(face[2], "x"), getattr(face[2], "y"), getattr(face[2], "z"),
+                0
+            ]
+            stream.write(struct.pack(BINARY_FACET, *data))
+            if self.quit:
+                stream.close()
+                return 0
+
+        for face in dem:
+            self.updateProgress.emit()
+            counter += 1
+            data = [
+                getattr(face[3], "normal_x"), getattr(face[3], "normal_y"), getattr(face[3], "normal_z"),
+                getattr(face[0], "x"), getattr(face[0], "y"), getattr(face[0], "z"),
+                getattr(face[1], "x"), getattr(face[1], "y"), getattr(face[1], "z"),
+                getattr(face[2], "x"), getattr(face[2], "y"), getattr(face[2], "z"),
+                0
+            ]
+            stream.write(struct.pack(BINARY_FACET, *data))
+            if self.quit:
+                stream.close()
+                return 0
+
+        stream.seek(0)
+        stream.write(struct.pack(BINARY_HEADER, b'Python Binary STL Writer', counter))
+        stream.close()
 
     def face_wall_vector(self, matrix_dem):
         rows = matrix_dem.__len__()
@@ -190,6 +243,3 @@ class STL(QThread):
         except ZeroDivisionError:
             v_normal = self.normal(normal_x=0, normal_y=0, normal_z=0)
         return v_normal
-
-    def cancel(self):
-        self.quit = True
