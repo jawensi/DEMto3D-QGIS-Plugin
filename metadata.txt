@@ -8,10 +8,10 @@
 
 [general]
 name=DEMto3D
-qgisMinimumVersion=3.3
+qgisMinimumVersion=3.0
 description=3D Printing of terrain models.
 about=DEMto3D is the first tool that links GIS (Geographic Information System) and 3D printing. DEMto3D allows export DEM to STL format ready to 3D printing.
-version=3.
+version=3.3
 author=Francisco Javier Venceslá Simón
 email=demto3d@gmail.com
 
