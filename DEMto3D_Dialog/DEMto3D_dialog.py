@@ -35,7 +35,7 @@ from qgis.gui import QgsRubberBand, QgsMapTool
 from . import Export_dialog
 from . import SelectLayer_dialog
 from .DEMto3D_dialog_base import Ui_DEMto3DDialogBase
-from qgis.core import QgsPointXY, QgsPoint, QgsRectangle, QgsProject, QgsGeometry, QgsCoordinateTransform, Qgis, QgsMapLayerProxyModel
+from qgis.core import QgsPointXY, QgsPoint, QgsRectangle, QgsProject, QgsGeometry, QgsCoordinateTransform, Qgis, QgsMapLayerProxyModel, QgsCoordinateReferenceSystem
 
 from ..model_builder.Model_Builder import Model
 
@@ -192,21 +192,32 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             with open(setting_file[0]) as json_file:
                 try:
                     parameters = json.load(json_file)
-                    self.roi_x_max = parameters["roi_x_max"]
+
+                    param_crs = QgsCoordinateReferenceSystem()
+                    param_crs.createFromProj4(parameters["crs_map"])
+                    if (self.map_crs != param_crs):
+                        # do traslation
+                        transform = QgsCoordinateTransform(param_crs, self.map_crs, QgsProject.instance())
+                        pointMin = transform.transform(parameters["roi_x_min"], parameters["roi_y_min"])
+                        pointMax = transform.transform(parameters["roi_x_max"], parameters["roi_y_max"])
+                        self.roi_x_max = pointMax.x()
+                        self.roi_y_min = pointMin.y()
+                        self.roi_x_min = pointMin.x()
+                        self.roi_y_max = pointMax.y()
+                    else:
+                        self.roi_x_max = parameters["roi_x_max"]
+                        self.roi_y_min = parameters["roi_y_min"]
+                        self.roi_x_min = parameters["roi_x_min"]
+                        self.roi_y_max = parameters["roi_y_max"]
+
                     self.ui.XMaxLineEdit.setText(str(round(self.roi_x_max, 3)))
-                    self.roi_y_min = parameters["roi_y_min"]
                     self.ui.YMinLineEdit.setText(str(round(self.roi_y_min, 3)))
-                    self.roi_x_min = parameters["roi_x_min"]
                     self.ui.XMinLineEdit.setText(str(round(self.roi_x_min, 3)))
-                    self.roi_y_max = parameters["roi_y_max"]
                     self.ui.YMaxLineEdit.setText(str(round(self.roi_y_max, 3)))
 
+                    rec = QgsRectangle(self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
                     self.ui.WidthGeoLineEdit.setText(str(round(rec.xMaximum() - rec.xMinimum(), 3)))
                     self.ui.HeightGeoLineEdit.setText(str(round(rec.yMaximum() - rec.yMinimum(), 3)))
-
-                    # distX = math.sqrt()
-
-                    rec = QgsRectangle(self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
                     self.paint_extent(rec)
                     self.get_z_max_z_min()
 

@@ -108,60 +108,63 @@ class STL(QThread):
         f.close()
 
     def write_binary(self):
-        counter = 0
-        stream = open(self.stl_file, "wb")
-        stream.seek(0)
-        stream.write(struct.pack(BINARY_HEADER, b'Python Binary STL Writer', counter))
+        try:
+            counter = 0
+            stream = open(self.stl_file, "wb")
+            stream.seek(0)
+            stream.write(struct.pack(BINARY_HEADER, b'Python Binary STL Writer', counter))
 
-        dem = self.face_dem_vector(self.matrix_dem)
-        for face in dem:
-            self.updateProgress.emit()
-            counter += 1
-            data = [
-                0, 0, -1,
-                getattr(face[1], "x"), getattr(face[1], "y"), 0,
-                getattr(face[0], "x"), getattr(face[0], "y"), 0,
-                getattr(face[2], "x"), getattr(face[2], "y"), 0,
-                0
-            ]
-            stream.write(struct.pack(BINARY_FACET, *data))
-            if self.quit:
-                stream.close()
-                return 0
+            dem = self.face_dem_vector(self.matrix_dem)
+            for face in dem:
+                self.updateProgress.emit()
+                counter += 1
+                data = [
+                    0, 0, -1,
+                    getattr(face[1], "x"), getattr(face[1], "y"), 0,
+                    getattr(face[0], "x"), getattr(face[0], "y"), 0,
+                    getattr(face[2], "x"), getattr(face[2], "y"), 0,
+                    0
+                ]
+                stream.write(struct.pack(BINARY_FACET, *data))
+                if self.quit:
+                    stream.close()
+                    return 0
 
-        wall = self.face_wall_vector(self.matrix_dem)
-        for face in wall:
-            counter += 1
-            data = [
-                getattr(face[3], "normal_x"), getattr(face[3], "normal_y"), getattr(face[3], "normal_z"),
-                getattr(face[0], "x"), getattr(face[0], "y"), getattr(face[0], "z"),
-                getattr(face[1], "x"), getattr(face[1], "y"), getattr(face[1], "z"),
-                getattr(face[2], "x"), getattr(face[2], "y"), getattr(face[2], "z"),
-                0
-            ]
-            stream.write(struct.pack(BINARY_FACET, *data))
-            if self.quit:
-                stream.close()
-                return 0
+            wall = self.face_wall_vector(self.matrix_dem)
+            for face in wall:
+                counter += 1
+                data = [
+                    getattr(face[3], "normal_x"), getattr(face[3], "normal_y"), getattr(face[3], "normal_z"),
+                    getattr(face[0], "x"), getattr(face[0], "y"), getattr(face[0], "z"),
+                    getattr(face[1], "x"), getattr(face[1], "y"), getattr(face[1], "z"),
+                    getattr(face[2], "x"), getattr(face[2], "y"), getattr(face[2], "z"),
+                    0
+                ]
+                stream.write(struct.pack(BINARY_FACET, *data))
+                if self.quit:
+                    stream.close()
+                    return 0
 
-        for face in dem:
-            self.updateProgress.emit()
-            counter += 1
-            data = [
-                getattr(face[3], "normal_x"), getattr(face[3], "normal_y"), getattr(face[3], "normal_z"),
-                getattr(face[0], "x"), getattr(face[0], "y"), getattr(face[0], "z"),
-                getattr(face[1], "x"), getattr(face[1], "y"), getattr(face[1], "z"),
-                getattr(face[2], "x"), getattr(face[2], "y"), getattr(face[2], "z"),
-                0
-            ]
-            stream.write(struct.pack(BINARY_FACET, *data))
-            if self.quit:
-                stream.close()
-                return 0
+            for face in dem:
+                self.updateProgress.emit()
+                counter += 1
+                data = [
+                    getattr(face[3], "normal_x"), getattr(face[3], "normal_y"), getattr(face[3], "normal_z"),
+                    getattr(face[0], "x"), getattr(face[0], "y"), getattr(face[0], "z"),
+                    getattr(face[1], "x"), getattr(face[1], "y"), getattr(face[1], "z"),
+                    getattr(face[2], "x"), getattr(face[2], "y"), getattr(face[2], "z"),
+                    0
+                ]
+                stream.write(struct.pack(BINARY_FACET, *data))
+                if self.quit:
+                    stream.close()
+                    return 0
 
-        stream.seek(0)
-        stream.write(struct.pack(BINARY_HEADER, b'Python Binary STL Writer', counter))
-        stream.close()
+            stream.seek(0)
+            stream.write(struct.pack(BINARY_HEADER, b'Python Binary STL Writer', counter))
+            stream.close()
+        except:
+            stream.close()
 
     def face_wall_vector(self, matrix_dem):
         rows = matrix_dem.__len__()
