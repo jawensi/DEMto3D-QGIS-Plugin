@@ -76,6 +76,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
     changeScale = True
 
+    divisions = None
+
     def __init__(self, iface):
         """Constructor."""
         QDialog.__init__(self)
@@ -141,6 +143,9 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ui.ZScaleDoubleSpinBox.valueChanged.connect(self.get_height_model)
         self.ui.BaseHeightLineEdit.returnPressed.connect(self.get_height_model)
 
+        self.ui.RowPartsSpinBox.valueChanged.connect(self.paint_model_division)
+        self.ui.ColPartsSpinBox.valueChanged.connect(self.paint_model_division)
+
         # region BOTTOM BUTTONS ACTION
         menu = QMenu(self.iface.mainWindow())
         menu.addAction(self.tr('Export settings'), self.export_params)
@@ -188,6 +193,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                     "scale_w": parameters['scale_w'],
                     "z_inv": parameters['z_inv'],
                     "z_base": parameters['z_base'],
+                    "divideRow": parameters['divideRow'],
+                    "divideCols": parameters['divideCols'],
                     "projected": parameters['projected'],
                     "crs_layer": parameters['crs_layer'].toProj4(),
                     "crs_map": parameters['crs_map'].toProj4(),
@@ -243,6 +250,11 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                     self.ui.BaseHeightLineEdit.setText(str(round(parameters["z_base"], 3)))
                     self.ui.RevereseZCheckBox.setChecked(parameters["z_inv"])
                     self.get_height_model()
+
+                    if "divideRow" in parameters:
+                        self.ui.RowPartsSpinBox.setValue(int(parameters["divideRow"]))
+                    if "divideCols" in parameters:
+                        self.ui.ColPartsSpinBox.setValue(int(parameters["divideCols"]))
                 except:
                     QMessageBox.warning(self, self.tr("Attention"), self.tr("Wrong file"))
 
@@ -663,12 +675,41 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         else:
             z_inv = False
 
+        rows = int(self.ui.RowPartsSpinBox.value())
+        cols = int(self.ui.ColPartsSpinBox.value())
+
         return {"layer": path_layer[0],
                 "roi_x_max": self.roi_x_max, "roi_x_min": self.roi_x_min, "roi_y_max": self.roi_y_max, "roi_y_min": self.roi_y_min,
                 "spacing_mm": spacing_mm, "height": self.height, "width": self.width,
                 "z_scale": self.z_scale, "scale": self.scale, "scale_h": self.scale_h, "scale_w": self.scale_w,
                 "z_inv": z_inv, "z_base": z_base,
-                "projected": projected, "crs_layer": self.layer.crs(), "crs_map": self.map_crs}
+                "projected": projected, "crs_layer": self.layer.crs(), "crs_map": self.map_crs, "divideRow": rows, "divideCols": cols}
+
+    def paint_model_division(self):
+        if self.divisions:
+            self.canvas.scene().removeItem(self.divisions)
+            self.divisions = []
+        x_models = int(self.ui.RowPartsSpinBox.value())
+        y_models = int(self.ui.ColPartsSpinBox.value())
+        lines = []
+        if y_models > 1:
+            roi_height = self.roi_y_max - self.roi_y_min
+            model_height = roi_height / y_models
+            for i in range(1, y_models):
+                lines.append([QgsPointXY(self.roi_x_min, self.roi_y_min + model_height * i),
+                              QgsPointXY(self.roi_x_max, self.roi_y_min + model_height * i)])
+        if x_models > 1:
+            roi_width = self.roi_x_max - self.roi_x_min
+            model_width = roi_width / x_models
+            for i in range(1, x_models):
+                lines.append([QgsPointXY(self.roi_x_min + model_width * i, self.roi_y_min),
+                              QgsPointXY(self.roi_x_min + model_width * i, self.roi_y_max)])
+        if lines:
+            self.divisions = QgsRubberBand(self.canvas, False)
+            self.divisions.setColor(QColor(227, 26, 28, 255))
+            self.divisions.setWidth(3)
+            self.divisions.setLineStyle(Qt.PenStyle(Qt.DashDotLine))
+            self.divisions.setToGeometry(QgsGeometry.fromMultiPolylineXY(lines), None)
 
 
 class RectangleMapTool(QgsMapTool):
@@ -701,7 +742,7 @@ class RectangleMapTool(QgsMapTool):
         self.isEmittingPoint = False
         r = self.rectangle()
         if r is not None:
-            # print "Rectangle:", r.xMinimum(), r.yMinimum(), r.xMaximum(), r.yMaximum()
+                # print "Rectangle:", r.xMinimum(), r.yMinimum(), r.xMaximum(), r.yMaximum()
             self.rubberBand.hide()
             self.callback(r)
         return None

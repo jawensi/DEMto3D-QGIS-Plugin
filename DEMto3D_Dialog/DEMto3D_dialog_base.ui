@@ -39,9 +39,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
-        <width>443</width>
-        <height>514</height>
+        <y>-30</y>
+        <width>426</width>
+        <height>551</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -350,6 +350,9 @@
             </item>
             <item row="4" column="1">
              <widget class="QDoubleSpinBox" name="ZScaleDoubleSpinBox">
+              <property name="prefix">
+               <string>x </string>
+              </property>
               <property name="decimals">
                <number>3</number>
               </property>
@@ -519,6 +522,64 @@
              </widget>
             </item>
            </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Divide Model</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Parts:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QSpinBox" name="ColPartsSpinBox">
+            <property name="suffix">
+             <string> column</string>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="value">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="RowPartsSpinBox">
+            <property name="suffix">
+             <string> row</string>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="value">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_14">
+            <property name="maximumSize">
+             <size>
+              <width>15</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>X</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
