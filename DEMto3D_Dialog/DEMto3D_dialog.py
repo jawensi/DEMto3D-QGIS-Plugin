@@ -88,7 +88,18 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.setCanvasCRS()
 
         self.units = self.map_crs.mapUnits()
-        # 0 Meters. 1 Kilometers. 2 feet. 3 miles. 4 yards. 5 miles. 6 Degrees. 7 Centimeters. 8 Millimeters. 9 Unknown
+        # --- QgsUnitTypes.DistanceUnit ---
+        # DistanceMeters         0 Meters.
+        # DistanceKilometers     1 Kilometers.
+        # DistanceFeet           2 Imperial feet.
+        # DistanceNauticalMiles  3 Nautical miles.
+        # DistanceYards          4 Imperial yards.
+        # DistanceMiles          5 Terrestrial miles.
+        # DistanceDegrees        6 Degrees, for planar geographic CRS distance measurements.
+        # DistanceCentimeters    7 Centimeters.
+        # DistanceMillimeters    8 Millimeters.
+        # DistanceUnknownUnit    9 Unknown distance unit.
+
         if self.units != 0 and self.units != 6:
             QMessageBox.warning(self, self.tr("Attention"), self.tr("Units not supported"))
 
@@ -499,7 +510,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 width_roi = self.roi_x_max - self.roi_x_min
                 cell_size_deg = self.cell_size / math.pi * 180 / math.cos(self.roi_y_max * math.pi / 180) / 6371000
                 min_spacing = round(cell_size_deg * self.width / width_roi, 2)
-            elif self.layer.crs().mapUnits() == 2:
+            elif self.layer.crs().mapUnits() == 6:
                 width_roi = self.roi_x_max - self.roi_x_min
                 min_spacing = round(self.cell_size * self.width / width_roi, 2)
         if min_spacing < 0.2:

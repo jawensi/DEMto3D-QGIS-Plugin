@@ -88,6 +88,11 @@ class Model(QThread):
         col_stl = int(math.ceil(width / spacing_mm) + 1)
         matrix_dem = [list(range(col_stl)) for i in range(row_stl)]
 
+        source = self.parameters["crs_map"]
+        target = self.parameters["crs_layer"]
+        if source != target:
+            transform = QgsCoordinateTransform(source, target, QgsProject.instance())
+
         var_y = height
         for i in range(row_stl):
             self.updateProgress.emit()
@@ -107,10 +112,7 @@ class Model(QThread):
 
                 # Model layer geo_coordinates to query z value
                 point = QgsPoint(x, y)
-                source = self.parameters["crs_map"]
-                target = self.parameters["crs_layer"]
                 if source != target:
-                    transform = QgsCoordinateTransform(source, target, QgsProject.instance())
                     point = transform.transform(point)
                     x = point.x()
                     y = point.y()
