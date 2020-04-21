@@ -71,12 +71,13 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     raster_y_max = 0
     raster_y_min = 0
 
+    divisions = None
     rect_map_tool = None
     lastSavingPath = ''
 
     changeScale = True
 
-    divisions = None
+    
 
     def __init__(self, iface):
         """Constructor."""
@@ -298,6 +299,9 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         if self.extent:
             self.canvas.scene().removeItem(self.extent)
             self.extent = None
+        if self.divisions:
+            self.canvas.scene().removeItem(self.divisions)
+            self.divisions = []
         self.ini_dimensions()
         self.ui.ZMaxLabel.setText('0 m')
         self.ui.ZMinLabel.setText('0 m')
@@ -357,6 +361,9 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         if self.extent:
             self.canvas.scene().removeItem(self.extent)
             self.extent = None
+        if self.divisions:
+            self.canvas.scene().removeItem(self.divisions)
+            self.divisions = []
         self.rect_map_tool = RectangleMapTool(self.canvas, self.get_custom_extent)
         self.canvas.setMapTool(self.rect_map_tool)
 
@@ -422,6 +429,9 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         if self.extent:
             self.canvas.scene().removeItem(self.extent)
             self.extent = None
+        if self.divisions:
+            self.canvas.scene().removeItem(self.divisions)
+            self.divisions = []
 
         self.extent = QgsRubberBand(self.canvas, True)
 
@@ -433,6 +443,9 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.extent.setColor(QColor(227, 26, 28, 255))
         self.extent.setWidth(3)
         self.extent.setLineStyle(Qt.PenStyle(Qt.DashLine))
+
+        self.paint_model_division()
+
         self.canvas.refresh()
 
     def get_z_max_z_min(self):
@@ -689,8 +702,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         if self.divisions:
             self.canvas.scene().removeItem(self.divisions)
             self.divisions = []
-        x_models = int(self.ui.RowPartsSpinBox.value())
-        y_models = int(self.ui.ColPartsSpinBox.value())
+        x_models = int(self.ui.ColPartsSpinBox.value())
+        y_models = int(self.ui.RowPartsSpinBox.value())
         lines = []
         if y_models > 1:
             roi_height = self.roi_y_max - self.roi_y_min
