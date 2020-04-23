@@ -21,7 +21,9 @@ email=demto3d@gmail.com
 
 # Uncomment the following line and add your changelog:
 # changelog = 
-    Fix parameter importer when crs canvas and crs parameters are differents. 
+    Fix parameter importer when crs canvas and crs parameters are differents.
+    New division model feature. Export extension to GeoJSON.
+     
 
 # Tags are comma separated with spaces allowed
 tags=dem, 3D printing, raster, 3D, relief terrain, STL
