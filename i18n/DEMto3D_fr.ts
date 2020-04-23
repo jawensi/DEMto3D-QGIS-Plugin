@@ -108,6 +108,21 @@
         <source>enable</source>
         <translation>activer</translation>
     </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="401"/>
+        <source>Divide model:</source>
+        <translation>Diviser le modèle:</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="401"/>
+        <source> row</source>
+        <translation> lignes</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="401"/>
+        <source> column</source>
+        <translation> colonnes</translation>
+    </message>
 
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="392"/>
@@ -201,8 +216,23 @@
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Parameters exported</source>
+        <translation>Paramètres exportés</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
         <source>Import settings</source>
         <translation>Importer des paramètres</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Export extension to GeoJSON</source>
+        <translation>Exporter extension GeoJSON</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Extension exported</source>
+        <translation>Extension exportée</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog.py" line="249"/>

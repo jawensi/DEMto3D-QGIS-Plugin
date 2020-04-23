@@ -35,7 +35,7 @@ from qgis.gui import QgsRubberBand, QgsMapTool
 from . import Export_dialog
 from . import SelectLayer_dialog
 from .DEMto3D_dialog_base import Ui_DEMto3DDialogBase
-from qgis.core import QgsPointXY, QgsPoint, QgsRectangle, QgsProject, QgsGeometry, QgsCoordinateTransform, Qgis, QgsMapLayerProxyModel, QgsCoordinateReferenceSystem
+from qgis.core import QgsPointXY, QgsPoint, QgsRectangle, QgsFeature, QgsProject, QgsGeometry, QgsCoordinateTransform, Qgis, QgsMapLayerProxyModel, QgsCoordinateReferenceSystem, QgsVectorLayer, QgsVectorFileWriter
 
 from ..model_builder.Model_Builder import Model
 
@@ -76,8 +76,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     lastSavingPath = ''
 
     changeScale = True
-
-    
 
     def __init__(self, iface):
         """Constructor."""
@@ -151,6 +149,9 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         menu = QMenu(self.iface.mainWindow())
         menu.addAction(self.tr('Export settings'), self.export_params)
         menu.addAction(self.tr('Import settings'), self.import_params)
+        menu.addSeparator()
+        menu.addAction(self.tr('Export extension to GeoJSON'), self.exportExtensionToJSON)
+
         self.ui.ParamPushButton.setMenu(menu)
 
         self.ui.CancelToolButton.clicked.connect(self.reject)
@@ -202,6 +203,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 }
                 with open(setting_file[0], 'w') as fp:
                     json.dump(obj_info, fp, indent=4)
+                QMessageBox.information(self, self.tr("Attention"), self.tr("Parameters exported"))
         else:
             QMessageBox.warning(self, self.tr("Attention"), self.tr("Fill the data correctly"))
 
@@ -258,6 +260,34 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                         self.ui.ColPartsSpinBox.setValue(int(parameters["divideCols"]))
                 except:
                     QMessageBox.warning(self, self.tr("Attention"), self.tr("Wrong file"))
+
+    def exportExtensionToJSON(self):
+        parameters = self.get_parameters()
+        file_name = self.layer.name() + '_area.geojson'
+        if parameters != 0:
+            setting_file = QFileDialog.getSaveFileName(self, self.tr('Export extension to GeoJSON'), self.lastSavingPath + file_name, "*.geojson")
+            if setting_file[0] != '':
+                self.lastSavingPath = os.path.dirname(setting_file[0]) + '//'
+
+                # Specify the geometry type
+                layer = QgsVectorLayer('Polygon?crs=' + self.map_crs.authid(), 'polygon', 'memory')
+                # Set the provider to accept the data source
+                prov = layer.dataProvider()
+                points = [[QgsPointXY(self.roi_x_max, self.roi_y_min), QgsPointXY(self.roi_x_max, self.roi_y_max),
+                          QgsPointXY(self.roi_x_min, self.roi_y_max), QgsPointXY(self.roi_x_min, self.roi_y_min)]]
+                # Add a new feature and assign the geometry
+                feat = QgsFeature()
+                feat.setGeometry(QgsGeometry.fromPolygonXY(points))
+                prov.addFeatures([feat])
+                # Update extent of the layer
+                layer.updateExtents()
+                # # Add the layer to the Layers panel
+                # QgsMapLayerRegistry.instance().addMapLayers([layer])
+                QgsVectorFileWriter.writeAsVectorFormat(layer, setting_file[0], 'utf-8', self.map_crs, 'GeoJSON', layerOptions=['COORDINATE_PRECISION=3'])
+                QMessageBox.information(self, self.tr("Attention"), self.tr("Extension exported"))
+
+        else:
+            QMessageBox.warning(self, self.tr("Attention"), self.tr("Fill the data correctly"))
 
     def do_export(self):
 
