@@ -100,7 +100,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         # DistanceCentimeters    7 Centimeters.
         # DistanceMillimeters    8 Millimeters.
         # DistanceUnknownUnit    9 Unknown distance unit.
-
         if self.units != 0 and self.units != 6:
             QMessageBox.warning(self, self.tr("Attention"), self.tr("Units not supported"))
 
@@ -177,7 +176,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         parameters = self.get_parameters()
         file_name = self.layer.name() + '_param.txt'
         if parameters != 0:
-            setting_file = QFileDialog.getSaveFileName(self, self.tr('Export settings'), self.lastSavingPath + file_name, "*.txt")
+            setting_file = QFileDialog.getSaveFileName(self, self.tr(
+                'Export settings'), self.lastSavingPath + file_name, "*.txt")
             if setting_file[0] != '':
                 self.lastSavingPath = os.path.dirname(setting_file[0]) + '//'
                 obj_info = {
@@ -203,12 +203,15 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 }
                 with open(setting_file[0], 'w') as fp:
                     json.dump(obj_info, fp, indent=4)
-                QMessageBox.information(self, self.tr("Attention"), self.tr("Parameters exported"))
+                QMessageBox.information(self, self.tr(
+                    "Attention"), self.tr("Parameters exported"))
         else:
-            QMessageBox.warning(self, self.tr("Attention"), self.tr("Fill the data correctly"))
+            QMessageBox.warning(self, self.tr("Attention"),
+                                self.tr("Fill the data correctly"))
 
     def import_params(self):
-        setting_file = QFileDialog.getOpenFileName(self, self.tr("Open settings file"), self.lastSavingPath, "*.txt")
+        setting_file = QFileDialog.getOpenFileName(self, self.tr(
+            "Open settings file"), self.lastSavingPath, "*.txt")
         if setting_file[0] != '':
             with open(setting_file[0]) as json_file:
                 try:
@@ -218,9 +221,12 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                     param_crs.createFromProj4(parameters["crs_map"])
                     if (self.map_crs != param_crs):
                         # do traslation
-                        transform = QgsCoordinateTransform(param_crs, self.map_crs, QgsProject.instance())
-                        pointMin = transform.transform(parameters["roi_x_min"], parameters["roi_y_min"])
-                        pointMax = transform.transform(parameters["roi_x_max"], parameters["roi_y_max"])
+                        transform = QgsCoordinateTransform(
+                            param_crs, self.map_crs, QgsProject.instance())
+                        pointMin = transform.transform(
+                            parameters["roi_x_min"], parameters["roi_y_min"])
+                        pointMax = transform.transform(
+                            parameters["roi_x_max"], parameters["roi_y_max"])
                         self.roi_x_max = pointMax.x()
                         self.roi_y_min = pointMin.y()
                         self.roi_x_min = pointMin.x()
@@ -236,13 +242,17 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                     self.ui.XMinLineEdit.setText(str(round(self.roi_x_min, 3)))
                     self.ui.YMaxLineEdit.setText(str(round(self.roi_y_max, 3)))
 
-                    rec = QgsRectangle(self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
-                    self.ui.WidthGeoLineEdit.setText(str(round(rec.xMaximum() - rec.xMinimum(), 3)))
-                    self.ui.HeightGeoLineEdit.setText(str(round(rec.yMaximum() - rec.yMinimum(), 3)))
+                    rec = QgsRectangle(
+                        self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
+                    self.ui.WidthGeoLineEdit.setText(
+                        str(round(rec.xMaximum() - rec.xMinimum(), 3)))
+                    self.ui.HeightGeoLineEdit.setText(
+                        str(round(rec.yMaximum() - rec.yMinimum(), 3)))
                     self.paint_extent(rec)
                     self.get_z_max_z_min()
 
-                    self.ui.SpacingLineEdit.setText(str(round(parameters["spacing_mm"], 2)))
+                    self.ui.SpacingLineEdit.setText(
+                        str(round(parameters["spacing_mm"], 2)))
                     self.scale = parameters['scale']
                     self.scale_h = parameters['scale_h']
                     self.scale_w = parameters['scale_w']
@@ -250,31 +260,40 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                     self.upload_size_from_scale()
                     self.ui.ZScaleDoubleSpinBox.setValue(parameters["z_scale"])
 
-                    self.ui.BaseHeightLineEdit.setText(str(round(parameters["z_base"], 3)))
+                    self.ui.BaseHeightLineEdit.setText(
+                        str(round(parameters["z_base"], 3)))
                     self.ui.RevereseZCheckBox.setChecked(parameters["z_inv"])
                     self.get_height_model()
 
                     if "divideRow" in parameters:
-                        self.ui.RowPartsSpinBox.setValue(int(parameters["divideRow"]))
+                        self.ui.RowPartsSpinBox.setValue(
+                            int(parameters["divideRow"]))
                     if "divideCols" in parameters:
-                        self.ui.ColPartsSpinBox.setValue(int(parameters["divideCols"]))
+                        self.ui.ColPartsSpinBox.setValue(
+                            int(parameters["divideCols"]))
                 except:
-                    QMessageBox.warning(self, self.tr("Attention"), self.tr("Wrong file"))
+                    QMessageBox.warning(self, self.tr(
+                        "Attention"), self.tr("Wrong file"))
 
     def exportExtensionToJSON(self):
-        parameters = self.get_parameters()
-        file_name = self.layer.name() + '_area.geojson'
-        if parameters != 0:
-            setting_file = QFileDialog.getSaveFileName(self, self.tr('Export extension to GeoJSON'), self.lastSavingPath + file_name, "*.geojson")
+        try:
+            self.roi_x_max = float(self.ui.XMaxLineEdit.text())
+            self.roi_x_min = float(self.ui.XMinLineEdit.text())
+            self.roi_y_max = float(self.ui.YMaxLineEdit.text())
+            self.roi_y_min = float(self.ui.YMinLineEdit.text())
+
+            file_name = self.layer.name() + '_area.geojson'
+            setting_file = QFileDialog.getSaveFileName(self, self.tr(
+                'Export extension to GeoJSON'), self.lastSavingPath + file_name, "*.geojson")
             if setting_file[0] != '':
                 self.lastSavingPath = os.path.dirname(setting_file[0]) + '//'
-
                 # Specify the geometry type
-                layer = QgsVectorLayer('Polygon?crs=' + self.map_crs.authid(), 'polygon', 'memory')
+                layer = QgsVectorLayer(
+                    'Polygon?crs=' + self.map_crs.authid(), 'polygon', 'memory')
                 # Set the provider to accept the data source
                 prov = layer.dataProvider()
                 points = [[QgsPointXY(self.roi_x_max, self.roi_y_min), QgsPointXY(self.roi_x_max, self.roi_y_max),
-                          QgsPointXY(self.roi_x_min, self.roi_y_max), QgsPointXY(self.roi_x_min, self.roi_y_min)]]
+                           QgsPointXY(self.roi_x_min, self.roi_y_max), QgsPointXY(self.roi_x_min, self.roi_y_min)]]
                 # Add a new feature and assign the geometry
                 feat = QgsFeature()
                 feat.setGeometry(QgsGeometry.fromPolygonXY(points))
@@ -283,16 +302,19 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 layer.updateExtents()
                 # # Add the layer to the Layers panel
                 # QgsMapLayerRegistry.instance().addMapLayers([layer])
-                QgsVectorFileWriter.writeAsVectorFormat(layer, setting_file[0], 'utf-8', self.map_crs, 'GeoJSON', layerOptions=['COORDINATE_PRECISION=3'])
-                QMessageBox.information(self, self.tr("Attention"), self.tr("Extension exported"))
-
-        else:
-            QMessageBox.warning(self, self.tr("Attention"), self.tr("Fill the data correctly"))
+                QgsVectorFileWriter.writeAsVectorFormat(
+                    layer, setting_file[0], 'utf-8', self.map_crs, 'GeoJSON', layerOptions=['COORDINATE_PRECISION=3'])
+                QMessageBox.information(self, self.tr(
+                    "Attention"), self.tr("Extension exported"))
+        except:
+            QMessageBox.warning(self, self.tr("Attention"),
+                                self.tr("Fill the data correctly"))
 
     def do_export(self):
 
         def export():
-            stl_file = QFileDialog.getSaveFileName(self, self.tr('Export to STL'), self.lastSavingPath + layer_name, filter=".stl")
+            stl_file = QFileDialog.getSaveFileName(self, self.tr(
+                'Export to STL'), self.lastSavingPath + layer_name, filter=".stl")
             if stl_file[0] != '':
                 self.lastSavingPath = os.path.dirname(stl_file[0]) + '//'
                 Export_dialog.Export(self, parameters, stl_file[0])
@@ -300,19 +322,22 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         parameters = self.get_parameters()
         layer_name = self.layer.name() + '_model.stl'
         if parameters != 0:
-            row_stl = int(math.ceil(self.height / parameters["spacing_mm"]) + 1)
+            row_stl = int(
+                math.ceil(self.height / parameters["spacing_mm"]) + 1)
             col_stl = int(math.ceil(self.width / parameters["spacing_mm"]) + 1)
             tooMuchPoints = row_stl * col_stl > 500000
             if tooMuchPoints:
                 reply = QMessageBox.question(self, self.tr('Export to STL'),
-                                             self.tr('The construction of the STL file could takes several minutes. Do you want to continue?'),
+                                             self.tr(
+                                                 'The construction of the STL file could takes several minutes. Do you want to continue?'),
                                              QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                 if reply == QMessageBox.Yes:
                     export()
             else:
                 export()
         else:
-            QMessageBox.warning(self, self.tr("Attention"), self.tr("Fill the data correctly"))
+            QMessageBox.warning(self, self.tr("Attention"),
+                                self.tr("Fill the data correctly"))
 
     def get_currlayer(self, layer):
         if layer and self.layer != layer:
@@ -367,7 +392,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         canvasCRS = self.map_crs
         layerCRS = self.layer.crs()
         if canvasCRS != layerCRS:
-            transform = QgsCoordinateTransform(layerCRS, canvasCRS, QgsProject.instance())
+            transform = QgsCoordinateTransform(
+                layerCRS, canvasCRS, QgsProject.instance())
             rec = transform.transform(rec)
         self.paint_extent(rec)
         self.get_z_max_z_min()
@@ -382,19 +408,22 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 canvasCRS = self.map_crs
                 layerCRS = layer.crs()
                 if canvasCRS != layerCRS:
-                    transform = QgsCoordinateTransform(layerCRS, canvasCRS, QgsProject.instance())
+                    transform = QgsCoordinateTransform(
+                        layerCRS, canvasCRS, QgsProject.instance())
                     rec = transform.transform(rec)
                 self.get_custom_extent(rec)
 
     def custom_extent(self):
-        self.iface.messageBar().pushMessage("Info", self.tr("Click and drag the mouse to draw print extent"), level=Qgis.Info, duration=3)
+        self.iface.messageBar().pushMessage("Info", self.tr(
+            "Click and drag the mouse to draw print extent"), level=Qgis.Info, duration=3)
         if self.extent:
             self.canvas.scene().removeItem(self.extent)
             self.extent = None
         if self.divisions:
             self.canvas.scene().removeItem(self.divisions)
             self.divisions = []
-        self.rect_map_tool = RectangleMapTool(self.canvas, self.get_custom_extent)
+        self.rect_map_tool = RectangleMapTool(
+            self.canvas, self.get_custom_extent)
         self.canvas.setMapTool(self.rect_map_tool)
 
     def get_custom_extent(self, rec):
@@ -402,7 +431,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         dataCRS = self.layer.crs()
         canvasCRS = self.map_crs
         if dataCRS != canvasCRS:
-            transform = QgsCoordinateTransform(dataCRS, canvasCRS, QgsProject.instance())
+            transform = QgsCoordinateTransform(
+                dataCRS, canvasCRS, QgsProject.instance())
             layer_extension = transform.transform(layer_extension)
         if rec.intersects(layer_extension):
             extension = rec.intersect(layer_extension)
@@ -411,7 +441,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.get_z_max_z_min()
             self.ini_dimensions()
         else:
-            QMessageBox.warning(self, self.tr("Attention"), self.tr("Print extent defined outside layer extent"))
+            QMessageBox.warning(self, self.tr("Attention"), self.tr(
+                "Print extent defined outside layer extent"))
 
     def upload_extent(self):
         try:
@@ -419,12 +450,14 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.roi_x_min = float(self.ui.XMinLineEdit.text())
             self.roi_y_max = float(self.ui.YMaxLineEdit.text())
             self.roi_y_min = float(self.ui.YMinLineEdit.text())
-            rec = QgsRectangle(self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
+            rec = QgsRectangle(self.roi_x_min, self.roi_y_min,
+                               self.roi_x_max, self.roi_y_max)
             self.paint_extent(rec)
             self.get_z_max_z_min()
             self.ini_dimensions()
         except ValueError:
-            QMessageBox.warning(self, self.tr("Attention"), self.tr("Value entered incorrect"))
+            QMessageBox.warning(self, self.tr("Attention"),
+                                self.tr("Value entered incorrect"))
 
     def upload_extent_fromWH(self):
         if self.ui.WidthGeoLineEdit.text() == '' or self.ui.HeightGeoLineEdit.text() == '':
@@ -436,12 +469,14 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             heightGeo = float(self.ui.HeightGeoLineEdit.text())
             self.roi_x_max = self.roi_x_min + widthGeo
             self.roi_y_max = self.roi_y_min + heightGeo
-            rec = QgsRectangle(self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
+            rec = QgsRectangle(self.roi_x_min, self.roi_y_min,
+                               self.roi_x_max, self.roi_y_max)
             self.paint_extent(rec)
             self.get_z_max_z_min()
             self.ini_dimensions()
         except ValueError:
-            QMessageBox.warning(self, self.tr("Attention"), self.tr("Value entered incorrect"))
+            QMessageBox.warning(self, self.tr("Attention"),
+                                self.tr("Value entered incorrect"))
 
     def paint_extent(self, rec):
         self.roi_x_max = rec.xMaximum()
@@ -453,8 +488,10 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.roi_y_max = rec.yMaximum()
         self.ui.YMaxLineEdit.setText(str(round(rec.yMaximum(), 3)))
 
-        self.ui.WidthGeoLineEdit.setText(str(round(rec.xMaximum() - rec.xMinimum(), 3)))
-        self.ui.HeightGeoLineEdit.setText(str(round(rec.yMaximum() - rec.yMinimum(), 3)))
+        self.ui.WidthGeoLineEdit.setText(
+            str(round(rec.xMaximum() - rec.xMinimum(), 3)))
+        self.ui.HeightGeoLineEdit.setText(
+            str(round(rec.yMaximum() - rec.yMinimum(), 3)))
 
         if self.extent:
             self.canvas.scene().removeItem(self.extent)
@@ -466,7 +503,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.extent = QgsRubberBand(self.canvas, True)
 
         points = [QgsPoint(self.roi_x_max, self.roi_y_min), QgsPoint(self.roi_x_max, self.roi_y_max),
-                  QgsPoint(self.roi_x_min, self.roi_y_max), QgsPoint(self.roi_x_min, self.roi_y_min),
+                  QgsPoint(self.roi_x_min, self.roi_y_max), QgsPoint(
+                      self.roi_x_min, self.roi_y_min),
                   QgsPoint(self.roi_x_max, self.roi_y_min)]
 
         self.extent.setToGeometry(QgsGeometry.fromPolyline(points), None)
@@ -481,19 +519,23 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     def get_z_max_z_min(self):
 
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-        rec = QgsRectangle(self.roi_x_min, self.roi_y_min, self.roi_x_max, self.roi_y_max)
+        rec = QgsRectangle(self.roi_x_min, self.roi_y_min,
+                           self.roi_x_max, self.roi_y_max)
         canvasCRS = self.map_crs
         dataCRS = self.layer.crs()
         if canvasCRS != dataCRS:
-            transform = QgsCoordinateTransform(canvasCRS, dataCRS, QgsProject.instance())
+            transform = QgsCoordinateTransform(
+                canvasCRS, dataCRS, QgsProject.instance())
             rec = transform.transform(rec)
 
         x_max = rec.xMaximum()
         x_min = rec.xMinimum()
         y_max = rec.yMaximum()
         y_min = rec.yMinimum()
-        x_off = int(math.floor((x_min - self.raster_x_min) * self.cols / (self.raster_x_max - self.raster_x_min)))
-        y_off = int(math.floor((self.raster_y_max - y_max) * self.rows / (self.raster_y_max - self.raster_y_min)))
+        x_off = int(math.floor((x_min - self.raster_x_min) *
+                               self.cols / (self.raster_x_max - self.raster_x_min)))
+        y_off = int(math.floor((self.raster_y_max - y_max) *
+                               self.rows / (self.raster_y_max - self.raster_y_min)))
         col_size = int(math.floor((x_max - x_min) / self.cell_size))
         row_size = int(math.floor((y_max - y_min) / self.cell_size))
 
@@ -557,13 +599,15 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 min_spacing = round(self.cell_size * self.width / width_roi, 2)
             elif self.layer.crs().mapUnits() == 2:
                 width_roi = self.roi_x_max - self.roi_x_min
-                cell_size_m = self.cell_size * math.pi / 180 * math.cos(self.roi_y_max * math.pi / 180) * 6371000
+                cell_size_m = self.cell_size * math.pi / 180 * \
+                    math.cos(self.roi_y_max * math.pi / 180) * 6371000
                 min_spacing = round(cell_size_m * self.width / width_roi, 2)
             # min_spacing = self.cell_size/self.scale
         elif self.units == 6:  # Degree
             if self.layer.crs().mapUnits() == 0:
                 width_roi = self.roi_x_max - self.roi_x_min
-                cell_size_deg = self.cell_size / math.pi * 180 / math.cos(self.roi_y_max * math.pi / 180) / 6371000
+                cell_size_deg = self.cell_size / math.pi * 180 / \
+                    math.cos(self.roi_y_max * math.pi / 180) / 6371000
                 min_spacing = round(cell_size_deg * self.width / width_roi, 2)
             elif self.layer.crs().mapUnits() == 6:
                 width_roi = self.roi_x_max - self.roi_x_min
@@ -587,7 +631,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 self.changeScale = False
                 self.ui.ScaleLineEdit.setScale(int(self.scale))
             elif self.units == 6:  # Degree
-                dist = width_roi * math.pi / 180 * math.cos(self.roi_y_max * math.pi / 180) * 6371000 * 1000
+                dist = width_roi * math.pi / 180 * \
+                    math.cos(self.roi_y_max * math.pi / 180) * 6371000 * 1000
                 self.scale = round(dist / self.width, 6)
                 self.scale_h = self.scale
                 self.scale_w = self.scale
@@ -596,10 +641,12 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.get_min_spacing()
             self.get_height_model()
         except ZeroDivisionError:
-            QMessageBox.warning(self, self.tr("Attention"), self.tr("Define print extent"))
+            QMessageBox.warning(self, self.tr("Attention"),
+                                self.tr("Define print extent"))
             self.ui.HeightLineEdit.clear()
         except ValueError:
-            QMessageBox.warning(self, self.tr("Attention"), self.tr("Value entered incorrect"))
+            QMessageBox.warning(self, self.tr("Attention"),
+                                self.tr("Value entered incorrect"))
             self.ui.HeightLineEdit.clear()
 
     def upload_size_from_width(self):
@@ -616,7 +663,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 self.changeScale = False
                 self.ui.ScaleLineEdit.setScale(int(self.scale))
             elif self.units == 6:  # Degree
-                dist = width_roi * math.pi / 180 * math.cos(self.roi_y_max * math.pi / 180) * 6371000 * 1000
+                dist = width_roi * math.pi / 180 * \
+                    math.cos(self.roi_y_max * math.pi / 180) * 6371000 * 1000
                 self.scale = round(dist / self.width, 6)
                 self.scale_h = self.scale
                 self.scale_w = self.scale
@@ -625,10 +673,12 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.get_min_spacing()
             self.get_height_model()
         except ZeroDivisionError:
-            QMessageBox.warning(self, self.tr("Attention"), self.tr("Define size model"))
+            QMessageBox.warning(self, self.tr("Attention"),
+                                self.tr("Define size model"))
             self.ui.WidthLineEdit.clear()
         except ValueError:
-            QMessageBox.warning(self, self.tr("Attention"), self.tr("Value entered incorrect"))
+            QMessageBox.warning(self, self.tr("Attention"),
+                                self.tr("Value entered incorrect"))
             self.ui.WidthLineEdit.clear()
 
     def upload_size_from_scale(self):
@@ -642,7 +692,9 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 self.scale_h = self.scale
                 self.scale_w = self.scale
                 if self.units == 6:  # Degree
-                    dist = width_roi * math.pi / 180 * math.cos(self.roi_y_max * math.pi / 180) * 6371000 * 1000
+                    dist = width_roi * math.pi / 180 * \
+                        math.cos(self.roi_y_max * math.pi / 180) * \
+                        6371000 * 1000
                     self.width = round(dist / self.scale, 2)
                     self.ui.WidthLineEdit.setText(str(self.width))
                     self.height = round(height_roi * self.width / width_roi, 2)
@@ -656,13 +708,15 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 self.get_height_model()
 
             except ZeroDivisionError:
-                QMessageBox.warning(self, self.tr("Attention"), self.tr("Define print extent"))
+                QMessageBox.warning(self, self.tr(
+                    "Attention"), self.tr("Define print extent"))
                 self.changeScale = False
                 self.ui.ScaleLineEdit.setScale(1)
                 self.scale = 0
                 self.ui.WidthLineEdit.clear()
             except ValueError:
-                QMessageBox.warning(self, self.tr("Attention"), self.tr("Value entered incorrect"))
+                QMessageBox.warning(self, self.tr(
+                    "Attention"), self.tr("Value entered incorrect"))
                 self.changeScale = False
                 self.ui.ScaleLineEdit.setScale(1)
                 self.scale = 0
@@ -677,21 +731,26 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         try:
             z_base = float(self.ui.BaseHeightLineEdit.text())
             self.z_scale = self.ui.ZScaleDoubleSpinBox.value()
-            h_model = round((self.z_max - z_base) / self.scale * 1000 * self.z_scale + 2, 1)
+            h_model = round((self.z_max - z_base) /
+                            self.scale * 1000 * self.z_scale + 2, 1)
             if h_model == float("inf"):
-                QMessageBox.warning(self, self.tr("Attention"), self.tr("Define size model"))
+                QMessageBox.warning(self, self.tr(
+                    "Attention"), self.tr("Define size model"))
                 self.ui.BaseHeightLineEdit.clear()
                 return
             if z_base <= self.z_max:
                 self.ui.HeightModelLabel.setText(str(h_model) + ' mm')
             else:
-                QMessageBox.warning(self, self.tr("Attention"), self.tr("Height of the base must be lower than DEM highest point"))
+                QMessageBox.warning(self, self.tr("Attention"), self.tr(
+                    "Height of the base must be lower than DEM highest point"))
                 self.ui.BaseHeightLineEdit.clear()
         except ZeroDivisionError:
             if self.scale == 0 and self.roi_x_max != 0:
-                QMessageBox.warning(self, self.tr("Attention"), self.tr("Define size model"))
+                QMessageBox.warning(self, self.tr(
+                    "Attention"), self.tr("Define size model"))
             else:
-                QMessageBox.warning(self, self.tr("Attention"), self.tr("Define print extent"))
+                QMessageBox.warning(self, self.tr(
+                    "Attention"), self.tr("Define print extent"))
             self.ui.BaseHeightLineEdit.clear()
 
     def get_parameters(self):
@@ -752,7 +811,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.divisions.setColor(QColor(227, 26, 28, 255))
             self.divisions.setWidth(3)
             self.divisions.setLineStyle(Qt.PenStyle(Qt.DashDotLine))
-            self.divisions.setToGeometry(QgsGeometry.fromMultiPolylineXY(lines), None)
+            self.divisions.setToGeometry(
+                QgsGeometry.fromMultiPolylineXY(lines), None)
 
 
 class RectangleMapTool(QgsMapTool):
@@ -764,7 +824,7 @@ class RectangleMapTool(QgsMapTool):
         self.canvas = canvas
         QgsMapTool.__init__(self, self.canvas)
         self.callback = callback
-        self.rubberBand = QgsRubberBand(self.canvas, True)
+        self.rubberBand = QgsRubberBand(self.canvas, 3)
         self.rubberBand.setColor(QColor(227, 26, 28, 255))
         self.rubberBand.setWidth(3)
         self.rubberBand.setLineStyle(Qt.PenStyle(Qt.DashLine))
@@ -785,7 +845,6 @@ class RectangleMapTool(QgsMapTool):
         self.isEmittingPoint = False
         r = self.rectangle()
         if r is not None:
-                # print "Rectangle:", r.xMinimum(), r.yMinimum(), r.xMaximum(), r.yMaximum()
             self.rubberBand.hide()
             self.callback(r)
         return None
@@ -800,15 +859,24 @@ class RectangleMapTool(QgsMapTool):
         self.rubberBand.reset(True)
         if start_point.x() == end_point.x() or start_point.y() == end_point.y():
             return
-        point1 = QgsPointXY(start_point.x(), start_point.y())
-        point2 = QgsPointXY(start_point.x(), end_point.y())
-        point3 = QgsPointXY(end_point.x(), end_point.y())
-        point4 = QgsPointXY(end_point.x(), start_point.y())
-        self.rubberBand.addPoint(point1, False)
-        self.rubberBand.addPoint(point2, False)
-        self.rubberBand.addPoint(point3, False)
-        self.rubberBand.addPoint(point4, False)
-        self.rubberBand.addPoint(point1, True)  # true to update canvas
+        rotation = self.canvas.rotation() * math.pi / 180
+
+        # points = [QgsPointXY(start_point.x(), start_point.y()),
+        #           QgsPointXY(start_point.x(), end_point.y()),
+        #           QgsPointXY(end_point.x(), end_point.y()),
+        #           QgsPointXY(end_point.x(), start_point.y())]
+
+        # points = self.rectangle2pCreate(start_point, end_point, -rotation)
+
+        rectParams = self.rectangleHWCenterFrom2pCreate(start_point, end_point, rotation)
+        points = self.getPointsFromRectangleParams(rectParams, rotation)
+
+        self.rubberBand.addPoint(QgsPointXY(points[0][0], points[0][1]), False)
+        self.rubberBand.addPoint(QgsPointXY(points[1][0], points[1][1]), False)
+        self.rubberBand.addPoint(QgsPointXY(points[2][0], points[2][1]), False)
+        self.rubberBand.addPoint(QgsPointXY(points[3][0], points[3][1]), False)
+        # true to update canvas
+        self.rubberBand.addPoint(QgsPointXY(points[0][0], points[0][1]), True)
         self.rubberBand.show()
 
     def rectangle(self):
@@ -820,4 +888,127 @@ class RectangleMapTool(QgsMapTool):
 
     def deactivate(self):
         super(RectangleMapTool, self).deactivate()
-        # self.emit(QtCore.SIGNAL("deactivated()"))
+
+    def rectangle2pCreate(self, firstPoint, secondPoint, azimutO):
+
+        #     X1Y2 (1)        H2      secondPoint (2)
+        #       +---------------------------+
+        #       |                           |
+        #       |                           |
+        #    V1 |                           | V2
+        #       |                           |
+        #       |             H1            |
+        #       +---------------------------+   ----------> AzimutO
+        #     firstPoint (0 - 4)         X2Y1 (3)
+
+        templinePoint = QgsPointXY(secondPoint.x(
+        ) + 10 * math.sin(azimutO), secondPoint.y() + 10 * math.cos(azimutO))
+        p1 = self.pointToLine2D(firstPoint.x(), firstPoint.y(), secondPoint.x(
+        ), secondPoint.y(), templinePoint.x(), templinePoint.y())
+
+        ax = p1.x()-secondPoint.x()
+        ay = p1.y()-secondPoint.y()
+        width = math.sqrt(ax**2 + ay**2)
+        ax = p1.x()-firstPoint.x()
+        ay = p1.y()-firstPoint.y()
+        height = math.sqrt(ax**2 + ay**2)
+
+        centerX = (firstPoint.x() + secondPoint.x()) * 0.5
+        centerY = (firstPoint.y() + secondPoint.y()) * 0.5
+
+        tempLinePoint2 = QgsPointXY(
+            firstPoint.x() + 10 * math.sin(azimutO), firstPoint.y() + 10 * math.cos(azimutO))
+        p3 = self.pointToLine2D(secondPoint.x(), secondPoint.y(), firstPoint.x(
+        ), firstPoint.y(), tempLinePoint2.x(), tempLinePoint2.y())
+
+        azP1 = self.normalizeAngle(self.lineAzimut2p(firstPoint, p1))
+        azP3 = self.normalizeAngle(self.lineAzimut2p(firstPoint, p3))
+        azimut100 = self.normalizeAngle(azimutO + math.pi * 0.5)
+
+        if abs(azP3 - azimutO) <= 0.000001:
+            if abs(azP1 - azimut100) <= 0.000001:
+                # Cuadrante 2
+                return [p1, firstPoint, p3, secondPoint]
+            else:
+                # Cuadrante 1
+                return [firstPoint, p1, secondPoint, p3]
+        else:
+            if abs(azP1 - azimut100) <= 0.000001:
+                # Cuadrante 3
+                return [secondPoint, p3, firstPoint, p1]
+            else:
+                # Cuadrante 4
+                return [p3, secondPoint, p1, firstPoint]
+
+    def rectangleHWCenterFrom2pCreate(self, firstPoint, secondPoint, rotation):
+
+        templinePoint = self.getPolarPoint(
+            secondPoint.x(), secondPoint.y(), rotation, 10)
+        p1 = self.pointToLine2D(firstPoint.x(), firstPoint.y(), secondPoint.x(
+        ), secondPoint.y(), templinePoint[0], templinePoint[1])
+
+        ax = p1.x()-secondPoint.x()
+        ay = p1.y()-secondPoint.y()
+        width = math.sqrt(ax**2 + ay**2)
+        ax = p1.x()-firstPoint.x()
+        ay = p1.y()-firstPoint.y()
+        height = math.sqrt(ax**2 + ay**2)
+
+        centerX = (firstPoint.x() + secondPoint.x()) * 0.5
+        centerY = (firstPoint.y() + secondPoint.y()) * 0.5
+
+        return {'center': [centerX, centerY], 'width': width, 'height': height}
+
+    def getPointsFromRectangleParams(self, rectParam, rotation):
+        center = rectParam["center"]
+        width = rectParam["width"]
+        height = rectParam["height"]
+        #       1       W       2
+        #       +---------------+
+        #       |               |
+        #     H |               + AuxPto
+        #       |               |
+        #       +---------------+   ----------> rotation
+        #       4       W       3
+        auxPto = self.getPolarPoint(
+            center[0], center[1], rotation, width * 0.5)
+        p2 = self.getPolarPoint(
+            auxPto[0], auxPto[1], rotation + math.pi * 0.5, height * 0.5)
+        p1 = self.getPolarPoint(p2[0], p2[1], rotation + math.pi, width)
+        p4 = self.getPolarPoint(p1[0], p1[1], rotation - math.pi * 0.5, height)
+        p3 = self.getPolarPoint(p2[0], p2[1], rotation - math.pi * 0.5, height)
+        return [p1, p2, p3, p4]
+
+    def pointToLine2D(self, px, py, x1, y1, x2, y2):
+        try:
+            u = ((px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)) / \
+                ((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))
+            if False:
+                if (u < 0):
+                    return [x1, y1]
+                if (u > 1):
+                    return [x2, y2]
+            return QgsPointXY(x1 + u * (x2 - x1), y1 + u * (y2 - y1))
+        except ZeroDivisionError as err:
+            print('POINT In LINE:', err)
+            return QgsPointXY(px, py)
+
+    def lineAzimut2p(self, v1, v2):
+        return math.atan2(v2.x() - v1.x(), v2.y() - v1.y())
+
+    def normalizeAngle(self, angle):
+        maxValue = math.pi * 2
+        if abs(angle) <= 0.000001:
+            return 0
+        if abs(angle - maxValue) <= 0.000001:
+            return maxValue
+        if (angle < 0):
+            return angle % maxValue + maxValue
+        if angle > maxValue:
+            return angle % maxValue
+        return angle
+
+    def getPolarPoint(self, x0, y0, angle, dist):
+        x = x0 + dist * math.cos(angle)
+        y = y0 + dist * math.sin(angle)
+        return [x, y]

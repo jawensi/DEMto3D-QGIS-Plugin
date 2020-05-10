@@ -308,7 +308,7 @@ class Model(QThread):
                             z_model = zP1 + math.fabs(xP1 - x) * (zP2 - zP1) / math.fabs(xP2 - xP1)
                             matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
                     else:
-                        print('punto cuajado', x_model, y_model, sep=" ")
+                        # print('punto cuajado', x_model, y_model, sep=" ")
                         matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=0)
                 # endregion
 

@@ -348,7 +348,7 @@ class Ui_DEMto3DDialogBase(object):
         self.label_2.setText(_translate("DEMto3DDialogBase", "X:"))
         self.label_6.setText(_translate("DEMto3DDialogBase", "Y:"))
         self.label_20.setText(_translate("DEMto3DDialogBase", "Width:"))
-        self.label_22.setText(_translate("DEMto3DDialogBase", "Lenght:"))
+        self.label_22.setText(_translate("DEMto3DDialogBase", "Length:"))
         self.RotationCheckBox.setText(_translate("DEMto3DDialogBase", "Show width/length"))
         self.FullExtToolButton.setToolTip(_translate("DEMto3DDialogBase", "Select full extent"))
         self.FullExtToolButton.setStatusTip(_translate("DEMto3DDialogBase", "Select full extent"))

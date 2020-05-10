@@ -55,7 +55,9 @@ class STL(QThread):
 
         for i in range(y_models):
             for j in range(x_models):
-                path = self.stl_file + '_' + str(i) + str(j) + '.stl'
+                path = self.stl_file
+                if (y_models * x_models > 1):
+                    path = self.stl_file.split(".")[0] + '_' + str(i) + str(j) + '.stl'
                 x_min_model = width_model * j
                 y_min_model = self.parameters["height"] - i * high_model - high_model
                 x_max_model = width_model * j + width_model
