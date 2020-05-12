@@ -81,8 +81,10 @@ class Model(QThread):
         dem_y_min = dem_y_max + dem_row * geotransform[5]
         dem_x_max = dem_x_min + dem_col * geotransform[1]
 
+        rectParam = self.parameters["roi_rect_Param"]
+        rotation = rectParam["rotation"]
         if not projected:
-            spacing_deg = spacing_mm * (roi_x_max - roi_x_min) / width
+            spacing_deg = spacing_mm * rectParam["width"] / width
 
         row_stl = int(math.ceil(height / spacing_mm) + 1)
         col_stl = int(math.ceil(width / spacing_mm) + 1)
@@ -93,6 +95,13 @@ class Model(QThread):
         if source != target:
             transform = QgsCoordinateTransform(source, target, QgsProject.instance())
 
+        #  RECORRIDO
+        #  0 ---------------------------> 1
+        #    --------------------------->
+        #  ^ --------------------------->
+        #  | --------------------------->
+        #  | --------------------------->
+        #  X ---------------------------> 2
         var_y = height
         for i in range(row_stl):
             self.updateProgress.emit()
@@ -104,12 +113,12 @@ class Model(QThread):
 
                 # Model maps geo_coordinates
                 if projected:
-                    x = x_model * scale / 1000 + roi_x_min
-                    y = y_model * scale / 1000 + roi_y_min
+                    x0, y0 = getPolarPoint(roi_x_min, roi_y_min, rotation, x_model * scale / 1000)
+                    x, y = getPolarPoint(x0, y0, rotation + math.pi * 0.5, y_model * scale / 1000)
                 else:
-                    x = x_model * spacing_deg / spacing_mm + roi_x_min
-                    y = y_model * spacing_deg / spacing_mm + roi_y_min
-
+                    x0, y0 = getPolarPoint(roi_x_min, roi_y_min, rotation, x_model * spacing_deg / spacing_mm)
+                    x, y = getPolarPoint(x0, y0, rotation + math.pi * 0.5, y_model * spacing_deg / spacing_mm)
+                    
                 # Model layer geo_coordinates to query z value
                 point = QgsPoint(x, y)
                 if source != target:
@@ -136,8 +145,7 @@ class Model(QThread):
                 elif math.isnan(self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0]):
                     z_model = self.baseModel
                 else:
-                    z_model = round((self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] - h_base) / scale * 1000 * z_scale,
-                                    2) + self.baseModel
+                    z_model = round((self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] - h_base) / scale * 1000 * z_scale, 2) + self.baseModel
 
                 matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
 
@@ -163,12 +171,22 @@ class Model(QThread):
         # dem_x_max = dem_x_min + columns * geotransform[1]
 
         spacing_deg = 0
+        rectParam = self.parameters["roi_rect_Param"]
+        rotation = rectParam["rotation"]
         if not projected:
-            spacing_deg = spacing_mm * (roi_x_max - roi_x_min) / width
+            spacing_deg = spacing_mm * rectParam["width"] / width
 
         row_stl = int(math.ceil(height / spacing_mm) + 1)
         col_stl = int(math.ceil(width / spacing_mm) + 1)
         matrix_dem = [list(range(col_stl)) for i in range(row_stl)]
+
+        #  RECORRIDO
+        #  0 ---------------------------> 1
+        #    --------------------------->
+        #  ^ --------------------------->
+        #  | --------------------------->
+        #  | --------------------------->
+        #  X ---------------------------> 2
 
         var_y = height
         for i in range(row_stl):
@@ -182,11 +200,12 @@ class Model(QThread):
 
                 # Model maps geo_coordinates
                 if projected:
-                    x = x_model * scale_w / 1000 + roi_x_min
-                    y = y_model * scale_h / 1000 + roi_y_min
+                    x0, y0 = getPolarPoint(roi_x_min, roi_y_min, rotation, x_model * scale / 1000)
+                    x, y = getPolarPoint(x0, y0, rotation + math.pi * 0.5, y_model * scale / 1000)
                 else:
-                    x = x_model * spacing_deg / spacing_mm + roi_x_min
-                    y = y_model * spacing_deg / spacing_mm + roi_y_min
+                    x0, y0 = getPolarPoint(roi_x_min, roi_y_min, rotation, x_model * spacing_deg / spacing_mm)
+                    x, y = getPolarPoint(x0, y0, rotation + math.pi * 0.5, y_model * spacing_deg / spacing_mm)
+                # print('punto cuajado (row - col - x - y)', i, j, x_model, y_model, round(x, 3), round(y, 3), sep=" - ")
 
                 # Model layer geo_coordinates to query z value
                 # point = QgsPoint(x, y)
@@ -386,3 +405,9 @@ class Model(QThread):
                 return (p1.y - p.y) * (zb - zt) / d2 + zt
         except ZeroDivisionError as err:
             print('Bilineal interpolation error:', err)
+
+
+def getPolarPoint(x0, y0, angle, dist):
+    x = x0 + dist * math.cos(angle)
+    y = y0 + dist * math.sin(angle)
+    return [x, y]
