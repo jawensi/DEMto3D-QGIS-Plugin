@@ -262,6 +262,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                     self.upload_size_from_scale()
                     self.ui.ZScaleDoubleSpinBox.setValue(parameters["z_scale"])
 
+                    self.get_z_max_z_min()
                     self.ui.BaseHeightLineEdit.setText(str(round(parameters["z_base"], 3)))
                     self.ui.RevereseZCheckBox.setChecked(parameters["z_inv"])
                     self.get_height_model()
@@ -272,7 +273,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                         self.ui.ColPartsSpinBox.setValue(int(parameters["divideCols"]))
 
                     self.paint_extent(self.rect_Params)
-                    self.get_z_max_z_min()
+
                 except:
                     QMessageBox.warning(self, self.tr("Attention"), self.tr("Wrong file"))
 
@@ -567,6 +568,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.canvas.refresh()
 
     def paint_model_division(self):
+        if self.rect_Params is None:
+            return
         if self.divisions:
             self.canvas.scene().removeItem(self.divisions)
             self.divisions = []
