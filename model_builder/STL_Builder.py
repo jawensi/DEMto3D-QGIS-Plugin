@@ -47,7 +47,25 @@ class STL(QThread):
         self.quit = False
 
     def run(self):
-        self.write_binary()
+        x_models = self.parameters["divideCols"]
+        y_models = self.parameters["divideRow"]
+
+        width_model = self.parameters["width"] / x_models
+        high_model = self.parameters["height"] / y_models
+
+        for i in range(y_models):
+            for j in range(x_models):
+                path = self.stl_file
+                if (y_models * x_models > 1):
+                    path = self.stl_file.split(".")[0] + '_' + str(i) + str(j) + '.stl'
+                x_min_model = width_model * j
+                y_min_model = self.parameters["height"] - i * high_model - high_model
+                x_max_model = width_model * j + width_model
+                y_max_model = self.parameters["height"] - i * high_model
+                dem_model = self.cut_dem(self.matrix_dem, self.parameters["spacing_mm"], x_min_model, y_min_model, x_max_model, y_max_model)
+                self.write_binary(path, dem_model)
+
+        # self.write_binary(self.stl_file, self.matrix_dem)
 
     def write_ascii(self):
         f = open(self.stl_file, "w")
@@ -107,61 +125,64 @@ class STL(QThread):
         f.write("endsolid model\n")
         f.close()
 
-    def write_binary(self):
-        counter = 0
-        stream = open(self.stl_file, "wb")
-        stream.seek(0)
-        stream.write(struct.pack(BINARY_HEADER, b'Python Binary STL Writer', counter))
+    def write_binary(self, fileName, demData):
+        try:
+            counter = 0
+            stream = open(fileName, "wb")
+            stream.seek(0)
+            stream.write(struct.pack(BINARY_HEADER, b'Python Binary STL Writer', counter))
 
-        dem = self.face_dem_vector(self.matrix_dem)
-        for face in dem:
-            self.updateProgress.emit()
-            counter += 1
-            data = [
-                0, 0, -1,
-                getattr(face[1], "x"), getattr(face[1], "y"), 0,
-                getattr(face[0], "x"), getattr(face[0], "y"), 0,
-                getattr(face[2], "x"), getattr(face[2], "y"), 0,
-                0
-            ]
-            stream.write(struct.pack(BINARY_FACET, *data))
-            if self.quit:
-                stream.close()
-                return 0
+            dem = self.face_dem_vector(demData)
+            for face in dem:
+                self.updateProgress.emit()
+                counter += 1
+                data = [
+                    0, 0, -1,
+                    getattr(face[1], "x"), getattr(face[1], "y"), 0,
+                    getattr(face[0], "x"), getattr(face[0], "y"), 0,
+                    getattr(face[2], "x"), getattr(face[2], "y"), 0,
+                    0
+                ]
+                stream.write(struct.pack(BINARY_FACET, *data))
+                if self.quit:
+                    stream.close()
+                    return 0
 
-        wall = self.face_wall_vector(self.matrix_dem)
-        for face in wall:
-            counter += 1
-            data = [
-                getattr(face[3], "normal_x"), getattr(face[3], "normal_y"), getattr(face[3], "normal_z"),
-                getattr(face[0], "x"), getattr(face[0], "y"), getattr(face[0], "z"),
-                getattr(face[1], "x"), getattr(face[1], "y"), getattr(face[1], "z"),
-                getattr(face[2], "x"), getattr(face[2], "y"), getattr(face[2], "z"),
-                0
-            ]
-            stream.write(struct.pack(BINARY_FACET, *data))
-            if self.quit:
-                stream.close()
-                return 0
+            wall = self.face_wall_vector(demData)
+            for face in wall:
+                counter += 1
+                data = [
+                    getattr(face[3], "normal_x"), getattr(face[3], "normal_y"), getattr(face[3], "normal_z"),
+                    getattr(face[0], "x"), getattr(face[0], "y"), getattr(face[0], "z"),
+                    getattr(face[1], "x"), getattr(face[1], "y"), getattr(face[1], "z"),
+                    getattr(face[2], "x"), getattr(face[2], "y"), getattr(face[2], "z"),
+                    0
+                ]
+                stream.write(struct.pack(BINARY_FACET, *data))
+                if self.quit:
+                    stream.close()
+                    return 0
 
-        for face in dem:
-            self.updateProgress.emit()
-            counter += 1
-            data = [
-                getattr(face[3], "normal_x"), getattr(face[3], "normal_y"), getattr(face[3], "normal_z"),
-                getattr(face[0], "x"), getattr(face[0], "y"), getattr(face[0], "z"),
-                getattr(face[1], "x"), getattr(face[1], "y"), getattr(face[1], "z"),
-                getattr(face[2], "x"), getattr(face[2], "y"), getattr(face[2], "z"),
-                0
-            ]
-            stream.write(struct.pack(BINARY_FACET, *data))
-            if self.quit:
-                stream.close()
-                return 0
+            for face in dem:
+                self.updateProgress.emit()
+                counter += 1
+                data = [
+                    getattr(face[3], "normal_x"), getattr(face[3], "normal_y"), getattr(face[3], "normal_z"),
+                    getattr(face[0], "x"), getattr(face[0], "y"), getattr(face[0], "z"),
+                    getattr(face[1], "x"), getattr(face[1], "y"), getattr(face[1], "z"),
+                    getattr(face[2], "x"), getattr(face[2], "y"), getattr(face[2], "z"),
+                    0
+                ]
+                stream.write(struct.pack(BINARY_FACET, *data))
+                if self.quit:
+                    stream.close()
+                    return 0
 
-        stream.seek(0)
-        stream.write(struct.pack(BINARY_HEADER, b'Python Binary STL Writer', counter))
-        stream.close()
+            stream.seek(0)
+            stream.write(struct.pack(BINARY_HEADER, b'Python Binary STL Writer', counter))
+            stream.close()
+        except:
+            stream.close()
 
     def face_wall_vector(self, matrix_dem):
         rows = matrix_dem.__len__()
@@ -243,3 +264,25 @@ class STL(QThread):
         except ZeroDivisionError:
             v_normal = self.normal(normal_x=0, normal_y=0, normal_z=0)
         return v_normal
+
+    @staticmethod
+    def cut_dem(matrix_dem_build, resolution, x_min, y_min, x_max, y_max):
+        rows = matrix_dem_build.__len__()
+        cols = matrix_dem_build[0].__len__()
+        dem = []
+        for i in range(rows):
+            aux = []
+            for j in range(cols):
+                x = getattr(matrix_dem_build[i][j], "x")
+                y = getattr(matrix_dem_build[i][j], "y")
+                if x_min <= x <= x_max and y_min <= y <= y_max:
+                    aux.append(matrix_dem_build[i][j])
+                elif 0 < (x - x_max) < resolution and y_min <= y <= y_max:
+                    aux.append(matrix_dem_build[i][j])
+                elif -resolution < (y - y_min) < 0 and x_min <= x <= x_max:
+                    aux.append(matrix_dem_build[i][j])
+                elif 0 < (x - x_max) < resolution and - resolution < (y - y_min) < 0:
+                    aux.append(matrix_dem_build[i][j])
+            if aux:
+                dem.append(aux)
+        return dem
