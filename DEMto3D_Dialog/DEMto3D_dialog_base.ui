@@ -40,8 +40,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>443</width>
-        <height>514</height>
+        <width>426</width>
+        <height>520</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -191,7 +191,7 @@
                <item>
                 <widget class="QLabel" name="label_22">
                  <property name="text">
-                  <string>Lenght:</string>
+                  <string>Length:</string>
                  </property>
                 </widget>
                </item>
@@ -301,6 +301,88 @@
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
            <layout class="QGridLayout" name="gridLayout_3">
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="HeightLineEdit">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_9">
+              <property name="text">
+               <string>Spacing (mm):</string>
+              </property>
+              <property name="buddy">
+               <cstring>SpacingLineEdit</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="WidthLineEdit">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QgsScaleWidget" name="ScaleLineEdit"/>
+            </item>
+            <item row="4" column="1">
+             <widget class="QDoubleSpinBox" name="ZScaleDoubleSpinBox">
+              <property name="prefix">
+               <string>x </string>
+              </property>
+              <property name="decimals">
+               <number>3</number>
+              </property>
+              <property name="maximum">
+               <double>10.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_13">
+              <property name="text">
+               <string>Lenght (mm):</string>
+              </property>
+              <property name="buddy">
+               <cstring>HeightLineEdit</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_16">
+              <property name="text">
+               <string>Vertical exaggeration:</string>
+              </property>
+              <property name="buddy">
+               <cstring>ZScaleDoubleSpinBox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>Terrain inversion:</string>
+              </property>
+              <property name="buddy">
+               <cstring>RevereseZCheckBox</cstring>
+              </property>
+             </widget>
+            </item>
             <item row="0" column="1">
              <layout class="QHBoxLayout" name="horizontalLayout_6">
               <item>
@@ -328,49 +410,10 @@
               </item>
              </layout>
             </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_15">
+            <item row="5" column="1">
+             <widget class="QCheckBox" name="RevereseZCheckBox">
               <property name="text">
-               <string>Scale:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QgsScaleWidget" name="ScaleLineEdit"/>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_9">
-              <property name="text">
-               <string>Spacing (mm):</string>
-              </property>
-              <property name="buddy">
-               <cstring>SpacingLineEdit</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <widget class="QDoubleSpinBox" name="ZScaleDoubleSpinBox">
-              <property name="decimals">
-               <number>3</number>
-              </property>
-              <property name="maximum">
-               <double>10.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.100000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_16">
-              <property name="text">
-               <string>Vertical exaggeration:</string>
-              </property>
-              <property name="buddy">
-               <cstring>ZScaleDoubleSpinBox</cstring>
+               <string>enable</string>
               </property>
              </widget>
             </item>
@@ -384,52 +427,65 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_13">
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_15">
               <property name="text">
-               <string>Lenght (mm):</string>
-              </property>
-              <property name="buddy">
-               <cstring>HeightLineEdit</cstring>
+               <string>Scale:</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="WidthLineEdit">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QLineEdit" name="HeightLineEdit">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="label_7">
+            <item row="6" column="0">
+             <widget class="QLabel" name="label_18">
               <property name="text">
-               <string>Terrain inversion:</string>
-              </property>
-              <property name="buddy">
-               <cstring>RevereseZCheckBox</cstring>
+               <string>Divide model:</string>
               </property>
              </widget>
             </item>
-            <item row="5" column="1">
-             <widget class="QCheckBox" name="RevereseZCheckBox">
-              <property name="text">
-               <string>enable</string>
-              </property>
-             </widget>
+            <item row="6" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <widget class="QSpinBox" name="RowPartsSpinBox">
+                <property name="suffix">
+                 <string> row</string>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="value">
+                 <number>1</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_14">
+                <property name="maximumSize">
+                 <size>
+                  <width>15</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>x</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="ColPartsSpinBox">
+                <property name="suffix">
+                 <string> column</string>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="value">
+                 <number>1</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </item>

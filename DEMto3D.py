@@ -29,9 +29,9 @@ from qgis.core import QgsProject
 from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from qgis.PyQt.QtWidgets import QAction, QMessageBox
 from qgis.PyQt.QtGui import QIcon
- # Initialize Qt resources from file resources.py
+# Initialize Qt resources from file resources.py
 from . import resources_rc
- # Import the code for the dialog
+# Import the code for the dialog
 from .DEMto3D_Dialog import DEMto3D_dialog
 
 
@@ -115,9 +115,11 @@ class DEMto3D(object):
                 self.window = False
                 demto3d_dlg = DEMto3D_dialog.DEMto3DDialog(self.iface)
                 demto3d_dlg.exec_()
+                canvas = self.iface.mapCanvas()
                 if demto3d_dlg.extent:
-                    canvas = self.iface.mapCanvas()
                     canvas.scene().removeItem(demto3d_dlg.extent)
+                if demto3d_dlg.divisions:
+                    canvas.scene().removeItem(demto3d_dlg.divisions)
                 self.window = True
             elif not raster:
                 QMessageBox.information(self.iface.mainWindow(), "DEMto3D", self.tr("No visible raster layer loaded"))
