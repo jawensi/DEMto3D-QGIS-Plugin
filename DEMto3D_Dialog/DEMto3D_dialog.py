@@ -109,10 +109,10 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         # region LAYER ACTION
         # fill layer combobox with raster visible layers in mapCanvas
         self.viewLayers = self.canvas.layers()
-        self.ui.mMapLayerComboBox.clear()
+        # self.ui.mMapLayerComboBox.clear()
         self.ui.mMapLayerComboBox.setFilters(QgsMapLayerProxyModel.RasterLayer)
-        self.layer = self.ui.mMapLayerComboBox.currentLayer()
-        self.get_raster_properties()
+        # self.layer = self.ui.mMapLayerComboBox.currentLayer()
+        # self.get_raster_properties()
         self.ui.mMapLayerComboBox.layerChanged.connect(self.get_currlayer)
         # endregion
 
