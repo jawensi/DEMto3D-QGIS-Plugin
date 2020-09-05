@@ -641,23 +641,22 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
     def get_min_spacing(self):
         min_spacing = 0
-        if self.units == 0:  # Meters
-            if self.layer.crs().mapUnits() == 0:
+        if self.units == 0:  # Map unit -> Meters
+            if self.layer.crs().mapUnits() == 0: # data unit -> Meters
                 width_roi = self.rect_Params["width"]
                 min_spacing = round(self.cell_size * self.width / width_roi, 2)
-            elif self.layer.crs().mapUnits() == 2:
+            elif self.layer.crs().mapUnits() == 6: # data unit -> Degree (self.cell_size)
                 width_roi = self.rect_Params["width"]
                 cell_size_m = self.cell_size * math.pi / 180 * \
-                    math.cos(self.roi_y_max * math.pi / 180) * 6371000
+                    math.cos(self.raster_y_max * math.pi / 180) * 6371000
                 min_spacing = round(cell_size_m * self.width / width_roi, 2)
-            # min_spacing = self.cell_size/self.scale
-        elif self.units == 6:  # Degree
-            if self.layer.crs().mapUnits() == 0:
+        elif self.units == 6:  # Map unit -> Degree
+            if self.layer.crs().mapUnits() == 0: # data unit -> Meters
                 width_roi = self.rect_Params["width"]
                 cell_size_deg = self.cell_size / math.pi * 180 / \
                     math.cos(self.roi_y_max * math.pi / 180) / 6371000
                 min_spacing = round(cell_size_deg * self.width / width_roi, 2)
-            elif self.layer.crs().mapUnits() == 6:
+            elif self.layer.crs().mapUnits() == 6: # data unit -> Degree
                 width_roi = self.rect_Params["width"]
                 min_spacing = round(self.cell_size * self.width / width_roi, 2)
         if min_spacing < 0.2:
