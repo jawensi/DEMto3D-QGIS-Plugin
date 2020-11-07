@@ -103,8 +103,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         # DistanceCentimeters    7 Centimeters.
         # DistanceMillimeters    8 Millimeters.
         # DistanceUnknownUnit    9 Unknown distance unit.
-        if self.units != 0 and self.units != 6:
-            QMessageBox.warning(self, self.tr("Attention"), self.tr("Units not supported"))
 
         # region LAYER ACTION
         # fill layer combobox with raster visible layers in mapCanvas
@@ -641,22 +639,22 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
     def get_min_spacing(self):
         min_spacing = 0
-        if self.units == 0:  # Map unit -> Meters
-            if self.layer.crs().mapUnits() == 0: # data unit -> Meters
+        if self.units == 6:  # Map unit -> Degree
+            if self.layer.crs().mapUnits() == 6:  # data unit -> Degree
                 width_roi = self.rect_Params["width"]
                 min_spacing = round(self.cell_size * self.width / width_roi, 2)
-            elif self.layer.crs().mapUnits() == 6: # data unit -> Degree (self.cell_size)
-                width_roi = self.rect_Params["width"]
-                cell_size_m = self.cell_size * math.pi / 180 * \
-                    math.cos(self.raster_y_max * math.pi / 180) * 6371000
-                min_spacing = round(cell_size_m * self.width / width_roi, 2)
-        elif self.units == 6:  # Map unit -> Degree
-            if self.layer.crs().mapUnits() == 0: # data unit -> Meters
+            else:                                # data unit -> others. Meters, ...
                 width_roi = self.rect_Params["width"]
                 cell_size_deg = self.cell_size / math.pi * 180 / \
                     math.cos(self.roi_y_max * math.pi / 180) / 6371000
                 min_spacing = round(cell_size_deg * self.width / width_roi, 2)
-            elif self.layer.crs().mapUnits() == 6: # data unit -> Degree
+        else:                # Map unit -> Others, Meters, ...
+            if self.layer.crs().mapUnits() == 6:  # data unit -> Degree
+                width_roi = self.rect_Params["width"]
+                cell_size_m = self.cell_size * math.pi / 180 * \
+                    math.cos(self.raster_y_max * math.pi / 180) * 6371000
+                min_spacing = round(cell_size_m * self.width / width_roi, 2)
+            else:                                 # data unit -> others. Meters, ...
                 width_roi = self.rect_Params["width"]
                 min_spacing = round(self.cell_size * self.width / width_roi, 2)
         if min_spacing < 0.2:
@@ -671,18 +669,18 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.height = float(self.ui.HeightLineEdit.text())
             self.width = round(width_roi * self.height / height_roi, 2)
             self.ui.WidthLineEdit.setText(str(self.width))
-            if self.units == 0:  # Meters
-                self.scale_h = height_roi / self.height * 1000
-                self.scale_w = width_roi / self.width * 1000
-                self.scale = round((self.scale_h + self.scale_w) / 2, 6)
-                self.changeScale = False
-                self.ui.ScaleLineEdit.setScale(int(self.scale))
-            elif self.units == 6:  # Degree
+            if self.units == 6:  # Degree
                 dist = width_roi * math.pi / 180 * \
                     math.cos(self.roi_y_max * math.pi / 180) * 6371000 * 1000
                 self.scale = round(dist / self.width, 6)
                 self.scale_h = self.scale
                 self.scale_w = self.scale
+                self.changeScale = False
+                self.ui.ScaleLineEdit.setScale(int(self.scale))
+            else:                # Meters
+                self.scale_h = height_roi / self.height * 1000
+                self.scale_w = width_roi / self.width * 1000
+                self.scale = round((self.scale_h + self.scale_w) / 2, 6)
                 self.changeScale = False
                 self.ui.ScaleLineEdit.setScale(int(self.scale))
             self.get_min_spacing()
@@ -701,18 +699,18 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.width = float(self.ui.WidthLineEdit.text())
             self.height = round(height_roi * self.width / width_roi, 2)
             self.ui.HeightLineEdit.setText(str(self.height))
-            if self.units == 0:  # Meters
-                self.scale_h = height_roi / self.height * 1000
-                self.scale_w = width_roi / self.width * 1000
-                self.scale = round((self.scale_h + self.scale_w) / 2, 6)
-                self.changeScale = False
-                self.ui.ScaleLineEdit.setScale(int(self.scale))
-            elif self.units == 6:  # Degree
+            if self.units == 6:  # Degree
                 dist = width_roi * math.pi / 180 * \
                     math.cos(self.roi_y_max * math.pi / 180) * 6371000 * 1000
                 self.scale = round(dist / self.width, 6)
                 self.scale_h = self.scale
                 self.scale_w = self.scale
+                self.changeScale = False
+                self.ui.ScaleLineEdit.setScale(int(self.scale))
+            else:                # Meters
+                self.scale_h = height_roi / self.height * 1000
+                self.scale_w = width_roi / self.width * 1000
+                self.scale = round((self.scale_h + self.scale_w) / 2, 6)
                 self.changeScale = False
                 self.ui.ScaleLineEdit.setScale(int(self.scale))
             self.get_min_spacing()
@@ -742,7 +740,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                     self.ui.WidthLineEdit.setText(str(self.width))
                     self.height = round(height_roi * self.width / width_roi, 2)
                     self.ui.HeightLineEdit.setText(str(self.height))
-                elif self.units == 0:  # Meters
+                else:                # Meters
                     self.height = round(height_roi / self.scale * 1000, 2)
                     self.ui.HeightLineEdit.setText(str(self.height))
                     self.width = round(width_roi / self.scale * 1000, 2)
@@ -791,9 +789,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
     def get_parameters(self):
         projected = True
-        if self.units == 0:  # Meters
-            projected = True
-        elif self.units == 6:  # Degree
+        if self.units == 6:  # Degree
             projected = False
 
         provider = self.layer.dataProvider()
