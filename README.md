@@ -2,7 +2,7 @@
 
 Extensión para impresión 3D de MDE (Modelos Digitales de Elevaciones) sobre QGIS
 
-DEMto3D es una extensión que permite la exportación de MDE a formato STL y Gcode.
+DEMto3D es una extensión que permite la exportación de MDE a formato STL.
 
 En la siguiente página web http://demto3d.com puede encontrarse más información respecto a este proyecto, así como su descarga, manual de uso y guía de instalación.
 
@@ -18,7 +18,7 @@ Contacto: demto3d@gmail.com
 
 Extension to 3D printing DEM (Digital Elevation Model) in QGIS.
 
-DEMto3D allows export DEM to STL format and Gcode.
+DEMto3D allows export DEM to STL format.
 
 In the following website http://demto3d.com you can find more information regarding this project, as well as download, user manual and installation guide.
 
