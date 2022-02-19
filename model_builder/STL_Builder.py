@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- AppONCE
+ DEMto3D
                                  A QGIS plugin
- Creación de mapas en 3D
-                              -------------------
-        begin                : 2015-03-17
-        git sha              : $Format:%H$
-        copyright            : (C) 2015 by Francisco Javier Venceslá Simón
-        email                : jawensi@gmail.com
+ Description
+                             -------------------
+        copyright            : (C) 2022 by Javier
+        email                : demto3d@gmail.com
  ***************************************************************************/
 
 /***************************************************************************

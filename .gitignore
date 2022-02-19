@@ -4,5 +4,7 @@
 \__pycache__
 
 resourcesCompile.bat
+readme.txt
+results.html
 
 .gitignore

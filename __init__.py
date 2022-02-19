@@ -3,12 +3,10 @@
 /***************************************************************************
  DEMto3D
                                  A QGIS plugin
- Impresión 3D de MDE
+ Description
                              -------------------
-        begin                : 2015-08-02
-        copyright            : (C) 2015 by Francisco Javier Venceslá Simón
+        copyright            : (C) 2022 by Javier
         email                : demto3d@gmail.com
-        git sha              : $Format:%H$
  ***************************************************************************/
 
 /***************************************************************************
