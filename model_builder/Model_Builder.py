@@ -40,7 +40,7 @@ class Model(QThread):
         self.parameters = parameters
         self.matrix_dem = []
         self.quit = False
-        self.baseModel = 2
+        self.baseModel = self.parameters["baseModel"]
 
     def run(self):
         dem_dataset = gdal.Open(self.parameters["layer"])
@@ -53,8 +53,7 @@ class Model(QThread):
 
         self.matrix_dem = self.matrix_dem_builder_interpolation(dem_dataset,
                                                                 self.parameters["height"], self.parameters["width"],
-                                                                self.parameters["scale"],
-                                                                self.parameters["scale_h"],
+                                                                self.parameters["scale"], self.parameters["scale_h"],
                                                                 self.parameters["scale_w"],
                                                                 self.parameters["spacing_mm"],
                                                                 self.parameters["roi_x_max"],
@@ -91,7 +90,8 @@ class Model(QThread):
         source = self.parameters["crs_map"]
         target = self.parameters["crs_layer"]
         if source != target:
-            transform = QgsCoordinateTransform(source, target, QgsProject.instance())
+            transform = QgsCoordinateTransform(
+                source, target, QgsProject.instance())
 
         #  RECORRIDO
         #  0 ---------------------------> 1
@@ -111,12 +111,16 @@ class Model(QThread):
 
                 # Model maps geo_coordinates
                 if projected:
-                    x0, y0 = getPolarPoint(roi_x_min, roi_y_min, rotation, x_model * scale / 1000)
-                    x, y = getPolarPoint(x0, y0, rotation + math.pi * 0.5, y_model * scale / 1000)
+                    x0, y0 = getPolarPoint(
+                        roi_x_min, roi_y_min, rotation, x_model * scale / 1000)
+                    x, y = getPolarPoint(
+                        x0, y0, rotation + math.pi * 0.5, y_model * scale / 1000)
                 else:
-                    x0, y0 = getPolarPoint(roi_x_min, roi_y_min, rotation, x_model * spacing_deg / spacing_mm)
-                    x, y = getPolarPoint(x0, y0, rotation + math.pi * 0.5, y_model * spacing_deg / spacing_mm)
-                    
+                    x0, y0 = getPolarPoint(
+                        roi_x_min, roi_y_min, rotation, x_model * spacing_deg / spacing_mm)
+                    x, y = getPolarPoint(
+                        x0, y0, rotation + math.pi * 0.5, y_model * spacing_deg / spacing_mm)
+
                 # Model layer geo_coordinates to query z value
                 point = QgsPoint(x, y)
                 if source != target:
@@ -143,7 +147,8 @@ class Model(QThread):
                 elif math.isnan(self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0]):
                     z_model = self.baseModel
                 else:
-                    z_model = round((self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0] - h_base) / scale * 1000 * z_scale, 2) + self.baseModel
+                    z_model = round((self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[
+                                    0] - h_base) / scale * 1000 * z_scale, 2) + self.baseModel
 
                 matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
 
@@ -198,11 +203,15 @@ class Model(QThread):
 
                 # Model maps geo_coordinates
                 if projected:
-                    x0, y0 = getPolarPoint(roi_x_min, roi_y_min, rotation, x_model * scale / 1000)
-                    x, y = getPolarPoint(x0, y0, rotation + math.pi * 0.5, y_model * scale / 1000)
+                    x0, y0 = getPolarPoint(
+                        roi_x_min, roi_y_min, rotation, x_model * scale / 1000)
+                    x, y = getPolarPoint(
+                        x0, y0, rotation + math.pi * 0.5, y_model * scale / 1000)
                 else:
-                    x0, y0 = getPolarPoint(roi_x_min, roi_y_min, rotation, x_model * spacing_deg / spacing_mm)
-                    x, y = getPolarPoint(x0, y0, rotation + math.pi * 0.5, y_model * spacing_deg / spacing_mm)
+                    x0, y0 = getPolarPoint(
+                        roi_x_min, roi_y_min, rotation, x_model * spacing_deg / spacing_mm)
+                    x, y = getPolarPoint(
+                        x0, y0, rotation + math.pi * 0.5, y_model * spacing_deg / spacing_mm)
                 # print('punto cuajado (row - col - x - y)', i, j, x_model, y_model, round(x, 3), round(y, 3), sep=" - ")
 
                 # Model layer geo_coordinates to query z value
@@ -210,7 +219,8 @@ class Model(QThread):
                 source = self.parameters["crs_map"]
                 target = self.parameters["crs_layer"]
                 if source != target:
-                    transform = QgsCoordinateTransform(source, target, QgsProject.instance())
+                    transform = QgsCoordinateTransform(
+                        source, target, QgsProject.instance())
                     point = transform.transform(x, y)
                     x = point.x()
                     y = point.y()
@@ -254,19 +264,23 @@ class Model(QThread):
 
                     xP1 = dem_x_min + min_col * geotransform[1]
                     yP1 = dem_y_max + min_row * geotransform[5]
-                    zP1 = self.get_z(min_col, min_row, dem_dataset, z_base, scale, z_scale)
+                    zP1 = self.get_z(min_col, min_row,
+                                     dem_dataset, z_base, scale, z_scale)
 
                     xP2 = dem_x_min + max_col * geotransform[1]
                     yP2 = dem_y_max + min_row * geotransform[5]
-                    zP2 = self.get_z(max_col, min_row, dem_dataset, z_base, scale, z_scale)
+                    zP2 = self.get_z(max_col, min_row,
+                                     dem_dataset, z_base, scale, z_scale)
 
                     xP3 = dem_x_min + min_col * geotransform[1]
                     yP3 = dem_y_max + max_row * geotransform[5]
-                    zP3 = self.get_z(min_col, max_row, dem_dataset, z_base, scale, z_scale)
+                    zP3 = self.get_z(min_col, max_row,
+                                     dem_dataset, z_base, scale, z_scale)
 
                     xP4 = dem_x_min + max_col * geotransform[1]
                     yP4 = dem_y_max + max_row * geotransform[5]
-                    zP4 = self.get_z(max_col, max_row, dem_dataset, z_base, scale, z_scale)
+                    zP4 = self.get_z(max_col, max_row,
+                                     dem_dataset, z_base, scale, z_scale)
 
                     p = self.pto(x=x, y=y, z=0)
                     p1 = self.pto(x=xP1, y=yP1, z=zP1)
@@ -275,7 +289,8 @@ class Model(QThread):
                     p4 = self.pto(x=xP4, y=yP4, z=zP4)
 
                     z_model = self.interp_line(p, p1, p2, p3, p4)
-                    matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
+                    matrix_dem[i][j] = self.pto(
+                        x=x_model, y=y_model, z=z_model)
 
                 else:
                     # Solution for boundaries when col = 0 or col = Nº cols
@@ -284,8 +299,10 @@ class Model(QThread):
                         # Corners:
                         col_dem = int(col_dem)
                         row_dem = int(row_dem)
-                        z_model = self.get_z(col_dem, row_dem, dem_dataset, z_base, scale, z_scale)
-                        matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
+                        z_model = self.get_z(
+                            col_dem, row_dem, dem_dataset, z_base, scale, z_scale)
+                        matrix_dem[i][j] = self.pto(
+                            x=x_model, y=y_model, z=z_model)
 
                     elif (col_dem == 0 or col_dem >= columns - 1) and 0 < row_dem < rows - 1:
                         # First and last column
@@ -294,17 +311,24 @@ class Model(QThread):
                         col_dem = int(col_dem)
 
                         if min_row == max_row:
-                            z_model = self.get_z(col_dem, max_row, dem_dataset, z_base, scale, z_scale)
-                            matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
+                            z_model = self.get_z(
+                                col_dem, max_row, dem_dataset, z_base, scale, z_scale)
+                            matrix_dem[i][j] = self.pto(
+                                x=x_model, y=y_model, z=z_model)
                         else:
                             yP1 = dem_y_max + min_row * geotransform[5]
-                            zP1 = self.get_z(col_dem, min_row, dem_dataset, z_base, scale, z_scale)
+                            zP1 = self.get_z(
+                                col_dem, min_row, dem_dataset, z_base, scale, z_scale)
 
                             yP2 = dem_y_max + max_row * geotransform[5]
-                            zP2 = self.get_z(col_dem, max_row, dem_dataset, z_base, scale, z_scale)
+                            zP2 = self.get_z(
+                                col_dem, max_row, dem_dataset, z_base, scale, z_scale)
 
-                            z_model = zP2 + math.fabs(yP2 - y) * (zP1 - zP2) / math.fabs(yP2 - yP1)
-                            matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
+                            z_model = zP2 + \
+                                math.fabs(yP2 - y) * (zP1 - zP2) / \
+                                math.fabs(yP2 - yP1)
+                            matrix_dem[i][j] = self.pto(
+                                x=x_model, y=y_model, z=z_model)
 
                     elif 0 < col_dem < columns - 1 and (row_dem == 0 or row_dem >= rows - 1):
                         # First and last row
@@ -313,17 +337,24 @@ class Model(QThread):
                         row_dem = int(row_dem)
 
                         if min_col == max_col:
-                            z_model = self.get_z(min_col, row_dem, dem_dataset, z_base, scale, z_scale)
-                            matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
+                            z_model = self.get_z(
+                                min_col, row_dem, dem_dataset, z_base, scale, z_scale)
+                            matrix_dem[i][j] = self.pto(
+                                x=x_model, y=y_model, z=z_model)
                         else:
                             xP1 = dem_x_min + min_col * geotransform[1]
-                            zP1 = self.get_z(min_col, row_dem, dem_dataset, z_base, scale, z_scale)
+                            zP1 = self.get_z(
+                                min_col, row_dem, dem_dataset, z_base, scale, z_scale)
 
                             xP2 = dem_x_min + max_col * geotransform[1]
-                            zP2 = self.get_z(max_col, row_dem, dem_dataset, z_base, scale, z_scale)
+                            zP2 = self.get_z(
+                                max_col, row_dem, dem_dataset, z_base, scale, z_scale)
 
-                            z_model = zP1 + math.fabs(xP1 - x) * (zP2 - zP1) / math.fabs(xP2 - xP1)
-                            matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=z_model)
+                            z_model = zP1 + \
+                                math.fabs(xP1 - x) * (zP2 - zP1) / \
+                                math.fabs(xP2 - xP1)
+                            matrix_dem[i][j] = self.pto(
+                                x=x_model, y=y_model, z=z_model)
                     else:
                         # print('punto cuajado', x_model, y_model, sep=" ")
                         matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=0)
@@ -357,9 +388,11 @@ class Model(QThread):
     def get_dem_z(dem_dataset, x_off, y_off, col_size, row_size):
         try:
             band = dem_dataset.GetRasterBand(1)
-            data_types = {'Byte': 'B', 'UInt16': 'H', 'Int16': 'h', 'UInt32': 'I', 'Int32': 'i', 'Float32': 'f', 'Float64': 'd'}
+            data_types = {'Byte': 'B', 'UInt16': 'H', 'Int16': 'h',
+                          'UInt32': 'I', 'Int32': 'i', 'Float32': 'f', 'Float64': 'd'}
             data_type = band.DataType
-            data = band.ReadRaster(x_off, y_off, col_size, row_size, col_size, row_size, data_type)
+            data = band.ReadRaster(
+                x_off, y_off, col_size, row_size, col_size, row_size, data_type)
             if data is None:
                 return [0]
             else:

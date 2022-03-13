@@ -139,6 +139,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
         self.ui.ZScaleDoubleSpinBox.valueChanged.connect(self.get_height_model)
         self.ui.BaseHeightLineEdit.returnPressed.connect(self.get_height_model)
+        self.ui.BaseModellineEdit.returnPressed.connect(self.get_height_model)
 
         self.ui.RowPartsSpinBox.valueChanged.connect(self.paint_model_division)
         self.ui.ColPartsSpinBox.valueChanged.connect(self.paint_model_division)
@@ -306,7 +307,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
         def export():
             stl_file = QFileDialog.getSaveFileName(self, self.tr(
-                'Export to STL'), self.lastSavingPath + layer_name, filter=".stl")
+                'Export to STL'), self.lastSavingPath + layer_name, filter="*.stl")
             if stl_file[0] != '':
                 self.lastSavingPath = os.path.dirname(stl_file[0]) + '//'
                 Export_dialog.Export(self, parameters, stl_file[0])
@@ -768,7 +769,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         try:
             z_base = float(self.ui.BaseHeightLineEdit.text())
             self.z_scale = self.ui.ZScaleDoubleSpinBox.value()
-            h_model = round((self.z_max - z_base) / self.scale * 1000 * self.z_scale + 2, 1)
+            base_model = float(self.ui.BaseModellineEdit.text())
+            h_model = round((self.z_max - z_base) / self.scale * 1000 * self.z_scale + base_model, 1)
             if h_model == float("inf"):
                 QMessageBox.warning(self, self.tr("Attention"), self.tr("Define size model"))
                 self.ui.BaseHeightLineEdit.clear()
@@ -810,11 +812,13 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         rows = int(self.ui.RowPartsSpinBox.value())
         cols = int(self.ui.ColPartsSpinBox.value())
 
+        baseModel = float(self.ui.BaseModellineEdit.text())
+
         return {"layer": path_layer[0],
                 "roi_x_max": self.roi_x_max, "roi_x_min": self.roi_x_min, "roi_y_max": self.roi_y_max, "roi_y_min": self.roi_y_min, "roi_rect_Param": self.rect_Params,
                 "spacing_mm": spacing_mm, "height": self.height, "width": self.width,
                 "z_scale": self.z_scale, "scale": self.scale, "scale_h": self.scale_h, "scale_w": self.scale_w,
-                "z_inv": z_inv, "z_base": z_base,
+                "z_inv": z_inv, "z_base": z_base, "baseModel": baseModel,
                 "projected": projected, "crs_layer": self.layer.crs(), "crs_map": self.map_crs, "divideRow": rows, "divideCols": cols}
 
 

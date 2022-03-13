@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>465</width>
-    <height>619</height>
+    <width>503</width>
+    <height>782</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,8 +40,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>426</width>
-        <height>520</height>
+        <width>477</width>
+        <height>664</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -500,32 +500,28 @@
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
            <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="BaseHeightLineEdit">
-              <property name="maximumSize">
-               <size>
-                <width>85</width>
-                <height>16777215</height>
-               </size>
+            <item row="1" column="2">
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>Highest point:</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
-             <widget class="QLabel" name="HeightModelLabel">
+            <item row="0" column="2">
+             <widget class="QLabel" name="label_8">
               <property name="text">
-               <string>0 mm</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_21">
-              <property name="text">
-               <string>Model height:</string>
+               <string>Lowest point:</string>
               </property>
              </widget>
             </item>
             <item row="1" column="3">
              <widget class="QLabel" name="ZMaxLabel">
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="text">
                <string>0 m</string>
               </property>
@@ -534,18 +530,31 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="2">
-             <widget class="QLabel" name="label_10">
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="BaseHeightLineEdit"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_21">
               <property name="text">
-               <string>Highest point:</string>
+               <string>Base height (mm):</string>
               </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="BaseModellineEdit">
+              <property name="text">
+               <string>2.00</string>
               </property>
              </widget>
             </item>
             <item row="0" column="3">
              <widget class="QLabel" name="ZMinLabel">
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="text">
                <string>0 m</string>
               </property>
@@ -564,13 +573,23 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="2">
-             <widget class="QLabel" name="label_8">
-              <property name="text">
-               <string>Lowest point:</string>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_11">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-              <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              <property name="text">
+               <string>Model height:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLabel" name="HeightModelLabel">
+              <property name="text">
+               <string>0 mm</string>
               </property>
              </widget>
             </item>
@@ -758,12 +777,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>59</x>
-     <y>201</y>
+     <x>84</x>
+     <y>245</y>
     </hint>
     <hint type="destinationlabel">
-     <x>63</x>
-     <y>156</y>
+     <x>87</x>
+     <y>214</y>
     </hint>
    </hints>
   </connection>
