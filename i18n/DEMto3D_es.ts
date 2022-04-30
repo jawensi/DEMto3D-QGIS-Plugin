@@ -147,7 +147,7 @@
     <message>
         <location filename="DEMto3D_dialog.py" line="399"/>
         <source>Base height (mm):</source>
-        <translation>Altura base:</translation>
+        <translation>Altura base (mm):</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="399"/>
