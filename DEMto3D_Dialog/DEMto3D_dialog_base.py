@@ -167,7 +167,6 @@ class Ui_DEMto3DDialogBase(object):
         self.gridLayout_3.addWidget(self.ScaleLineEdit, 3, 1, 1, 1)
         self.ZScaleDoubleSpinBox = QtWidgets.QDoubleSpinBox(self.groupBox_3)
         self.ZScaleDoubleSpinBox.setDecimals(3)
-        self.ZScaleDoubleSpinBox.setMaximum(10.0)
         self.ZScaleDoubleSpinBox.setSingleStep(0.1)
         self.ZScaleDoubleSpinBox.setProperty("value", 1.0)
         self.ZScaleDoubleSpinBox.setObjectName("ZScaleDoubleSpinBox")

@@ -671,6 +671,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             if self.units == 6:  # Degree
                 dist = width_roi * math.pi / 180 * \
                     math.cos(self.roi_y_max * math.pi / 180) * 6371000 * 1000
+                if abs(dist) < 0.00001:
+                    dist = 2 * math.pi * 6371000 * 1000
                 self.scale = round(dist / self.width, 6)
                 self.scale_h = self.scale
                 self.scale_w = self.scale
@@ -701,6 +703,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             if self.units == 6:  # Degree
                 dist = width_roi * math.pi / 180 * \
                     math.cos(self.roi_y_max * math.pi / 180) * 6371000 * 1000
+                if abs(dist) < 0.00001:
+                    dist = 2 * math.pi * 6371000 * 1000
                 self.scale = round(dist / self.width, 6)
                 self.scale_h = self.scale
                 self.scale_w = self.scale
@@ -735,6 +739,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                     dist = width_roi * math.pi / 180 * \
                         math.cos(self.roi_y_max * math.pi / 180) * \
                         6371000 * 1000
+                    if abs(dist) < 0.00001:
+                        dist = 2 * math.pi * 6371000 * 1000
                     self.width = round(dist / self.scale, 2)
                     self.ui.WidthLineEdit.setText(str(self.width))
                     self.height = round(height_roi * self.width / width_roi, 2)

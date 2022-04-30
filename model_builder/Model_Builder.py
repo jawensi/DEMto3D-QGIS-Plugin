@@ -212,6 +212,7 @@ class Model(QThread):
                         roi_x_min, roi_y_min, rotation, x_model * spacing_deg / spacing_mm)
                     x, y = getPolarPoint(
                         x0, y0, rotation + math.pi * 0.5, y_model * spacing_deg / spacing_mm)
+
                 # print('punto cuajado (row - col - x - y)', i, j, x_model, y_model, round(x, 3), round(y, 3), sep=" - ")
 
                 # Model layer geo_coordinates to query z value
@@ -295,7 +296,7 @@ class Model(QThread):
                 else:
                     # Solution for boundaries when col = 0 or col = Nº cols
                     # Manage Boundary limits:
-                    if (col_dem == 0 or col_dem >= columns - 1) and (row_dem == 0 or row_dem >= rows - 1):
+                    if (isZero(col_dem) or col_dem >= columns - 1) and (isZero(row_dem) or row_dem >= rows - 1):
                         # Corners:
                         col_dem = int(col_dem)
                         row_dem = int(row_dem)
@@ -304,7 +305,7 @@ class Model(QThread):
                         matrix_dem[i][j] = self.pto(
                             x=x_model, y=y_model, z=z_model)
 
-                    elif (col_dem == 0 or col_dem >= columns - 1) and 0 < row_dem < rows - 1:
+                    elif (isZero(col_dem) or col_dem >= columns - 1) and 0 < row_dem < rows - 1:
                         # First and last column
                         min_row = int(math.floor(row_dem))
                         max_row = int(math.ceil(row_dem))
@@ -330,7 +331,7 @@ class Model(QThread):
                             matrix_dem[i][j] = self.pto(
                                 x=x_model, y=y_model, z=z_model)
 
-                    elif 0 < col_dem < columns - 1 and (row_dem == 0 or row_dem >= rows - 1):
+                    elif 0 < col_dem < columns - 1 and (isZero(row_dem) or row_dem >= rows - 1):
                         # First and last row
                         min_col = int(math.floor(col_dem))
                         max_col = int(math.ceil(col_dem))
@@ -356,7 +357,7 @@ class Model(QThread):
                             matrix_dem[i][j] = self.pto(
                                 x=x_model, y=y_model, z=z_model)
                     else:
-                        # print('punto cuajado', x_model, y_model, sep=" ")
+                        print('punto cuajado', x_model, y_model, sep=" ")
                         matrix_dem[i][j] = self.pto(x=x_model, y=y_model, z=0)
                 # endregion
 
@@ -425,11 +426,11 @@ class Model(QThread):
             d2 = math.fabs(p1.y - p3.y)
             dif_z1 = p2.z - p1.z
             dif_z2 = p4.z - p3.z
-            if d1 == 0 and d2 == 0 and (p.x - p1.x == 0):
+            if isZero(d1) and isZero(d2) and isZero(p.x - p1.x):
                 return p1.z
-            if d1 == 0 and (p.x - p1.x == 0):
+            if isZero(d1) and isZero(p.x - p1.x):
                 return math.fabs(p.y - p3.y) * (p1.z - p3.z) / d2 + p3.z
-            elif d2 == 0 and (p1.y - p.y == 0):
+            elif isZero(d2) and isZero(p1.y - p.y):
                 return math.fabs(p.x - p1.x) * dif_z1 / d1 + p1.z
             else:
                 zt = math.fabs(p.x - p1.x) * dif_z1 / d1 + p1.z
@@ -437,6 +438,19 @@ class Model(QThread):
                 return (p1.y - p.y) * (zb - zt) / d2 + zt
         except ZeroDivisionError as err:
             print('Bilineal interpolation error:', err)
+            print('P', p.x, p.y, sep=" : ")
+            print('P1', p1.x, p1.y, p1.z, sep=" : ")
+            print('P2', p2.x, p2.y, p2.z, sep=" : ")
+            print('P3', p3.x, p3.y, p3.z, sep=" : ")
+            print('P4', p4.x, p4.y, p4.z, sep=" : ")
+            print('dist', d1, d2, p.x - p1.x, p1.y - p.y, sep=" : ")
+            return 0
+
+
+def isZero(v):
+    if v < 0.0:
+        v = -v
+    return v <= 0.0001
 
 
 def getPolarPoint(x0, y0, angle, dist):
