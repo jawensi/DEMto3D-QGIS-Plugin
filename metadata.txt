@@ -26,8 +26,10 @@ repository=https://github.com/jawensi/DEMto3D
 # Uncomment the following line and add your changelog:
 changelog=
     Change pluging icon. 
-    Resize defualt dialog dimension
-    Inverse height with mirror in X axis
+    Resize defualt dialog dimension.
+    Inverse height with mirror in X axis.
+    Add input for base height.
+    Fix some bugs due to precission.
 
 # Tags are comma separated with spaces allowed
 tags=dem, 3D printing, raster, 3D, relief terrain, STL
