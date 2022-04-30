@@ -412,8 +412,9 @@ class Model(QThread):
                 if getattr(matrix_dem_build[i][j], "z") > z_max:
                     z_max = getattr(matrix_dem_build[i][j], "z")
         for i in range(rows):
-            for j in range(cols):
-                new_z = z_max - getattr(matrix_dem_build[i][j], "z") + 2
+            for j in (range(cols)):
+                currcol = (cols - 1) - j
+                new_z = z_max - getattr(matrix_dem_build[i][currcol], "z") + 2
                 matrix_dem[i][j] = matrix_dem[i][j]._replace(z=new_z)
         return matrix_dem
 
