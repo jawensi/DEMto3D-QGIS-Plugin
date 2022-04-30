@@ -230,11 +230,14 @@ class Model(QThread):
                 col_dem = (x - dem_x_min) / geotransform[1]
                 if col_dem >= columns:
                     col_dem -= 1
+                elif col_dem < 0:
+                    col_dem = 0
                 # From y(m) get Row in DEM file
                 row_dem = (y - dem_y_max) / geotransform[5]
                 if row_dem >= rows:
                     row_dem -= 1
-
+                elif row_dem < 0:
+                    row_dem = 0
                 # region nearest neighbours interpolation
                 # row_dem = int(math.floor(row_dem))
                 # col_dem = int(math.floor(col_dem))
