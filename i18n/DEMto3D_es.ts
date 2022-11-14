@@ -80,7 +80,7 @@
     </message>
     <message>
         <location filename="DEMto3D_dialog_base.py" line="386"/>
-        <source>Lenght (mm):</source>
+        <source>Length (mm):</source>
         <translation>Largo (mm):</translation>
     </message>
     <message>
