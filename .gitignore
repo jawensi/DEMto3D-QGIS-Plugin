@@ -3,6 +3,8 @@
 
 \__pycache__
 
+\zip_build
+
 resourcesCompile.bat
 
 .gitignore

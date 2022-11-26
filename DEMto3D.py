@@ -3,11 +3,9 @@
 /***************************************************************************
  DEMto3D
                                  A QGIS plugin
- Impresión 3D de MDE
-                              -------------------
-        begin                : 2015-08-02
-        git sha              : $Format:%H$
-        copyright            : (C) 2015 by Francisco Javier Venceslá Simón
+ Description
+                             -------------------
+        copyright            : (C) 2022 by Javier
         email                : demto3d@gmail.com
  ***************************************************************************/
 
@@ -30,7 +28,7 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from qgis.PyQt.QtWidgets import QAction, QMessageBox
 from qgis.PyQt.QtGui import QIcon
 # Initialize Qt resources from file resources.py
-from . import resources_rc
+from . import resources
 # Import the code for the dialog
 from .DEMto3D_Dialog import DEMto3D_dialog
 

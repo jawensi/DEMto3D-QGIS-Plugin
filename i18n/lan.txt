@@ -1,0 +1,223 @@
+        DEM 3D printing
+        Impresión 3D de MDE
+        Impression 3D du MDE
+
+        No visible raster layer loaded
+        No hay ninguna capa raster cargada y visible
+        Aucune couche raster chargée et visible
+        
+        DEM 3D printing
+        Impresión 3D de MDE
+        Impression 3D du MDE
+
+        Layer to print
+        Capa a imprimir
+        Couche à imprimer
+
+        Print extent
+        Extensión a imprimir
+        Emprise à imprimer
+
+        Select full extent
+        Extensión completa
+        Emprise totale
+
+        Select layer extent
+        Extensión de capa
+        Emprise de la couche
+
+        Draw extent
+        Dibujar extensión
+        Dessiner l'emprise
+
+        Width:
+        Ancho:
+        Largeur:
+
+        Length:
+        Largo:
+        Longue:
+
+        Show width/length
+        Mostrar ancho/largo
+        Afficher largeur/longue
+        
+        Model size
+        Dimensiones del modelo
+        Dimensions du modèle
+
+        Spacing (mm):
+        Espaciado (mm):
+        Espacement (mm):
+
+        Recommended
+        Recomendado
+        Recommandé
+
+        Lenght (mm):
+        Largo (mm):
+        Longue (mm):
+
+        Width (mm):
+        Ancho (mm):
+        Largeur (mm):
+
+        Scale:
+        Escala:
+        Échelle:
+
+        Vertical exaggeration:
+        Exageración vertical:
+        Exagération verticale:
+    	
+        Terrain inversion:
+        Inversion del relieve:
+        Inversion du relief:
+
+        enable
+        habilitar
+        activer
+
+        Divide model:
+        Dividir modelo:
+        Diviser le modèle:
+
+        row
+        filas
+        lignes
+
+        column
+        columnas
+        colonnes    
+     
+        Model height
+        Altura del modelo
+        Hauteur du modèle
+
+        Height (m):
+        Cota (m):
+        Cote (m):
+
+        Lowest point:
+        Cota mínima:
+        Cote minimale:
+
+        Highest point:
+        Cota máxima:
+        Cote maxime:
+
+        Base height (mm):
+        Altura base (mm):
+        Hauteur base (mm):
+
+        Model height:
+        Altura del modelo:
+        Hauteur du modèle:
+    
+        Settings
+        Parametros
+        paramètres
+
+        Export to STL
+        Exportar a STL
+        Exporter STL
+
+        Cancel
+        Cancelar
+        Annuler
+
+        Close
+        Cerrar
+        Fermer
+        
+        Units not supported
+        Unidades no soportadas
+        Unités non prises en charge
+
+        Attention
+        Atención
+        Attention
+
+        The construction of the STL file could takes several minutes. Do you want to continue?
+        Es posible que la construcción del archivo STL tarde varios minutos. ¿Desea continuar?
+        La construction du fichier STL peut prendre plusieurs minutes. Voulez-vous continuer?
+
+        STL model generated
+        Modelo STL generado
+        Modèle STL généré
+
+        Fill the data correctly
+        Rellene los datos correctamente
+        Remplissez correctement les données
+
+        Process cancelled
+        Proceso cancelado
+        Processus annulé
+
+        Open settings file
+        Abrir archivo de parámetros
+        Ouvrir le fichier de paramètres
+
+        Export settings
+        Exportar parámetros
+        Exporter les paramètres
+
+        Parameters exported
+        Parámetros exportados
+        Paramètres exportés
+
+        Import settings
+        Importar parámetros
+        Importer des paramètres
+
+        Export extension to GeoJSON
+        Exportar extensión a GeoJSON
+        Exporter extension GeoJSON
+
+        Extension exported
+        Extensión exportada
+        Extension exportée
+
+        Click and drag the mouse to draw print extent
+        Haga click y arrastre para definir la extensión a imprimir
+        Cliquez et traînez la souris pour définir l'emprise à imprimer
+
+        Print extent defined outside layer extent
+        Extensión definida fuera de la extensión de la capa
+        Emprise définie en dehors de l'emprise de la couche
+
+        Value entered incorrect
+        Valor introducido incorrecto
+        Valeur entrée incorrecte
+
+        Define print extent
+        Defina la extensión a imprimir
+        Définissez l'emprise à imprimer
+
+        Define size model
+        Defina las dimensiones del modelo
+        Définissez les dimensions du modèle
+
+        Height of the base must be lower than DEM highest point
+        La cota de la base debe ser inferior a la cota máxima del MDE
+        La cote de la base doit être inferieur à la cote maxime du MDE
+
+        Wrong file
+        Archivo incorrecto
+        Mauvais fichier
+
+        Layer extent
+        Extensión de capa
+        Emprise de la couche
+
+        Select a layer:
+        Seleccione una capa:
+        Sélectionnez une couche:
+        
+        Building STL geometry
+        Construyendo geometría STL
+        Génération géométrie STL
+        
+        Creating STL file
+        Creando archivo STL
+        Création du fichier STL

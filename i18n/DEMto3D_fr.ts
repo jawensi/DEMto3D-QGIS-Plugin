@@ -144,6 +144,11 @@
         <source>Highest point:</source>
         <translation>Cote maxime:</translation>
     </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="397"/>
+        <source>Base height (mm):</source>
+        <translation>Hauteur base (mm):</translation>
+    </message>
 	<message>
         <location filename="DEMto3D_dialog.py" line="399"/>
         <source>Model height:</source>
