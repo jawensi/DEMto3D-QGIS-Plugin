@@ -157,6 +157,22 @@
 
     <message>
         <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Sides</source>
+        <translation>Lados</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Build sides</source>
+        <translation>Exportar lados</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Border (mm)</source>
+        <translation>Borde (mm)</translation>
+    </message>
+
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
         <source>Settings</source>
         <translation>Parametros</translation>
     </message>
