@@ -168,7 +168,7 @@
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="403"/>
-        <source>Border (mm)</source>
+        <source>Border (mm):</source>
         <translation>Bord (mm):</translation>
     </message>
 
