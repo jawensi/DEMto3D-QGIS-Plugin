@@ -155,6 +155,24 @@
         <translation>Hauteur du modèle:</translation>
     </message>
 
+    
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Sides</source>
+        <translation>Côtés</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Build sides</source>
+        <translation>Exporte les côtés</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Border (mm)</source>
+        <translation>Bord (mm):</translation>
+    </message>
+
+
 	<message>
         <location filename="DEMto3D_dialog.py" line="48"/>
         <source>Settings</source>

@@ -113,6 +113,18 @@
         Model height:
         Altura del modelo:
         Hauteur du modèle:
+
+        Sides
+        Lados
+        Côtés
+
+        Build sides
+        Exportar lados
+        Exporte les côtés
+
+        Border (mm)
+        Borde (mm)
+        Bord (mm)
     
         Settings
         Parametros
