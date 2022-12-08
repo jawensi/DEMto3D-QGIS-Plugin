@@ -332,12 +332,10 @@ class STL(QThread):
 
         # LEFT & RIGHT BORDERS
         for j in range(rows - 1):
-            p1 = matrix_dem[j][0]
-            p1 = p1._replace(z=d, x=getattr(p1, 'x')-borders)
+            p3 = matrix_dem[j][0]                    
             p2 = matrix_dem[j + 1][0]
-            p3 = matrix_dem[j][0]            
-            p4 = matrix_dem[j + 1][0]
-            p4 = p4._replace(z=d,x=getattr(p4, 'x')-borders)
+            p1 = p3._replace(z=d, x=getattr(p3, 'x')-borders)                    
+            p4 = p2._replace(z=d,x=getattr(p2, 'x')-borders)
             v_normal = self.get_normal(p1, p2, p3)
             vector_face.append([p1, p2, p3, v_normal])
             vector_face.append([p1, p4, p2, v_normal])
@@ -348,11 +346,9 @@ class STL(QThread):
             vector_face.append([p1, p2, p4, v_normal])
 
             p1 = matrix_dem[j][cols - 1]
-            p2 = matrix_dem[j + 1][cols - 1]
-            p3 = matrix_dem[j][cols - 1]
-            p3 = p3._replace(z=d,x=getattr(p3, 'x')+borders)
-            p4 = matrix_dem[j + 1][cols - 1]
-            p4 = p4._replace(z=d,x=getattr(p4, 'x')+borders)
+            p2 = matrix_dem[j + 1][cols - 1]            
+            p3 = p1._replace(z=d,x=getattr(p1, 'x')+borders)            
+            p4 = p2._replace(z=d,x=getattr(p2, 'x')+borders)
             v_normal = self.get_normal(p1, p2, p3)
             vector_face.append([p1, p2, p3, v_normal])
             vector_face.append([p2, p4, p3, v_normal])
@@ -364,12 +360,10 @@ class STL(QThread):
 
         # UPPER & BOTTOM BORDERS
         for j in range(cols - 1):
-            p3 = matrix_dem[0][j]
-            p3 = p3._replace(z=d,y=getattr(p3, 'y')+borders)
-            p2 = matrix_dem[0][j + 1]
             p1 = matrix_dem[0][j]
-            p4 = matrix_dem[0][j + 1]
-            p4 = p4._replace(z=d,y=getattr(p4, 'y')+borders)
+            p2 = matrix_dem[0][j + 1]            
+            p3 = p1._replace(z=d,y=getattr(p1, 'y')+borders)            
+            p4 = p2._replace(z=d,y=getattr(p2, 'y')+borders)
             v_normal = self.get_normal(p1, p2, p3)
             vector_face.append([p1, p2, p3, v_normal])
             vector_face.append([p2, p4, p3, v_normal])
@@ -379,12 +373,10 @@ class STL(QThread):
             vector_face.append([p1, p3, p2, v_normal])
             vector_face.append([p2, p3, p4, v_normal])
 
-            p1 = matrix_dem[rows - 1][j]
-            p1 = p1._replace(z=d,y=getattr(p1, 'y')-borders)
             p2 = matrix_dem[rows - 1][j + 1]
-            p3 = matrix_dem[rows - 1][j]
-            p4 = matrix_dem[rows - 1][j + 1]
-            p4 = p4._replace(z=d,y=getattr(p4, 'y')-borders)
+            p3 = matrix_dem[rows - 1][j]            
+            p1 = p3._replace(z=d,y=getattr(p3, 'y')-borders)
+            p4 = p2._replace(z=d,y=getattr(p2, 'y')-borders)
             v_normal = self.get_normal(p1, p2, p3)
             vector_face.append([p1, p2, p3, v_normal])
             vector_face.append([p1, p4, p2, v_normal])

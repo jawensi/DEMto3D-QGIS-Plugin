@@ -275,8 +275,9 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                     if "borders" in parameters:
                         self.ui.borderModelLineEdit.setText(str(round(parameters["borders"], 3)))
                     if "has_borders" in parameters:
-                        self.ui.SidesCheckBox.setChecked(parameters["has_borders"])
-                        self.ui.borderModelLineEdit.setEnabled(False)
+                        hasbordes = parameters["has_borders"]
+                        self.ui.SidesCheckBox.setChecked(hasbordes)
+                        self.ui.borderModelLineEdit.setEnabled(hasbordes)
 
 
                     self.paint_extent(self.rect_Params)
