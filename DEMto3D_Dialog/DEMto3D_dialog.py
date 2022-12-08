@@ -62,6 +62,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     scale_w = 0
     scale = 0
     z_scale = 0
+    borders = 0
 
     ''' Raster properties '''
     cell_size = 0
@@ -193,6 +194,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                     "height": parameters['height'],
                     "width": parameters['width'],
                     "z_scale": parameters['z_scale'],
+                    "has_borders": parameters['has_borders'],
+                    "borders": parameters['borders'],
                     "scale": parameters['scale'],
                     "scale_h": parameters['scale_h'],
                     "scale_w": parameters['scale_w'],
@@ -268,6 +271,13 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                         self.ui.RowPartsSpinBox.setValue(int(parameters["divideRow"]))
                     if "divideCols" in parameters:
                         self.ui.ColPartsSpinBox.setValue(int(parameters["divideCols"]))
+
+                    if "borders" in parameters:
+                        self.ui.borderModelLineEdit.setText(str(round(parameters["borders"], 3)))
+                    if "has_borders" in parameters:
+                        self.ui.SidesCheckBox.setChecked(parameters["has_borders"])
+                        self.ui.borderModelLineEdit.setEnabled(False)
+
 
                     self.paint_extent(self.rect_Params)
 
@@ -810,22 +820,23 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         except ValueError:
             return 0
 
-        if self.ui.RevereseZCheckBox.isChecked():
-            z_inv = True
-        else:
-            z_inv = False
-
+        z_inv = self.ui.RevereseZCheckBox.isChecked()
+        
         rows = int(self.ui.RowPartsSpinBox.value())
         cols = int(self.ui.ColPartsSpinBox.value())
 
         baseModel = float(self.ui.BaseModellineEdit.text())
+        
+        has_borders = self.ui.SidesCheckBox.isChecked()
+        borders = float(self.ui.borderModelLineEdit.text())            
 
         return {"layer": path_layer[0],
                 "roi_x_max": self.roi_x_max, "roi_x_min": self.roi_x_min, "roi_y_max": self.roi_y_max, "roi_y_min": self.roi_y_min, "roi_rect_Param": self.rect_Params,
                 "spacing_mm": spacing_mm, "height": self.height, "width": self.width,
                 "z_scale": self.z_scale, "scale": self.scale, "scale_h": self.scale_h, "scale_w": self.scale_w,
                 "z_inv": z_inv, "z_base": z_base, "baseModel": baseModel,
-                "projected": projected, "crs_layer": self.layer.crs(), "crs_map": self.map_crs, "divideRow": rows, "divideCols": cols}
+                "projected": projected, "crs_layer": self.layer.crs(), "crs_map": self.map_crs, "divideRow": rows, "divideCols": cols, 
+                "borders": borders, "has_borders": has_borders}
 
 
 class RectangleMapTool(QgsMapTool):
