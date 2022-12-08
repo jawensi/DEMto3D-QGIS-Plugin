@@ -24,12 +24,12 @@
     </message>
     <message>
         <location filename="DEMto3D_dialog_base.py" line="365"/>
-        <source>Layer to print</source>
-        <translation>Capa a imprimir</translation>
+        <source>Layer:</source>
+        <translation>Capa:</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog_base.py" line="366"/>
-        <source>Print extent</source>
+        <source>Layer extent</source>
         <translation>Extensión a imprimir</translation>
     </message>
     <message>
