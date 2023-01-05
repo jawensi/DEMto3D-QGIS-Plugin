@@ -453,8 +453,16 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.roi_y_min = float(self.ui.YMinLineEdit.text())
             p3 = QgsPoint(self.roi_x_min, self.roi_y_min)
             p1 = QgsPoint(self.roi_x_max, self.roi_y_max)
-            self.rect_Params = rectangleHWCenterFrom2pCreate(p3, p1, self.rect_Params["rotation"])
 
+            # If we directly start typing coordinates, rect_Params is never
+            # initialized.  Assuming rotation of 0.
+            # TODO: It's probably better to initialize rect_Params some other way.
+            if self.rect_Params is None:
+                self.rect_Params = rectangleHWCenterFrom2pCreate(p3, p1, 0)
+            else:
+                self.rect_Params = rectangleHWCenterFrom2pCreate(
+                    p3, p1, self.rect_Params["rotation"])
+            
             self.paint_extent(self.rect_Params)
             self.get_z_max_z_min()
             self.ini_dimensions()
