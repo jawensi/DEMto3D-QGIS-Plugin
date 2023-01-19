@@ -203,6 +203,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                     "projected": parameters['projected'],
                     "crs_layer": parameters['crs_layer'].toProj4(),
                     "crs_map": parameters['crs_map'].toProj4(),
+                    "trimmed": parameters['trimmed'],
                 }
                 with open(setting_file[0], 'w') as fp:
                     json.dump(obj_info, fp, indent=4)
@@ -828,12 +829,14 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
         baseModel = float(self.ui.BaseModellineEdit.text())
 
+        trimmed = False
+
         return {"layer": path_layer[0],
                 "roi_x_max": self.roi_x_max, "roi_x_min": self.roi_x_min, "roi_y_max": self.roi_y_max, "roi_y_min": self.roi_y_min, "roi_rect_Param": self.rect_Params,
                 "spacing_mm": spacing_mm, "height": self.height, "width": self.width,
                 "z_scale": self.z_scale, "scale": self.scale, "scale_h": self.scale_h, "scale_w": self.scale_w,
                 "z_inv": z_inv, "z_base": z_base, "baseModel": baseModel,
-                "projected": projected, "crs_layer": self.layer.crs(), "crs_map": self.map_crs, "divideRow": rows, "divideCols": cols}
+                "projected": projected, "crs_layer": self.layer.crs(), "crs_map": self.map_crs, "divideRow": rows, "divideCols": cols, "trimmed": trimmed}
 
 
 class RectangleMapTool(QgsMapTool):
