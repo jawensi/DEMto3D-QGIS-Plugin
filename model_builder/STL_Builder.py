@@ -228,22 +228,6 @@ class STL(QThread):
                                 vector_face.append([p1, p3, p2, v_normal])
                                 vector_face.append([p1, p2, p4, v_normal])
 
-                            else:
-                                # Nothing to the upper right or right, maybe diagonal down/right
-                                # We should only do this if there is something down
-                                if (j < rows - 1 and getattr(matrix_dem[j+1][k+1], "z") > 0 and
-                                        getattr(matrix_dem[j+1][k], "z") > 0):
-
-                                    p1 = p1._replace(z=d)
-                                    p2 = matrix_dem[j+1][k+1]
-                                    p3 = matrix_dem[j][k]
-                                    p4 = matrix_dem[j+1][k+1]
-                                    p4 = p4._replace(z=d)
-                                    v_normal = self.normal(
-                                        normal_x=0, normal_y=-1, normal_z=0)
-                                    vector_face.append([p1, p3, p2, v_normal])
-                                    vector_face.append([p1, p2, p4, v_normal])
-
                         # We can look down and right and we should:
                         # nothing up and right and nothing to the right and
                         # something down and right and something down
@@ -334,22 +318,6 @@ class STL(QThread):
                                     normal_x=0, normal_y=-1, normal_z=0)
                                 vector_face.append([p1, p3, p2, v_normal])
                                 vector_face.append([p1, p2, p4, v_normal])
-
-                            else:
-                                # Nothing to the lower left or left, maybe diagonal up/left
-                                # We should only do this if there is something above
-                                if (j > 0 and getattr(matrix_dem[j-1][k-1], "z") > 0 and
-                                        getattr(matrix_dem[j-1][k], "z") > 0):
-
-                                    p1 = p1._replace(z=d)
-                                    p2 = matrix_dem[j-1][k-1]
-                                    p3 = matrix_dem[j][k]
-                                    p4 = matrix_dem[j-1][k-1]
-                                    p4 = p4._replace(z=d)
-                                    v_normal = self.normal(
-                                        normal_x=0, normal_y=-1, normal_z=0)
-                                    vector_face.append([p1, p3, p2, v_normal])
-                                    vector_face.append([p1, p2, p4, v_normal])
 
                         # We can look up and left and we should:
                         # nothing down and left and nothing to the left and
