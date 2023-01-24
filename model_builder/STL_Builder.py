@@ -229,10 +229,9 @@ class STL(QThread):
                                 vector_face.append([p1, p2, p4, v_normal])
 
                         # We can look down and right and we should:
-                        # nothing up and right and nothing to the right and
+                        # nothing to the right and
                         # something down and right and something down
                         if ((k < cols - 1) and (j < rows - 1) and
-                            (getattr(matrix_dem[j-1][k+1], "z") == 0) and
                             (getattr(matrix_dem[j][k+1], "z") == 0) and
                             (getattr(matrix_dem[j+1][k+1], "z") > 0) and
                                 (getattr(matrix_dem[j+1][k], "z") > 0)):
@@ -320,11 +319,10 @@ class STL(QThread):
                                 vector_face.append([p1, p2, p4, v_normal])
 
                         # We can look up and left and we should:
-                        # nothing down and left and nothing to the left and
+                        # nothing to the left and
                         # something up and left and something up
                         if ((k > 0) and (j > 0) and
                             (getattr(matrix_dem[j][k-1], "z") == 0) and
-                            (getattr(matrix_dem[j+1][k-1], "z") == 0) and
                             (getattr(matrix_dem[j-1][k-1], "z") > 0) and
                                 (getattr(matrix_dem[j-1][k], "z") > 0)):
 
