@@ -211,6 +211,7 @@ class STL(QThread):
                                     normal_x=0, normal_y=-1, normal_z=0)
                                 vector_face.append([p1, p3, p2, v_normal])
                                 vector_face.append([p1, p2, p4, v_normal])
+                                continue
 
                             # next look directly right
                             # we should only do this if there is something below us
@@ -227,6 +228,7 @@ class STL(QThread):
                                     normal_x=0, normal_y=-1, normal_z=0)
                                 vector_face.append([p1, p3, p2, v_normal])
                                 vector_face.append([p1, p2, p4, v_normal])
+                                continue
 
                         # We can look down and right and we should:
                         # nothing to the right and
@@ -245,6 +247,7 @@ class STL(QThread):
                                 normal_x=-1, normal_y=0, normal_z=0)
                             vector_face.append([p1, p3, p2, v_normal])
                             vector_face.append([p2, p4, p1, v_normal])
+                            continue
 
                         # We can look down and we should:
                         # Not the bottom row or the left edge and there is something down and
@@ -264,6 +267,7 @@ class STL(QThread):
                                 normal_x=-1, normal_y=0, normal_z=0)
                             vector_face.append([p1, p3, p2, v_normal])
                             vector_face.append([p2, p4, p1, v_normal])
+                            continue
 
                         # We can look up and we should:
                         # Not the top row or the right edge and there is something up and
@@ -283,6 +287,7 @@ class STL(QThread):
                                 normal_x=-1, normal_y=0, normal_z=0)
                             vector_face.append([p1, p3, p2, v_normal])
                             vector_face.append([p1, p2, p4, v_normal])
+                            continue
 
                         # We can look left and we should: bottom edge or nothing below
                         if (k > 0) and (j == rows - 1 or getattr(matrix_dem[j+1][k], "z") == 0):
@@ -301,6 +306,7 @@ class STL(QThread):
                                     normal_x=0, normal_y=-1, normal_z=0)
                                 vector_face.append([p1, p3, p2, v_normal])
                                 vector_face.append([p1, p2, p4, v_normal])
+                                continue
 
                             # next look directly left
                             # we should only do this if there is something above us
@@ -317,6 +323,7 @@ class STL(QThread):
                                     normal_x=0, normal_y=-1, normal_z=0)
                                 vector_face.append([p1, p3, p2, v_normal])
                                 vector_face.append([p1, p2, p4, v_normal])
+                                continue
 
                         # We can look up and left and we should:
                         # nothing to the left and
@@ -335,6 +342,7 @@ class STL(QThread):
                                 normal_x=-1, normal_y=0, normal_z=0)
                             vector_face.append([p1, p3, p2, v_normal])
                             vector_face.append([p2, p4, p1, v_normal])
+                            continue
 
         else:
             for j in range(rows - 1):
