@@ -187,44 +187,203 @@ class STL(QThread):
         cols = matrix_dem[0].__len__()
         vector_face = []
         d = 0
-        for j in range(rows - 1):
-            p1 = matrix_dem[j][0]
-            p1 = p1._replace(z=d)
-            p2 = matrix_dem[j + 1][0]
-            p3 = matrix_dem[j][0]
-            p4 = matrix_dem[j + 1][0]
-            p4 = p4._replace(z=d)
-            v_normal = self.normal(normal_x=0, normal_y=-1, normal_z=0)
-            vector_face.append([p1, p2, p3, v_normal])
-            vector_face.append([p1, p4, p2, v_normal])
-            p1 = matrix_dem[j][cols - 1]
-            p2 = matrix_dem[j + 1][cols - 1]
-            p3 = matrix_dem[j][cols - 1]
-            p3 = p3._replace(z=d)
-            p4 = matrix_dem[j + 1][cols - 1]
-            p4 = p4._replace(z=d)
-            v_normal = self.normal(normal_x=0, normal_y=1, normal_z=0)
-            vector_face.append([p1, p2, p3, v_normal])
-            vector_face.append([p2, p4, p3, v_normal])
-        for j in range(cols - 1):
-            p3 = matrix_dem[0][j]
-            p3 = p3._replace(z=d)
-            p2 = matrix_dem[0][j + 1]
-            p1 = matrix_dem[0][j]
-            p4 = matrix_dem[0][j + 1]
-            p4 = p4._replace(z=d)
-            v_normal = self.normal(normal_x=-1, normal_y=0, normal_z=0)
-            vector_face.append([p1, p2, p3, v_normal])
-            vector_face.append([p2, p4, p3, v_normal])
-            p1 = matrix_dem[rows - 1][j]
-            p1 = p1._replace(z=d)
-            p2 = matrix_dem[rows - 1][j + 1]
-            p3 = matrix_dem[rows - 1][j]
-            p4 = matrix_dem[rows - 1][j + 1]
-            p4 = p4._replace(z=d)
-            v_normal = self.normal(normal_x=0, normal_y=1, normal_z=0)
-            vector_face.append([p1, p2, p3, v_normal])
-            vector_face.append([p1, p4, p2, v_normal])
+
+        if self.parameters["trimmed"]:
+            for j in range(rows):
+                for k in range(cols):
+                    p1 = matrix_dem[j][k]
+                    if getattr(p1, "z") > 0:
+
+                        # We can look right and we should: top edge or nothing above
+                        if (k < cols - 1) and (j == 0 or getattr(matrix_dem[j-1][k], "z") == 0):
+
+                            # first look up and right
+                            # this should only happen if there is something to the right
+                            if (j > 0 and getattr(matrix_dem[j-1][k+1], "z") > 0 and
+                                    getattr(matrix_dem[j][k+1], "z") > 0):
+
+                                p1 = p1._replace(z=d)
+                                p2 = matrix_dem[j-1][k+1]
+                                p3 = matrix_dem[j][k]
+                                p4 = matrix_dem[j-1][k+1]
+                                p4 = p4._replace(z=d)
+                                v_normal = self.normal(
+                                    normal_x=0, normal_y=-1, normal_z=0)
+                                vector_face.append([p1, p3, p2, v_normal])
+                                vector_face.append([p1, p2, p4, v_normal])
+                                continue
+
+                            # next look directly right
+                            # we should only do this if there is something below us
+                            # either directly below or below and to the right
+                            elif (getattr(matrix_dem[j][k+1], "z") > 0 and j < rows-1 and
+                                  (getattr(matrix_dem[j+1][k], "z") > 0 or getattr(matrix_dem[j+1][k+1], "z") > 0)):
+
+                                p1 = p1._replace(z=d)
+                                p2 = matrix_dem[j][k+1]
+                                p3 = matrix_dem[j][k]
+                                p4 = matrix_dem[j][k+1]
+                                p4 = p4._replace(z=d)
+                                v_normal = self.normal(
+                                    normal_x=0, normal_y=-1, normal_z=0)
+                                vector_face.append([p1, p3, p2, v_normal])
+                                vector_face.append([p1, p2, p4, v_normal])
+                                continue
+
+                        # We can look down and right and we should:
+                        # nothing to the right and
+                        # something down and right and something down
+                        if ((k < cols - 1) and (j < rows - 1) and
+                            (getattr(matrix_dem[j][k+1], "z") == 0) and
+                            (getattr(matrix_dem[j+1][k+1], "z") > 0) and
+                                (getattr(matrix_dem[j+1][k], "z") > 0)):
+
+                            p1 = p1._replace(z=d)
+                            p2 = matrix_dem[j+1][k+1]
+                            p3 = matrix_dem[j][k]
+                            p4 = matrix_dem[j+1][k+1]
+                            p4 = p4._replace(z=d)
+                            v_normal = self.normal(
+                                normal_x=-1, normal_y=0, normal_z=0)
+                            vector_face.append([p1, p3, p2, v_normal])
+                            vector_face.append([p2, p4, p1, v_normal])
+                            continue
+
+                        # We can look down and we should:
+                        # Not the bottom row or the left edge and there is something down and
+                        # we are the right edge or nothing to the right and nothing down/right
+                        # also only look down if there is something to our left or left/down
+                        # only need to look directly down, diagonals will be taken care of elsewhere.
+                        if (j < rows - 1 and k > 0 and getattr(matrix_dem[j+1][k], "z") > 0 and
+                            (k == cols - 1 or (getattr(matrix_dem[j][k+1], "z") == 0 and getattr(matrix_dem[j+1][k+1], "z") == 0)) and
+                                (getattr(matrix_dem[j][k-1], "z") > 0 or getattr(matrix_dem[j+1][k-1], "z") > 0)):
+
+                            p1 = p1._replace(z=d)
+                            p2 = matrix_dem[j+1][k]
+                            p3 = matrix_dem[j][k]
+                            p4 = matrix_dem[j+1][k]
+                            p4 = p4._replace(z=d)
+                            v_normal = self.normal(
+                                normal_x=-1, normal_y=0, normal_z=0)
+                            vector_face.append([p1, p3, p2, v_normal])
+                            vector_face.append([p2, p4, p1, v_normal])
+                            continue
+
+                        # We can look up and we should:
+                        # Not the top row or the right edge and there is something up and
+                        # we are the left edge or (nothing to the left and nothing up/left)
+                        # also only look up if there is something to our right or right/up.
+                        # Only need to look directly up, diagonals will be taken care of elsewhere.
+                        if (j > 0 and k < cols-1 and getattr(matrix_dem[j-1][k], "z") > 0 and
+                            (k == 0 or (getattr(matrix_dem[j][k-1], "z") == 0) and getattr(matrix_dem[j-1][k-1], "z") == 0) and
+                                (getattr(matrix_dem[j][k+1], "z") > 0 or getattr(matrix_dem[j-1][k+1], "z") > 0)):
+
+                            p1 = p1._replace(z=d)
+                            p2 = matrix_dem[j-1][k]
+                            p3 = matrix_dem[j][k]
+                            p4 = matrix_dem[j-1][k]
+                            p4 = p4._replace(z=d)
+                            v_normal = self.normal(
+                                normal_x=-1, normal_y=0, normal_z=0)
+                            vector_face.append([p1, p3, p2, v_normal])
+                            vector_face.append([p1, p2, p4, v_normal])
+                            continue
+
+                        # We can look left and we should: bottom edge or nothing below
+                        if (k > 0) and (j == rows - 1 or getattr(matrix_dem[j+1][k], "z") == 0):
+
+                            # first look down and left
+                            # this should only happen if there is something to the left
+                            if (j < rows-1 and getattr(matrix_dem[j+1][k-1], "z") > 0 and
+                                    getattr(matrix_dem[j][k-1], "z") > 0):
+
+                                p1 = p1._replace(z=d)
+                                p2 = matrix_dem[j+1][k-1]
+                                p3 = matrix_dem[j][k]
+                                p4 = matrix_dem[j+1][k-1]
+                                p4 = p4._replace(z=d)
+                                v_normal = self.normal(
+                                    normal_x=0, normal_y=-1, normal_z=0)
+                                vector_face.append([p1, p3, p2, v_normal])
+                                vector_face.append([p1, p2, p4, v_normal])
+                                continue
+
+                            # next look directly left
+                            # we should only do this if there is something above us
+                            # either directly above or above and to the left
+                            elif (getattr(matrix_dem[j][k-1], "z") > 0 and j > 0 and
+                                  (getattr(matrix_dem[j-1][k], "z") > 0 or getattr(matrix_dem[j-1][k-1], "z") > 0)):
+
+                                p1 = p1._replace(z=d)
+                                p2 = matrix_dem[j][k-1]
+                                p3 = matrix_dem[j][k]
+                                p4 = matrix_dem[j][k-1]
+                                p4 = p4._replace(z=d)
+                                v_normal = self.normal(
+                                    normal_x=0, normal_y=-1, normal_z=0)
+                                vector_face.append([p1, p3, p2, v_normal])
+                                vector_face.append([p1, p2, p4, v_normal])
+                                continue
+
+                        # We can look up and left and we should:
+                        # nothing to the left and
+                        # something up and left and something up
+                        if ((k > 0) and (j > 0) and
+                            (getattr(matrix_dem[j][k-1], "z") == 0) and
+                            (getattr(matrix_dem[j-1][k-1], "z") > 0) and
+                                (getattr(matrix_dem[j-1][k], "z") > 0)):
+
+                            p1 = p1._replace(z=d)
+                            p2 = matrix_dem[j-1][k-1]
+                            p3 = matrix_dem[j][k]
+                            p4 = matrix_dem[j-1][k-1]
+                            p4 = p4._replace(z=d)
+                            v_normal = self.normal(
+                                normal_x=-1, normal_y=0, normal_z=0)
+                            vector_face.append([p1, p3, p2, v_normal])
+                            vector_face.append([p2, p4, p1, v_normal])
+                            continue
+
+        else:
+            for j in range(rows - 1):
+                p1 = matrix_dem[j][0]
+                p1 = p1._replace(z=d)
+                p2 = matrix_dem[j + 1][0]
+                p3 = matrix_dem[j][0]
+                p4 = matrix_dem[j + 1][0]
+                p4 = p4._replace(z=d)
+                v_normal = self.normal(normal_x=0, normal_y=-1, normal_z=0)
+                vector_face.append([p1, p2, p3, v_normal])
+                vector_face.append([p1, p4, p2, v_normal])
+                p1 = matrix_dem[j][cols - 1]
+                p2 = matrix_dem[j + 1][cols - 1]
+                p3 = matrix_dem[j][cols - 1]
+                p3 = p3._replace(z=d)
+                p4 = matrix_dem[j + 1][cols - 1]
+                p4 = p4._replace(z=d)
+                v_normal = self.normal(normal_x=0, normal_y=1, normal_z=0)
+                vector_face.append([p1, p2, p3, v_normal])
+                vector_face.append([p2, p4, p3, v_normal])
+            for j in range(cols - 1):
+                p3 = matrix_dem[0][j]
+                p3 = p3._replace(z=d)
+                p2 = matrix_dem[0][j + 1]
+                p1 = matrix_dem[0][j]
+                p4 = matrix_dem[0][j + 1]
+                p4 = p4._replace(z=d)
+                v_normal = self.normal(normal_x=-1, normal_y=0, normal_z=0)
+                vector_face.append([p1, p2, p3, v_normal])
+                vector_face.append([p2, p4, p3, v_normal])
+                p1 = matrix_dem[rows - 1][j]
+                p1 = p1._replace(z=d)
+                p2 = matrix_dem[rows - 1][j + 1]
+                p3 = matrix_dem[rows - 1][j]
+                p4 = matrix_dem[rows - 1][j + 1]
+                p4 = p4._replace(z=d)
+                v_normal = self.normal(normal_x=0, normal_y=1, normal_z=0)
+                vector_face.append([p1, p2, p3, v_normal])
+                vector_face.append([p1, p4, p2, v_normal])
+
         return vector_face
 
     def face_dem_vector(self, matrix_dem):
@@ -232,16 +391,42 @@ class STL(QThread):
         cols = matrix_dem[0].__len__()
         vector_face = []
 
-        for j in range(rows - 1):
-            for k in range(cols - 1):
-                p3 = matrix_dem[j][k]
-                p2 = matrix_dem[j][k + 1]
-                p1 = matrix_dem[j + 1][k]
-                p4 = matrix_dem[j + 1][k + 1]
-                normal = self.get_normal(p1, p2, p3)
-                vector_face.append([p1, p2, p3, normal])
-                normal = self.get_normal(p1, p4, p2)
-                vector_face.append([p1, p4, p2, normal])
+        if self.parameters["trimmed"]:
+            for j in range(rows - 1):
+                for k in range(cols - 1):
+                    p3 = matrix_dem[j][k]
+                    p2 = matrix_dem[j][k + 1]
+                    p1 = matrix_dem[j + 1][k]
+                    p4 = matrix_dem[j + 1][k + 1]
+                    if getattr(p2, "z") > 0 and getattr(p3, "z") > 0 and getattr(p1, "z") > 0 and getattr(p4, "z") > 0:
+                        normal = self.get_normal(p1, p2, p3)
+                        vector_face.append([p1, p2, p3, normal])
+                        normal = self.get_normal(p1, p4, p2)
+                        vector_face.append([p1, p4, p2, normal])
+                    elif getattr(p2, "z") == 0 and getattr(p3, "z") > 0 and getattr(p1, "z") > 0 and getattr(p4, "z") > 0:
+                        normal = self.get_normal(p1, p4, p3)
+                        vector_face.append([p1, p4, p3, normal])
+                    elif getattr(p2, "z") > 0 and getattr(p3, "z") == 0 and getattr(p1, "z") > 0 and getattr(p4, "z") > 0:
+                        normal = self.get_normal(p1, p4, p2)
+                        vector_face.append([p1, p4, p2, normal])
+                    elif getattr(p2, "z") > 0 and getattr(p3, "z") > 0 and getattr(p1, "z") == 0 and getattr(p4, "z") > 0:
+                        normal = self.get_normal(p3, p4, p2)
+                        vector_face.append([p3, p4, p2, normal])
+                    elif getattr(p2, "z") > 0 and getattr(p3, "z") > 0 and getattr(p1, "z") > 0 and getattr(p4, "z") == 0:
+                        normal = self.get_normal(p1, p2, p3)
+                        vector_face.append([p1, p2, p3, normal])
+
+        else:
+            for j in range(rows - 1):
+                for k in range(cols - 1):
+                    p3 = matrix_dem[j][k]
+                    p2 = matrix_dem[j][k + 1]
+                    p1 = matrix_dem[j + 1][k]
+                    p4 = matrix_dem[j + 1][k + 1]
+                    normal = self.get_normal(p1, p2, p3)
+                    vector_face.append([p1, p2, p3, normal])
+                    normal = self.get_normal(p1, p4, p2)
+                    vector_face.append([p1, p4, p2, normal])
 
         return vector_face
 

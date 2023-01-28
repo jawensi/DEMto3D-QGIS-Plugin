@@ -213,6 +213,13 @@
              </widget>
             </item>
             <item>
+             <widget class="QCheckBox" name="TrimmedCheckBox">
+              <property name="text">
+               <string>Trim null/0 height</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <spacer name="horizontalSpacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
