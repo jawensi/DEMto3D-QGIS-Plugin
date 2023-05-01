@@ -545,7 +545,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.canvas.scene().removeItem(self.divisions)
             self.divisions = []
 
-        self.extent = QgsRubberBand(self.canvas, True)
+        self.extent = QgsRubberBand(self.canvas, Qgis.GeometryType.Polygon)
 
         points = [QgsPoint(self.roi_x_max, self.roi_y_min), QgsPoint(self.roi_x_max, self.roi_y_max),
                   QgsPoint(self.roi_x_min, self.roi_y_max), QgsPoint(
@@ -593,7 +593,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.canvas.scene().removeItem(self.divisions)
             self.divisions = []
 
-        self.extent = QgsRubberBand(self.canvas, True)
+        self.extent = QgsRubberBand(self.canvas, Qgis.GeometryType.Polygon)
 
         points = [QgsPoint(points[0][0], points[0][1]), QgsPoint(points[1][0], points[1][1]),
                   QgsPoint(points[2][0], points[2][1]), QgsPoint(
@@ -639,7 +639,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 lines.append([QgsPointXY(p1[0], p1[1]),
                              QgsPointXY(p2[0], p2[1])])
         if lines:
-            self.divisions = QgsRubberBand(self.canvas, False)
+            self.divisions = QgsRubberBand(self.canvas, Qgis.GeometryType.Polygon)
             self.divisions.setColor(QColor(227, 26, 28, 255))
             self.divisions.setWidth(3)
             self.divisions.setLineStyle(Qt.PenStyle(Qt.DashDotLine))
@@ -910,7 +910,7 @@ class RectangleMapTool(QgsMapTool):
         self.canvas = canvas
         QgsMapTool.__init__(self, self.canvas)
         self.callback = callback
-        self.rubberBand = QgsRubberBand(self.canvas, 3)
+        self.rubberBand = QgsRubberBand(self.canvas, Qgis.GeometryType.Polygon)
         self.rubberBand.setColor(QColor(227, 26, 28, 255))
         self.rubberBand.setWidth(3)
         self.rubberBand.setLineStyle(Qt.PenStyle(Qt.DashLine))
@@ -920,7 +920,7 @@ class RectangleMapTool(QgsMapTool):
     def reset(self):
         self.startPoint = self.endPoint = None
         self.isEmittingPoint = False
-        self.rubberBand.reset(True)
+        self.rubberBand.reset()
 
     def canvasPressEvent(self, e):
         self.startPoint = self.toMapCoordinates(e.pos())
@@ -943,7 +943,7 @@ class RectangleMapTool(QgsMapTool):
         self.showRect(self.startPoint, self.endPoint)
 
     def showRect(self, start_point, end_point):
-        self.rubberBand.reset(True)
+        self.rubberBand.reset()
         if start_point.x() == end_point.x() or start_point.y() == end_point.y():
             return
 
