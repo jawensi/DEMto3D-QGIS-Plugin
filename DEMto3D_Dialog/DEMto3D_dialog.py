@@ -24,7 +24,7 @@ import os
 import math
 import json
 
-from osgeo import gdal
+# from osgeo import gdal
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog, QApplication, QMenu
 from qgis.PyQt.QtGui import QColor, QCursor
 from qgis.PyQt.QtCore import Qt
@@ -35,6 +35,8 @@ from . import SelectLayer_dialog
 from .DEMto3D_dialog_base import Ui_DEMto3DDialogBase
 from qgis.core import QgsPointXY, QgsPoint, QgsRectangle, QgsFeature, QgsProject, QgsGeometry, QgsCoordinateTransform, Qgis, QgsMapLayerProxyModel, QgsCoordinateReferenceSystem, QgsVectorLayer, QgsVectorFileWriter
 from qgis.analysis import QgsZonalStatistics
+
+from qgis.core import QgsWkbTypes
 
 from ..model_builder.Model_Builder import Model
 
@@ -513,7 +515,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.canvas.scene().removeItem(self.divisions)
             self.divisions = []
 
-        self.extent = QgsRubberBand(self.canvas, True)
+        self.extent = QgsRubberBand(self.canvas, QgsWkbTypes.GeometryType.PolygonGeometry)
 
         points = [QgsPoint(self.roi_x_max, self.roi_y_min), QgsPoint(self.roi_x_max, self.roi_y_max),
                   QgsPoint(self.roi_x_min, self.roi_y_max), QgsPoint(self.roi_x_min, self.roi_y_min),
@@ -560,7 +562,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.canvas.scene().removeItem(self.divisions)
             self.divisions = []
 
-        self.extent = QgsRubberBand(self.canvas, True)
+        self.extent = QgsRubberBand(self.canvas, QgsWkbTypes.GeometryType.PolygonGeometry)
 
         points = [QgsPoint(points[0][0], points[0][1]), QgsPoint(points[1][0], points[1][1]),
                   QgsPoint(points[2][0], points[2][1]), QgsPoint(points[3][0], points[3][1]),
@@ -599,7 +601,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 p2 = getPolarPoint(points[0][0], points[0][1], self.rect_Params['rotation'], model_width * i)
                 lines.append([QgsPointXY(p1[0], p1[1]), QgsPointXY(p2[0], p2[1])])
         if lines:
-            self.divisions = QgsRubberBand(self.canvas, False)
+            self.divisions = QgsRubberBand(self.canvas, QgsWkbTypes.GeometryType.PolygonGeometry)
             self.divisions.setColor(QColor(227, 26, 28, 255))
             self.divisions.setWidth(3)
             self.divisions.setLineStyle(Qt.PenStyle(Qt.DashDotLine))
@@ -611,9 +613,9 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
         points = getPointsFromRectangleParams(self.rect_Params)
         # Specify the geometry type
-        layer = QgsVectorLayer('Polygon?crs=' + self.map_crs.authid(), 'polygon', 'memory')
+        PolygonLayer = QgsVectorLayer('Polygon?crs=' + self.map_crs.authid(), 'polygon', 'memory')
         # Set the provider to accept the data source
-        prov = layer.dataProvider()
+        prov = PolygonLayer.dataProvider()
         geom = [[QgsPointXY(points[0][0], points[0][1]), QgsPointXY(points[1][0], points[1][1]),
                  QgsPointXY(points[2][0], points[2][1]), QgsPointXY(points[3][0], points[3][1])]]
         # Add a new feature and assign the geometry
@@ -621,14 +623,14 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         feat.setGeometry(QgsGeometry.fromPolygonXY(geom))
         prov.addFeatures([feat])
         # Update extent of the layer
-        layer.updateExtents()
+        PolygonLayer.updateExtents()
 
-        zoneStat = QgsZonalStatistics(layer, self.layer, "", 1, QgsZonalStatistics.Max | QgsZonalStatistics.Min)
+        zoneStat = QgsZonalStatistics(PolygonLayer, self.layer, "", 1, QgsZonalStatistics.Max | QgsZonalStatistics.Min)
         zoneStat.calculateStatistics(None)
 
         minVal = 0
         maxVal = 0
-        stats = layer.getFeature(1).attributes()
+        stats = PolygonLayer.getFeature(1).attributes()
         if (len(stats) > 0):
             if stats[0] is not None:
                 minVal = stats[0]
@@ -640,7 +642,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ui.ZMaxLabel.setText(str(self.z_max) + ' m')
         self.ui.ZMinLabel.setText(str(self.z_min) + ' m')
 
-        layer = None
+        PolygonLayer = None
         QApplication.restoreOverrideCursor()
 
     # endregion
@@ -674,8 +676,12 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
     def upload_size_from_height(self):
         try:
+            if self.rect_Params is None:
+                return   
             width_roi = self.rect_Params["width"]
             height_roi = self.rect_Params["height"]
+            if width_roi is None | height_roi is None:
+                return   
             self.height = float(self.ui.HeightLineEdit.text())
             self.width = round(width_roi * self.height / height_roi, 2)
             self.ui.WidthLineEdit.setText(str(self.width))
@@ -706,8 +712,12 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
     def upload_size_from_width(self):
         try:
+            if self.rect_Params is None:
+                return   
             width_roi = self.rect_Params["width"]
             height_roi = self.rect_Params["height"]
+            if width_roi is None | height_roi is None:
+                return       
             self.width = float(self.ui.WidthLineEdit.text())
             self.height = round(height_roi * self.width / width_roi, 2)
             self.ui.HeightLineEdit.setText(str(self.height))
@@ -740,9 +750,13 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         if self.changeScale == False:
             self.changeScale = True
         else:
-            try:
+            try:                                
+                if self.rect_Params is None:
+                    return   
                 width_roi = self.rect_Params["width"]
                 height_roi = self.rect_Params["height"]
+                if width_roi is None | height_roi is None:
+                    return      
                 self.scale = float(self.ui.ScaleLineEdit.scale())
                 self.scale_h = self.scale
                 self.scale_w = self.scale
@@ -850,7 +864,7 @@ class RectangleMapTool(QgsMapTool):
         self.canvas = canvas
         QgsMapTool.__init__(self, self.canvas)
         self.callback = callback
-        self.rubberBand = QgsRubberBand(self.canvas, 3)
+        self.rubberBand = QgsRubberBand(self.canvas, QgsWkbTypes.GeometryType.LineGeometry)
         self.rubberBand.setColor(QColor(227, 26, 28, 255))
         self.rubberBand.setWidth(3)
         self.rubberBand.setLineStyle(Qt.PenStyle(Qt.DashLine))
@@ -860,7 +874,7 @@ class RectangleMapTool(QgsMapTool):
     def reset(self):
         self.startPoint = self.endPoint = None
         self.isEmittingPoint = False
-        self.rubberBand.reset(True)
+        self.rubberBand.reset(QgsWkbTypes.GeometryType.LineGeometry)
 
     def canvasPressEvent(self, e):
         self.startPoint = self.toMapCoordinates(e.pos())
@@ -883,7 +897,7 @@ class RectangleMapTool(QgsMapTool):
         self.showRect(self.startPoint, self.endPoint)
 
     def showRect(self, start_point, end_point):
-        self.rubberBand.reset(True)
+        self.rubberBand.reset(QgsWkbTypes.GeometryType.LineGeometry)
         if start_point.x() == end_point.x() or start_point.y() == end_point.y():
             return
 
