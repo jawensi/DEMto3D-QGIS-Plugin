@@ -24,12 +24,12 @@
     </message>
     <message>
         <location filename="DEMto3D_dialog_base.py" line="365"/>
-        <source>Layer to print</source>
-        <translation>Capa a imprimir</translation>
+        <source>Layer:</source>
+        <translation>Capa:</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog_base.py" line="366"/>
-        <source>Print extent</source>
+        <source>Layer extent</source>
         <translation>Extensión a imprimir</translation>
     </message>
     <message>
@@ -153,6 +153,22 @@
         <location filename="DEMto3D_dialog.py" line="399"/>
         <source>Model height:</source>
         <translation>Altura del modelo:</translation>
+    </message>
+
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Sides</source>
+        <translation>Lados</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Build sides</source>
+        <translation>Exportar lados</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Border (mm):</source>
+        <translation>Borde (mm):</translation>
     </message>
 
     <message>

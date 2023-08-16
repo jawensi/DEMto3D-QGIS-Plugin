@@ -375,28 +375,13 @@ class Model(QThread):
 
     def get_z(self, col_dem, row_dem, dem_dataset, h_base, scale, z_scale):
         if col_dem < 0 or row_dem < 0:
-            # if we are not including blank areas, or areas below the base height
-            # return 0, not the base model
-            if self.parameters["trimmed"]:
-                return 0
-            else:
-                return self.baseModel
+            return self.baseModel
         else:
             z = self.get_dem_z(dem_dataset, col_dem, row_dem, 1, 1)[0]
             if z <= h_base:
-                # if we are not including blank areas, or areas below the base height
-                # return 0, not the base model
-                if self.parameters["trimmed"]:
-                    return 0
-                else:
-                    return self.baseModel
+                return self.baseModel
             elif math.isnan(z):
-                # if we are not including blank areas, or areas below the base height
-                # return 0, not the base model
-                if self.parameters["trimmed"]:
-                    return 0
-                else:
-                    return self.baseModel
+                return self.baseModel
             else:
                 return round((z - h_base) / scale * 1000 * z_scale, 2) + self.baseModel
 

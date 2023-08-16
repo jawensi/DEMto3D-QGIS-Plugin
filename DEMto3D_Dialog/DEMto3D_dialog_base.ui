@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>503</width>
-    <height>782</height>
+    <height>803</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,33 +40,41 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>477</width>
-        <height>664</height>
+        <width>456</width>
+        <height>686</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_8">
        <item>
-        <widget class="QGroupBox" name="groupBox">
-         <property name="title">
-          <string>Layer to print</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox">
-            <property name="showCrs">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
         <widget class="QGroupBox" name="groupBox_1">
          <property name="title">
-          <string>Print extent</string>
+          <string>Layer extent</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QLabel" name="label_19">
+              <property name="text">
+               <string>Layer:</string>
+              </property>
+             </widget>
+            </item>
+            <item alignment="Qt::AlignVCenter">
+             <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="showCrs">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
           <item>
            <widget class="QFrame" name="LimitsAbsGframe">
             <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -84,25 +92,8 @@
              </property>
              <item>
               <layout class="QGridLayout" name="_3">
-               <item row="0" column="3">
-                <widget class="QLabel" name="label_3">
-                 <property name="text">
-                  <string>Y:</string>
-                 </property>
-                 <property name="buddy">
-                  <cstring>YMaxLineEdit</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QLabel" name="label_5">
-                 <property name="text">
-                  <string>X:</string>
-                 </property>
-                 <property name="buddy">
-                  <cstring>XMinLineEdit</cstring>
-                 </property>
-                </widget>
+               <item row="0" column="2">
+                <widget class="QLineEdit" name="XMaxLineEdit"/>
                </item>
                <item row="0" column="1">
                 <widget class="QLabel" name="label_2">
@@ -114,6 +105,9 @@
                  </property>
                 </widget>
                </item>
+               <item row="0" column="4">
+                <widget class="QLineEdit" name="YMaxLineEdit"/>
+               </item>
                <item row="1" column="0">
                 <widget class="QLabel" name="label_4">
                  <property name="text">
@@ -121,22 +115,6 @@
                  </property>
                  <property name="pixmap">
                   <pixmap resource="../resources.qrc">:/plugins/DEMto3D/icons/downleft.png</pixmap>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="4">
-                <widget class="QLineEdit" name="YMaxLineEdit"/>
-               </item>
-               <item row="1" column="2">
-                <widget class="QLineEdit" name="XMinLineEdit"/>
-               </item>
-               <item row="1" column="3">
-                <widget class="QLabel" name="label_6">
-                 <property name="text">
-                  <string>Y:</string>
-                 </property>
-                 <property name="buddy">
-                  <cstring>YMinLineEdit</cstring>
                  </property>
                 </widget>
                </item>
@@ -150,11 +128,41 @@
                  </property>
                 </widget>
                </item>
-               <item row="0" column="2">
-                <widget class="QLineEdit" name="XMaxLineEdit"/>
+               <item row="1" column="1">
+                <widget class="QLabel" name="label_5">
+                 <property name="text">
+                  <string>X:</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>XMinLineEdit</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="3">
+                <widget class="QLabel" name="label_3">
+                 <property name="text">
+                  <string>Y:</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>YMaxLineEdit</cstring>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QLineEdit" name="XMinLineEdit"/>
                </item>
                <item row="1" column="4">
                 <widget class="QLineEdit" name="YMinLineEdit"/>
+               </item>
+               <item row="1" column="3">
+                <widget class="QLabel" name="label_6">
+                 <property name="text">
+                  <string>Y:</string>
+                 </property>
+                 <property name="buddy">
+                  <cstring>YMinLineEdit</cstring>
+                 </property>
+                </widget>
                </item>
               </layout>
              </item>
@@ -209,13 +217,6 @@
              <widget class="QCheckBox" name="RotationCheckBox">
               <property name="text">
                <string>Show width/length</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="TrimmedCheckBox">
-              <property name="text">
-               <string>Trim null/0 height</string>
               </property>
              </widget>
             </item>
@@ -504,10 +505,13 @@
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
            <layout class="QGridLayout" name="gridLayout_2">
-            <item row="1" column="2">
-             <widget class="QLabel" name="label_10">
+            <property name="verticalSpacing">
+             <number>7</number>
+            </property>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="BaseModellineEdit">
               <property name="text">
-               <string>Highest point:</string>
+               <string>2.00</string>
               </property>
              </widget>
             </item>
@@ -534,20 +538,16 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="BaseHeightLineEdit"/>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_21">
-              <property name="text">
-               <string>Base height (mm):</string>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_11">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="BaseModellineEdit">
               <property name="text">
-               <string>2.00</string>
+               <string>Model height:</string>
               </property>
              </widget>
             </item>
@@ -577,23 +577,77 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_11">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Model height:</string>
-              </property>
-             </widget>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="BaseHeightLineEdit"/>
             </item>
             <item row="2" column="1">
              <widget class="QLabel" name="HeightModelLabel">
               <property name="text">
                <string>0 mm</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>Highest point:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_21">
+              <property name="text">
+               <string>Base height (mm):</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Sides</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <layout class="QGridLayout" name="gridLayout">
+            <item row="0" column="4">
+             <widget class="QLineEdit" name="borderModelLineEdit">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>0</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QCheckBox" name="SidesCheckBox">
+              <property name="text">
+               <string>Build sides</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLabel" name="label_23">
+              <property name="text">
+               <string>Border (mm):</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLabel" name="label_24">
+              <property name="text">
+               <string/>
               </property>
              </widget>
             </item>
@@ -752,7 +806,6 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>mMapLayerComboBox</tabstop>
   <tabstop>XMaxLineEdit</tabstop>
   <tabstop>YMaxLineEdit</tabstop>
   <tabstop>XMinLineEdit</tabstop>
@@ -781,12 +834,28 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>84</x>
-     <y>245</y>
+     <x>109</x>
+     <y>207</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>214</y>
+     <x>111</x>
+     <y>176</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SidesCheckBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>borderModelLineEdit</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>95</x>
+     <y>653</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>410</x>
+     <y>655</y>
     </hint>
    </hints>
   </connection>
