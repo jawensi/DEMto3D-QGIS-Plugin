@@ -680,7 +680,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 return   
             width_roi = self.rect_Params["width"]
             height_roi = self.rect_Params["height"]
-            if width_roi is None | height_roi is None:
+            if width_roi is None or height_roi is None:
                 return   
             self.height = float(self.ui.HeightLineEdit.text())
             self.width = round(width_roi * self.height / height_roi, 2)
@@ -716,7 +716,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 return   
             width_roi = self.rect_Params["width"]
             height_roi = self.rect_Params["height"]
-            if width_roi is None | height_roi is None:
+            if width_roi is None or height_roi is None:
                 return       
             self.width = float(self.ui.WidthLineEdit.text())
             self.height = round(height_roi * self.width / width_roi, 2)
@@ -755,7 +755,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                     return   
                 width_roi = self.rect_Params["width"]
                 height_roi = self.rect_Params["height"]
-                if width_roi is None | height_roi is None:
+                if width_roi is None or height_roi is None:
                     return      
                 self.scale = float(self.ui.ScaleLineEdit.scale())
                 self.scale_h = self.scale
