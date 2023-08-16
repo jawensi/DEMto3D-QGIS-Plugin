@@ -10,13 +10,13 @@
         Impresión 3D de MDE
         Impression 3D du MDE
 
-        Layer to print
-        Capa a imprimir
-        Couche à imprimer
+        Layer
+        Capa
+        Couche
 
-        Print extent
-        Extensión a imprimir
-        Emprise à imprimer
+        Layer extent
+        Extensión de capa
+        Emprise de la couche
 
         Select full extent
         Extensión completa
@@ -113,6 +113,18 @@
         Model height:
         Altura del modelo:
         Hauteur du modèle:
+
+        Sides
+        Lados
+        Côtés
+
+        Build sides
+        Exportar lados
+        Exporte les côtés
+
+        Border (mm)
+        Borde (mm)
+        Bord (mm)
     
         Settings
         Parametros
