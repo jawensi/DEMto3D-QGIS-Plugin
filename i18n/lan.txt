@@ -186,6 +186,10 @@
         Exportar extensión a GeoJSON
         Exporter extension GeoJSON
 
+        Export extension to KML
+        Exportar extensión a KML
+        Exporter extension KML
+
         Extension exported
         Extensión exportada
         Extension exportée

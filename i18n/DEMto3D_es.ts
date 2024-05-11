@@ -252,6 +252,11 @@
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="403"/>
+        <source>Export extension to KML</source>
+        <translation>Exportar extensión a KML</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog.py" line="403"/>
         <source>Extension exported</source>
         <translation>Extensión exportada</translation>
     </message>
