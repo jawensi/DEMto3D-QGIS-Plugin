@@ -30,6 +30,7 @@ from qgis.PyQt.QtCore import QThread, pyqtSignal
 BINARY_HEADER = "80sI"
 BINARY_FACET = "12fH"
 
+
 #  self.matrix_dem
 #     0,0 ---------------------------> 0,col
 #         --------------------------->
@@ -69,13 +70,14 @@ class STL(QThread):
         for i in range(y_models):
             for j in range(x_models):
                 path = self.stl_file
-                if (y_models * x_models > 1):
+                if y_models * x_models > 1:
                     path = self.stl_file.split(".")[0] + '_' + str(i) + str(j) + '.stl'
                 x_min_model = width_model * j
                 y_min_model = self.parameters["height"] - i * high_model - high_model
                 x_max_model = width_model * j + width_model
                 y_max_model = self.parameters["height"] - i * high_model
-                dem_model = self.cut_dem(self.matrix_dem, self.parameters["spacing_mm"], x_min_model, y_min_model, x_max_model, y_max_model)
+                dem_model = self.cut_dem(self.matrix_dem, self.parameters["spacing_mm"], x_min_model, y_min_model,
+                                         x_max_model, y_max_model)
                 self.write_binary(path, dem_model)
 
         # self.write_binary(self.stl_file, self.matrix_dem)
@@ -89,12 +91,9 @@ class STL(QThread):
             self.updateProgress.emit()
             f.write("   facet normal 0 0 -1 " + "\n")
             f.write("       outer loop\n")
-            f.write("           vertex " + str(getattr(face[1], "x")) + " " + str(getattr(face[1], "y")) +
-                    " " + "0" + "\n")
-            f.write("           vertex " + str(getattr(face[0], "x")) + " " + str(getattr(face[0], "y")) +
-                    " " + "0" + "\n")
-            f.write("           vertex " + str(getattr(face[2], "x")) + " " + str(getattr(face[2], "y")) +
-                    " " + "0" + "\n")
+            f.write("           vertex " + str(getattr(face[1], "x")) + " " + str(getattr(face[1], "y")) + " 0" + "\n")
+            f.write("           vertex " + str(getattr(face[0], "x")) + " " + str(getattr(face[0], "y")) + " 0" + "\n")
+            f.write("           vertex " + str(getattr(face[2], "x")) + " " + str(getattr(face[2], "y")) + " 0" + "\n")
             f.write("       endloop\n")
             f.write("   endfacet\n")
             if self.quit:
@@ -251,22 +250,22 @@ class STL(QThread):
             vector_face.append([p1, p4, p2, v_normal])
         return vector_face
 
-    def face_wall_borders_vector(self, matrix_dem):        
+    def face_wall_borders_vector(self, matrix_dem):
         borders = self.parameters["borders"]
         rows = matrix_dem.__len__()
         cols = matrix_dem[0].__len__()
         vector_face = []
         d = 0
-        
+
         # UPPER RIGHT CORNER
-        p0 = matrix_dem[0][cols-1]            
+        p0 = matrix_dem[0][cols - 1]
         p0x = getattr(p0, "x")
         p0y = getattr(p0, "y")
         p0z = getattr(p0, "z")
         p1 = self.pto(x=p0x, y=p0y, z=p0z)
-        p2 = self.pto(x=p0x+borders, y=p0y+borders, z=d)
-        p3 = self.pto(x=p0x, y=p0y+borders, z=d)
-        p4 = self.pto(x=p0x+borders, y=p0y, z=d)
+        p2 = self.pto(x=p0x + borders, y=p0y + borders, z=d)
+        p3 = self.pto(x=p0x, y=p0y + borders, z=d)
+        p4 = self.pto(x=p0x + borders, y=p0y, z=d)
         v_normal = self.get_normal(p1, p2, p3)
         vector_face.append([p1, p2, p3, v_normal])
         v_normal = self.get_normal(p1, p4, p2)
@@ -277,14 +276,14 @@ class STL(QThread):
         vector_face.append([p1, p2, p4, v_normal])
 
         # UPPER LEFT CORNER
-        p0 = matrix_dem[0][0]            
+        p0 = matrix_dem[0][0]
         p0x = getattr(p0, "x")
         p0y = getattr(p0, "y")
         p0z = getattr(p0, "z")
         p1 = self.pto(x=p0x, y=p0y, z=p0z)
-        p2 = self.pto(x=p0x-borders, y=p0y+borders, z=d)
-        p3 = self.pto(x=p0x-borders, y=p0y, z=d)
-        p4 = self.pto(x=p0x, y=p0y+borders, z=d)
+        p2 = self.pto(x=p0x - borders, y=p0y + borders, z=d)
+        p3 = self.pto(x=p0x - borders, y=p0y, z=d)
+        p4 = self.pto(x=p0x, y=p0y + borders, z=d)
         v_normal = self.get_normal(p1, p2, p3)
         vector_face.append([p1, p2, p3, v_normal])
         v_normal = self.get_normal(p1, p4, p2)
@@ -295,14 +294,14 @@ class STL(QThread):
         vector_face.append([p1, p2, p4, v_normal])
 
         # BOTTOM LEFT CORNER
-        p0 = matrix_dem[rows-1][0]            
+        p0 = matrix_dem[rows - 1][0]
         p0x = getattr(p0, "x")
         p0y = getattr(p0, "y")
         p0z = getattr(p0, "z")
         p1 = self.pto(x=p0x, y=p0y, z=p0z)
-        p2 = self.pto(x=p0x-borders, y=p0y-borders, z=d)
-        p3 = self.pto(x=p0x, y=p0y-borders, z=d)
-        p4 = self.pto(x=p0x-borders, y=p0y, z=d)
+        p2 = self.pto(x=p0x - borders, y=p0y - borders, z=d)
+        p3 = self.pto(x=p0x, y=p0y - borders, z=d)
+        p4 = self.pto(x=p0x - borders, y=p0y, z=d)
         v_normal = self.get_normal(p1, p2, p3)
         vector_face.append([p1, p2, p3, v_normal])
         v_normal = self.get_normal(p1, p4, p2)
@@ -313,14 +312,14 @@ class STL(QThread):
         vector_face.append([p1, p2, p4, v_normal])
 
         # BOTTOM RIGHT CORNER
-        p0 = matrix_dem[rows-1][cols-1]
+        p0 = matrix_dem[rows - 1][cols - 1]
         p0x = getattr(p0, "x")
         p0y = getattr(p0, "y")
         p0z = getattr(p0, "z")
         p1 = self.pto(x=p0x, y=p0y, z=p0z)
-        p2 = self.pto(x=p0x+borders, y=p0y-borders, z=d)
-        p3 = self.pto(x=p0x+borders, y=p0y, z=d)
-        p4 = self.pto(x=p0x, y=p0y-borders, z=d)
+        p2 = self.pto(x=p0x + borders, y=p0y - borders, z=d)
+        p3 = self.pto(x=p0x + borders, y=p0y, z=d)
+        p4 = self.pto(x=p0x, y=p0y - borders, z=d)
         v_normal = self.get_normal(p1, p2, p3)
         vector_face.append([p1, p2, p3, v_normal])
         v_normal = self.get_normal(p1, p4, p2)
@@ -332,10 +331,10 @@ class STL(QThread):
 
         # LEFT & RIGHT BORDERS
         for j in range(rows - 1):
-            p3 = matrix_dem[j][0]                    
+            p3 = matrix_dem[j][0]
             p2 = matrix_dem[j + 1][0]
-            p1 = p3._replace(z=d, x=getattr(p3, 'x')-borders)                    
-            p4 = p2._replace(z=d,x=getattr(p2, 'x')-borders)
+            p1 = p3._replace(z=d, x=getattr(p3, 'x') - borders)
+            p4 = p2._replace(z=d, x=getattr(p2, 'x') - borders)
             v_normal = self.get_normal(p1, p2, p3)
             vector_face.append([p1, p2, p3, v_normal])
             vector_face.append([p1, p4, p2, v_normal])
@@ -346,9 +345,9 @@ class STL(QThread):
             vector_face.append([p1, p2, p4, v_normal])
 
             p1 = matrix_dem[j][cols - 1]
-            p2 = matrix_dem[j + 1][cols - 1]            
-            p3 = p1._replace(z=d,x=getattr(p1, 'x')+borders)            
-            p4 = p2._replace(z=d,x=getattr(p2, 'x')+borders)
+            p2 = matrix_dem[j + 1][cols - 1]
+            p3 = p1._replace(z=d, x=getattr(p1, 'x') + borders)
+            p4 = p2._replace(z=d, x=getattr(p2, 'x') + borders)
             v_normal = self.get_normal(p1, p2, p3)
             vector_face.append([p1, p2, p3, v_normal])
             vector_face.append([p2, p4, p3, v_normal])
@@ -361,9 +360,9 @@ class STL(QThread):
         # UPPER & BOTTOM BORDERS
         for j in range(cols - 1):
             p1 = matrix_dem[0][j]
-            p2 = matrix_dem[0][j + 1]            
-            p3 = p1._replace(z=d,y=getattr(p1, 'y')+borders)            
-            p4 = p2._replace(z=d,y=getattr(p2, 'y')+borders)
+            p2 = matrix_dem[0][j + 1]
+            p3 = p1._replace(z=d, y=getattr(p1, 'y') + borders)
+            p4 = p2._replace(z=d, y=getattr(p2, 'y') + borders)
             v_normal = self.get_normal(p1, p2, p3)
             vector_face.append([p1, p2, p3, v_normal])
             vector_face.append([p2, p4, p3, v_normal])
@@ -374,9 +373,9 @@ class STL(QThread):
             vector_face.append([p2, p3, p4, v_normal])
 
             p2 = matrix_dem[rows - 1][j + 1]
-            p3 = matrix_dem[rows - 1][j]            
-            p1 = p3._replace(z=d,y=getattr(p3, 'y')-borders)
-            p4 = p2._replace(z=d,y=getattr(p2, 'y')-borders)
+            p3 = matrix_dem[rows - 1][j]
+            p1 = p3._replace(z=d, y=getattr(p3, 'y') - borders)
+            p4 = p2._replace(z=d, y=getattr(p2, 'y') - borders)
             v_normal = self.get_normal(p1, p2, p3)
             vector_face.append([p1, p2, p3, v_normal])
             vector_face.append([p1, p4, p2, v_normal])
