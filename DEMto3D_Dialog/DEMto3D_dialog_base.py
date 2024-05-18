@@ -424,7 +424,7 @@ class Ui_DEMto3DDialogBase(object):
         self.label_14.setText(_translate("DEMto3DDialogBase", "x"))
         self.ColPartsSpinBox.setSuffix(_translate("DEMto3DDialogBase", " column"))
         self.groupBox_5.setTitle(_translate("DEMto3DDialogBase", "Model height"))
-        self.BaseModellineEdit.setText(_translate("DEMto3DDialogBase", "2.00"))
+        self.BaseModellineEdit.setText(_translate("DEMto3DDialogBase", "10.00"))
         self.label_8.setText(_translate("DEMto3DDialogBase", "Lowest point:"))
         self.ZMaxLabel.setText(_translate("DEMto3DDialogBase", "0 m"))
         self.label_11.setText(_translate("DEMto3DDialogBase", "Model height:"))

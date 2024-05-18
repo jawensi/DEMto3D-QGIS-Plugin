@@ -181,9 +181,13 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     def getFileNameParams(self):
         if self.scale == 0:
             return ''
+        scale = str(int(self.scale))
+        size = "_" + str(int(self.width)) + "x" + str(int(self.height))
         rotation = self.rect_Params["rotation"] * 180 / math.pi
-        rotation_string = ("_rot" + str(int(rotation))) if rotation != 0 else ""
-        return "_" + str(int(self.scale)) + "_" + str(int(self.width)) + "x" + str(int(self.height)) + rotation_string
+        rotation_str = ("_rot" + str(int(rotation))) if rotation != 0 else ""
+        z_inv = self.ui.RevereseZCheckBox.isChecked()
+        inverse_model = "_neg" if z_inv else ""
+        return "_" + scale + size + rotation_str + inverse_model
 
     def export_params(self):
         parameters = self.get_parameters()
@@ -658,42 +662,43 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.divisions.setToGeometry(QgsGeometry.fromMultiPolylineXY(lines), None)
 
     def get_z_max_z_min(self):
+        try:
+            QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
 
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+            points = getPointsFromRectangleParams(self.rect_Params)
+            # Specify the geometry type
+            PolygonLayer = QgsVectorLayer('Polygon?crs=' + self.map_crs.authid(), 'polygon', 'memory')
+            # Set the provider to accept the data source
+            prov = PolygonLayer.dataProvider()
+            geom = [[QgsPointXY(points[0][0], points[0][1]), QgsPointXY(points[1][0], points[1][1]),
+                     QgsPointXY(points[2][0], points[2][1]), QgsPointXY(points[3][0], points[3][1])]]
+            # Add a new feature and assign the geometry
+            feat = QgsFeature()
+            feat.setGeometry(QgsGeometry.fromPolygonXY(geom))
+            prov.addFeatures([feat])
+            # Update extent of the layer
+            PolygonLayer.updateExtents()
 
-        points = getPointsFromRectangleParams(self.rect_Params)
-        # Specify the geometry type
-        PolygonLayer = QgsVectorLayer('Polygon?crs=' + self.map_crs.authid(), 'polygon', 'memory')
-        # Set the provider to accept the data source
-        prov = PolygonLayer.dataProvider()
-        geom = [[QgsPointXY(points[0][0], points[0][1]), QgsPointXY(points[1][0], points[1][1]),
-                 QgsPointXY(points[2][0], points[2][1]), QgsPointXY(points[3][0], points[3][1])]]
-        # Add a new feature and assign the geometry
-        feat = QgsFeature()
-        feat.setGeometry(QgsGeometry.fromPolygonXY(geom))
-        prov.addFeatures([feat])
-        # Update extent of the layer
-        PolygonLayer.updateExtents()
+            zoneStat = QgsZonalStatistics(PolygonLayer, self.layer, "", 1,
+                                          QgsZonalStatistics.Max | QgsZonalStatistics.Min)
+            zoneStat.calculateStatistics(None)
 
-        zoneStat = QgsZonalStatistics(PolygonLayer, self.layer, "", 1, QgsZonalStatistics.Max | QgsZonalStatistics.Min)
-        zoneStat.calculateStatistics(None)
+            minVal = 0
+            maxVal = 0
+            stats = PolygonLayer.getFeature(1).attributes()
+            if len(stats) > 0:
+                if stats[0] is not None:
+                    minVal = stats[0]
+                if stats[1] is not None:
+                    maxVal = stats[1]
 
-        minVal = 0
-        maxVal = 0
-        stats = PolygonLayer.getFeature(1).attributes()
-        if len(stats) > 0:
-            if stats[0] is not None:
-                minVal = stats[0]
-            if stats[1] is not None:
-                maxVal = stats[1]
-
-        self.z_max = round(maxVal, 3)
-        self.z_min = round(minVal, 3)
-        self.ui.ZMaxLabel.setText(str(self.z_max) + ' m')
-        self.ui.ZMinLabel.setText(str(self.z_min) + ' m')
-
-        PolygonLayer = None
-        QApplication.restoreOverrideCursor()
+            self.z_max = round(maxVal, 3)
+            self.z_min = round(minVal, 3)
+            self.ui.ZMaxLabel.setText(str(self.z_max) + ' m')
+            self.ui.ZMinLabel.setText(str(self.z_min) + ' m')
+        finally:
+            QApplication.restoreOverrideCursor()
+            PolygonLayer = None
 
     # endregion
 
@@ -732,7 +737,12 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             height_roi = self.rect_Params["height"]
             if width_roi is None or height_roi is None:
                 return
-            self.height = float(self.ui.HeightLineEdit.text())
+            if width_roi == "" or height_roi == "":
+                return
+            height_str = self.ui.HeightLineEdit.text()
+            if height_str == "":
+                return
+            self.height = float(height_str)
             self.width = round(width_roi * self.height / height_roi, 2)
             self.ui.WidthLineEdit.setText(str(self.width))
             if self.units == 6:  # Degree
@@ -768,7 +778,12 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             height_roi = self.rect_Params["height"]
             if width_roi is None or height_roi is None:
                 return
-            self.width = float(self.ui.WidthLineEdit.text())
+            if width_roi == "" or height_roi == "":
+                return
+            width_str = self.ui.WidthLineEdit.text()
+            if width_str == "":
+                return
+            self.width = float(width_str)
             self.height = round(height_roi * self.width / width_roi, 2)
             self.ui.HeightLineEdit.setText(str(self.height))
             if self.units == 6:  # Degree
@@ -806,6 +821,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 width_roi = self.rect_Params["width"]
                 height_roi = self.rect_Params["height"]
                 if width_roi is None or height_roi is None:
+                    return
+                if width_roi == "" or height_roi == "":
                     return
                 self.scale = float(self.ui.ScaleLineEdit.scale())
                 self.scale_h = self.scale
