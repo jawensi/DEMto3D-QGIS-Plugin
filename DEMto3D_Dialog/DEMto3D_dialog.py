@@ -238,7 +238,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
                     param_crs = QgsCoordinateReferenceSystem()
                     param_crs.createFromProj4(parameters["crs_map"])
-                    if (self.map_crs != param_crs):
+                    if self.map_crs != param_crs:
                         # do traslation
                         transform = QgsCoordinateTransform(param_crs, self.map_crs, QgsProject.instance())
                         pointMin = transform.transform(parameters["roi_x_min"], parameters["roi_y_min"])

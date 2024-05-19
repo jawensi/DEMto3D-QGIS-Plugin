@@ -24,7 +24,9 @@ from builtins import range
 import collections
 import struct
 import math
+from typing import Any
 
+import numpy as np
 from qgis.PyQt.QtCore import QThread, pyqtSignal
 
 BINARY_HEADER = "80sI"
@@ -57,12 +59,13 @@ class STL(QThread):
         QThread.__init__(self)
         self.parameters = parameters
         self.stl_file = stl_file
-        self.matrix_dem = dem_matrix
+        self.matrix_dem: np.ndarray = dem_matrix
         self.quit = False
 
     def run(self):
         x_models = self.parameters["divideCols"]
         y_models = self.parameters["divideRow"]
+        spacing = self.parameters["spacing_mm"]
 
         width_model = self.parameters["width"] / x_models
         high_model = self.parameters["height"] / y_models
@@ -72,12 +75,12 @@ class STL(QThread):
                 path = self.stl_file
                 if y_models * x_models > 1:
                     path = self.stl_file.split(".")[0] + '_' + str(i) + str(j) + '.stl'
-                x_min_model = width_model * j
-                y_min_model = self.parameters["height"] - i * high_model - high_model
-                x_max_model = width_model * j + width_model
-                y_max_model = self.parameters["height"] - i * high_model
-                dem_model = self.cut_dem(self.matrix_dem, self.parameters["spacing_mm"], x_min_model, y_min_model,
-                                         x_max_model, y_max_model)
+                xmin_model = width_model * j
+                ymin_model = self.parameters["height"] - i * high_model - high_model
+                xmax_model = width_model * j + width_model
+                ymax_model = self.parameters["height"] - i * high_model
+                dem_model = self.divide_dem(self.matrix_dem, spacing, xmin_model, ymin_model, xmax_model, ymax_model)
+                # self.divide_dem2(self.matrix_dem, spacing, xmin_model, ymin_model, xmax_model, ymax_model)
                 self.write_binary(path, dem_model)
 
         # self.write_binary(self.stl_file, self.matrix_dem)
@@ -137,7 +140,7 @@ class STL(QThread):
         f.write("endsolid model\n")
         f.close()
 
-    def write_binary(self, fileName, demData):
+    def write_binary(self, fileName: str, demData: list[list[pto]]):
         try:
             counter = 0
             stream = open(fileName, "wb")
@@ -196,7 +199,7 @@ class STL(QThread):
         except:
             stream.close()
 
-    def face_wall_vector(self, matrix_dem):
+    def face_wall_vector(self, matrix_dem: list[list[pto]]):
         borders = self.parameters["borders"]
         hasBorders = borders > 0
         if hasBorders:
@@ -204,7 +207,7 @@ class STL(QThread):
         else:
             return self.face_wall_No_borders_vector(matrix_dem)
 
-    def face_wall_No_borders_vector(self, matrix_dem):
+    def face_wall_No_borders_vector(self, matrix_dem: list[list[pto]]):
         rows = matrix_dem.__len__()
         cols = matrix_dem[0].__len__()
         vector_face = []
@@ -250,7 +253,7 @@ class STL(QThread):
             vector_face.append([p1, p4, p2, v_normal])
         return vector_face
 
-    def face_wall_borders_vector(self, matrix_dem):
+    def face_wall_borders_vector(self, matrix_dem: list[list[pto]]):
         borders = self.parameters["borders"]
         rows = matrix_dem.__len__()
         cols = matrix_dem[0].__len__()
@@ -386,11 +389,10 @@ class STL(QThread):
             vector_face.append([p1, p2, p4, v_normal])
         return vector_face
 
-    def face_dem_vector(self, matrix_dem):
+    def face_dem_vector(self, matrix_dem: list[list[pto]]):
         rows = matrix_dem.__len__()
         cols = matrix_dem[0].__len__()
         vector_face = []
-
         for j in range(rows - 1):
             for k in range(cols - 1):
                 p3 = matrix_dem[j][k]
@@ -422,24 +424,95 @@ class STL(QThread):
             v_normal = self.normal(normal_x=0, normal_y=0, normal_z=0)
         return v_normal
 
-    @staticmethod
-    def cut_dem(matrix_dem_build, resolution, x_min, y_min, x_max, y_max):
-        rows = matrix_dem_build.__len__()
-        cols = matrix_dem_build[0].__len__()
+    def get_normal_np(self, p1, p2, p3):
+        try:
+            v = [p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]]
+            w = [p3[0] - p1[0], p3[1] - p1[1], p3[2] - p1[2]]
+            x = (v[1] * w[2]) - (v[2] * w[1])
+            y = (v[2] * w[0]) - (v[0] * w[2])
+            z = (v[0] * w[1]) - (v[1] * w[0])
+            modulo = math.sqrt(x * x + y * y + z * z)
+            v_normal = [x / modulo, y / modulo, z / modulo]
+            return v_normal
+        except ZeroDivisionError:
+            v_normal = [0, 0, 0]
+        return v_normal
+
+    def divide_dem(self, matrix_dem_build: np.ndarray, resolution, x_min, y_min, x_max, y_max):
+        rows, cols = matrix_dem_build.shape[:2]
+        rowIndex = 0
+        colIndex = 0
         dem = []
         for i in range(rows):
             aux = []
             for j in range(cols):
-                x = getattr(matrix_dem_build[i][j], "x")
-                y = getattr(matrix_dem_build[i][j], "y")
+                isValid = False
+                x = matrix_dem_build[i, j, 0]
+                y = matrix_dem_build[i, j, 1]
                 if x_min <= x <= x_max and y_min <= y <= y_max:
-                    aux.append(matrix_dem_build[i][j])
+                    pto = self.pto(x=x, y=y, z=matrix_dem_build[i, j, 2])
+                    aux.append(pto)
+                    isValid = True
                 elif 0 < (x - x_max) < resolution and y_min <= y <= y_max:
-                    aux.append(matrix_dem_build[i][j])
+                    pto = self.pto(x=x, y=y, z=matrix_dem_build[i, j, 2])
+                    aux.append(pto)
+                    isValid = True
                 elif -resolution < (y - y_min) < 0 and x_min <= x <= x_max:
-                    aux.append(matrix_dem_build[i][j])
+                    pto = self.pto(x=x, y=y, z=matrix_dem_build[i, j, 2])
+                    aux.append(pto)
+                    isValid = True
                 elif 0 < (x - x_max) < resolution and - resolution < (y - y_min) < 0:
-                    aux.append(matrix_dem_build[i][j])
+                    pto = self.pto(x=x, y=y, z=matrix_dem_build[i, j, 2])
+                    aux.append(pto)
+                    isValid = True
+                if isValid:
+                    rowIndex = i if rowIndex < i else rowIndex
+
             if aux:
                 dem.append(aux)
         return dem
+
+    def divide_dem2(self, matrix_dem_build: np.ndarray, resolution, x_min, y_min, x_max, y_max):
+        # Obtener las coordenadas x e y de la matriz DEM
+        x_coords = matrix_dem_build[:, :, 0]
+        y_coords = matrix_dem_build[:, :, 1]
+        # Crear máscaras booleanas para cada condición
+        isInArea_mask = (x_coords >= x_min) & (x_coords <= x_max) & (y_coords >= y_min) & (y_coords <= y_max)
+        isRightBorder_mask = (0 < (x_coords - x_max) < resolution) & (y_coords >= y_min) & (y_coords <= y_max)
+        isDownBorder_mask = (-resolution < (y_coords - y_min) < 0) & (x_coords >= x_min) & (x_coords <= x_max)
+        isCorner_mask = (resolution > (x_coords - x_max) > 0) & (resolution > (y_coords - y_min) > -resolution)
+        # Combinar las máscaras utilizando operadores lógicos
+        combined_mask = isInArea_mask | isRightBorder_mask | isDownBorder_mask | isCorner_mask
+        # Encontrar los índices de fila y columna donde la máscara es True
+        row_indices, col_indices = np.where(combined_mask)
+        # Obtener los índices mínimo y máximo de fila y columna
+        rowIndex0, rowIndexN = row_indices.min(), row_indices.max()
+        colIndex0, colIndexN = col_indices.min(), col_indices.max()
+        print(rowIndex0, ":", rowIndexN + 1, colIndex0, ":", colIndexN + 1)
+        print(matrix_dem_build[rowIndex0:rowIndexN + 1, colIndex0:colIndexN + 1])
+
+        # rows, cols = matrix_dem_build.shape[:2]
+        # rowIndex0 = None
+        # rowIndexN = 0
+        # colIndex0 = None
+        # colIndexN = 0
+        # for i in range(rows):
+        #     for j in range(cols):
+        #         x = matrix_dem_build[i, j, 0]
+        #         y = matrix_dem_build[i, j, 1]
+        #
+        #         isInArea = x_min <= x <= x_max and y_min <= y <= y_max
+        #         isRigthBorder = 0 < (x - x_max) < resolution and y_min <= y <= y_max
+        #         isDownBorder = -resolution < (y - y_min) < 0 and x_min <= x <= x_max
+        #         isCorner = resolution > (x - x_max) > 0 > (y - y_min) > - resolution
+        #
+        #         if isInArea or isRigthBorder or isDownBorder or isCorner:
+        #             if rowIndex0 is None:
+        #                 rowIndex0 = i
+        #             if rowIndexN < i:
+        #                 rowIndexN = i
+        #             if colIndex0 is None:
+        #                 colIndex0 = j
+        #             if colIndexN < j:
+        #                 colIndexN = j
+        # return matrix_dem_build[rowIndex0:rowIndexN + 1, colIndex0:colIndexN + 1]

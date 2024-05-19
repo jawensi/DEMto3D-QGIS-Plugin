@@ -67,8 +67,7 @@ class Export(QDialog):
             self.mainDlg.ui.cancelProgressToolButton.clicked.connect(self.cancel_stl_model)
             self.mainDlg.ui.ProgressLabel.setText(self.tr("Creating STL file"))
             dem_matrix = self.Model.get_model()
-            rows = dem_matrix.__len__()
-            cols = dem_matrix[0].__len__()
+            rows, cols = dem_matrix.shape[:2]
             maxVal = rows * cols * 2
             self.mainDlg.ui.progressBar.setMaximum(maxVal)
 
