@@ -5,7 +5,7 @@
                                  A QGIS plugin
  Description
                              -------------------
-        copyright            : (C) 2022 by Javier
+        copyright            : (C) 2025 by Javier
         email                : demto3d@gmail.com
  ***************************************************************************/
 
@@ -65,11 +65,14 @@ class STL(QThread):
     def run(self):
         x_models = self.parameters["divideCols"]
         y_models = self.parameters["divideRow"]
-        spacing = self.parameters["spacing_mm"]
 
+        # if x_models == 1 and y_models == 1:
+        #     path = self.stl_file
+        #     self.write_binary_np(path, self.matrix_dem)
+        # else:
         width_model = self.parameters["width"] / x_models
         high_model = self.parameters["height"] / y_models
-
+        spacing = self.parameters["spacing_mm"]
         for i in range(y_models):
             for j in range(x_models):
                 path = self.stl_file
@@ -79,11 +82,10 @@ class STL(QThread):
                 ymin_model = self.parameters["height"] - i * high_model - high_model
                 xmax_model = width_model * j + width_model
                 ymax_model = self.parameters["height"] - i * high_model
-                dem_model = self.divide_dem(self.matrix_dem, spacing, xmin_model, ymin_model, xmax_model, ymax_model)
-                # self.divide_dem2(self.matrix_dem, spacing, xmin_model, ymin_model, xmax_model, ymax_model)
-                self.write_binary(path, dem_model)
-
-        # self.write_binary(self.stl_file, self.matrix_dem)
+                # dem_model = self.divide_dem(self.matrix_dem, spacing, xmin_model, ymin_model, xmax_model, ymax_model)
+                # self.write_binary(path, dem_model)
+                dem_model = self.divide_dem_np(self.matrix_dem, spacing, xmin_model, ymin_model, xmax_model, ymax_model)
+                self.write_binary_np(path, dem_model)
 
     def write_ascii(self):
         f = open(self.stl_file, "w")
@@ -403,7 +405,6 @@ class STL(QThread):
                 vector_face.append([p1, p2, p3, normal])
                 normal = self.get_normal(p1, p4, p2)
                 vector_face.append([p1, p4, p2, normal])
-
         return vector_face
 
     def get_normal(self, p1, p2, p3):
@@ -422,20 +423,6 @@ class STL(QThread):
             return v_normal
         except ZeroDivisionError:
             v_normal = self.normal(normal_x=0, normal_y=0, normal_z=0)
-        return v_normal
-
-    def get_normal_np(self, p1, p2, p3):
-        try:
-            v = [p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]]
-            w = [p3[0] - p1[0], p3[1] - p1[1], p3[2] - p1[2]]
-            x = (v[1] * w[2]) - (v[2] * w[1])
-            y = (v[2] * w[0]) - (v[0] * w[2])
-            z = (v[0] * w[1]) - (v[1] * w[0])
-            modulo = math.sqrt(x * x + y * y + z * z)
-            v_normal = [x / modulo, y / modulo, z / modulo]
-            return v_normal
-        except ZeroDivisionError:
-            v_normal = [0, 0, 0]
         return v_normal
 
     def divide_dem(self, matrix_dem_build: np.ndarray, resolution, x_min, y_min, x_max, y_max):
@@ -472,15 +459,23 @@ class STL(QThread):
                 dem.append(aux)
         return dem
 
-    def divide_dem2(self, matrix_dem_build: np.ndarray, resolution, x_min, y_min, x_max, y_max):
+    # ----------------- numPy methods -----------------
+
+    @staticmethod
+    def divide_dem_np(matrix_dem_build: np.ndarray, resolution, x_min, y_min, x_max, y_max):
         # Obtener las coordenadas x e y de la matriz DEM
         x_coords = matrix_dem_build[:, :, 0]
         y_coords = matrix_dem_build[:, :, 1]
+
         # Crear máscaras booleanas para cada condición
         isInArea_mask = (x_coords >= x_min) & (x_coords <= x_max) & (y_coords >= y_min) & (y_coords <= y_max)
-        isRightBorder_mask = (0 < (x_coords - x_max) < resolution) & (y_coords >= y_min) & (y_coords <= y_max)
-        isDownBorder_mask = (-resolution < (y_coords - y_min) < 0) & (x_coords >= x_min) & (x_coords <= x_max)
-        isCorner_mask = (resolution > (x_coords - x_max) > 0) & (resolution > (y_coords - y_min) > -resolution)
+        isRightBorder_mask = (0 < (x_coords - x_max)) & ((x_coords - x_max) < resolution) & (y_coords >= y_min) & (
+                y_coords <= y_max)
+        isDownBorder_mask = (-resolution < (y_coords - y_min)) & ((y_coords - y_min) < 0) & (x_coords >= x_min) & (
+                x_coords <= x_max)
+        isCorner_mask = (resolution > (x_coords - x_max)) & ((x_coords - x_max) > 0) & (
+                resolution > (y_coords - y_min)) & ((y_coords - y_min) > -resolution)
+
         # Combinar las máscaras utilizando operadores lógicos
         combined_mask = isInArea_mask | isRightBorder_mask | isDownBorder_mask | isCorner_mask
         # Encontrar los índices de fila y columna donde la máscara es True
@@ -488,8 +483,7 @@ class STL(QThread):
         # Obtener los índices mínimo y máximo de fila y columna
         rowIndex0, rowIndexN = row_indices.min(), row_indices.max()
         colIndex0, colIndexN = col_indices.min(), col_indices.max()
-        print(rowIndex0, ":", rowIndexN + 1, colIndex0, ":", colIndexN + 1)
-        print(matrix_dem_build[rowIndex0:rowIndexN + 1, colIndex0:colIndexN + 1])
+        return matrix_dem_build[rowIndex0:rowIndexN + 1, colIndex0:colIndexN + 1]
 
         # rows, cols = matrix_dem_build.shape[:2]
         # rowIndex0 = None
@@ -516,3 +510,288 @@ class STL(QThread):
         #             if colIndexN < j:
         #                 colIndexN = j
         # return matrix_dem_build[rowIndex0:rowIndexN + 1, colIndex0:colIndexN + 1]
+
+    def write_binary_np(self, fileName: str, demData: np.ndarray):
+        stream = open(fileName, "wb")
+        try:
+            counter = 0
+            stream.seek(0)
+            stream.write(struct.pack(BINARY_HEADER, b'Python Binary STL Writer', counter))
+
+            counter += self.write_face_dem_np(demData, stream)
+            has_borders = self.parameters['has_borders']
+            if has_borders:
+                counter += self.write_face_base_np(demData, stream)
+                counter += self.write_face_wall_np(demData, stream)
+
+            stream.seek(0)
+            stream.write(struct.pack(BINARY_HEADER, b'Python Binary STL Writer', counter))
+            stream.close()
+        except:
+            stream.close()
+
+    @staticmethod
+    def get_normal_np(p1, p2, p3):
+        try:
+            v = [p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]]
+            w = [p3[0] - p1[0], p3[1] - p1[1], p3[2] - p1[2]]
+            x = (v[1] * w[2]) - (v[2] * w[1])
+            y = (v[2] * w[0]) - (v[0] * w[2])
+            z = (v[0] * w[1]) - (v[1] * w[0])
+            modulo = math.sqrt(x * x + y * y + z * z)
+            v_normal = [x / modulo, y / modulo, z / modulo]
+            return v_normal
+        except ZeroDivisionError:
+            v_normal = [0, 0, 0]
+        return v_normal
+
+    def writeStlBaseFace(self, stream, p1, p2, p3):
+        self.updateProgress.emit()
+        data = [
+            0, 0, -1,
+            p2[0], p2[1], 0,
+            p1[0], p1[1], 0,
+            p3[0], p3[1], 0,
+            0
+        ]
+        stream.write(struct.pack(BINARY_FACET, *data))
+        if self.quit:
+            stream.close()
+            return 0
+
+    def write_face_base_np(self, matrix_dem: np.ndarray, stream):
+        rows, cols = matrix_dem.shape[:2]
+        min_x = matrix_dem[0, 0, 0]
+        min_y = matrix_dem[0, 0, 1]
+        max_x = matrix_dem[rows - 1, cols - 1, 0]
+        max_y = matrix_dem[rows - 1, cols - 1, 1]
+        mean_pto = [(max_x + min_x) * 0.5, (max_y + min_y) * 0.5, 0]
+        count = 0
+        for j in range(rows - 1):
+            p1 = matrix_dem[j, 0]
+            p2 = matrix_dem[j + 1, 0]
+            self.writeStlBaseFace(stream, p1, p2, mean_pto)
+            count += 1
+            p1 = matrix_dem[j, cols - 1]
+            p2 = matrix_dem[j + 1, cols - 1]
+            self.writeStlBaseFace(stream, p2, p1, mean_pto)
+            count += 1
+        for j in range(cols - 1):
+            p1 = matrix_dem[0, j]
+            p2 = matrix_dem[0, j + 1]
+            self.writeStlBaseFace(stream, p2, p1, mean_pto)
+            count += 1
+            p1 = matrix_dem[rows - 1, j]
+            p2 = matrix_dem[rows - 1, j + 1]
+            self.writeStlBaseFace(stream, p1, p2, mean_pto)
+            count += 1
+        return count
+
+    ####################################################
+
+    def writeStlFace(self, stream, p1, p2, p3, normal):
+        self.updateProgress.emit()
+        data = [
+            normal[0], normal[1], normal[2],
+            p1[0], p1[1], p1[2],
+            p2[0], p2[1], p2[2],
+            p3[0], p3[1], p3[2],
+            0
+        ]
+        stream.write(struct.pack(BINARY_FACET, *data))
+        if self.quit:
+            stream.close()
+            return 0
+
+    def write_face_dem_np(self, matrix_dem: np.ndarray, stream):
+        rows, cols = matrix_dem.shape[:2]
+        count = 0
+        for j in range(rows - 1):
+            for k in range(cols - 1):
+                p3 = matrix_dem[j, k]
+                p2 = matrix_dem[j, k + 1]
+                p1 = matrix_dem[j + 1, k]
+                p4 = matrix_dem[j + 1, k + 1]
+                normal1 = self.get_normal_np(p1, p2, p3)
+                self.writeStlFace(stream, p1, p2, p3, normal1)
+                normal2 = self.get_normal_np(p1, p4, p2)
+                self.writeStlFace(stream, p1, p4, p2, normal2)
+                count += 2
+        return count
+
+    ####################################################
+
+    def write_face_wall_np(self, matrix_dem: np.ndarray, stream):
+        borders = self.parameters["borders"]
+        hasBorders = borders > 0
+        if hasBorders:
+            return self.write_face_wall_borders_np(matrix_dem, stream)
+        else:
+            return self.write_face_wall_No_borders_np(matrix_dem, stream)
+
+    def write_face_wall_No_borders_np(self, matrix_dem: np.ndarray, stream):
+        rows, cols = matrix_dem.shape[:2]
+        count = 0
+        d = 0
+        v_normal_y_neg = [0, -1, 0]
+        v_normal_y_pos = [0, 1, 0]
+        v_normal_x_neg = [-1, 0, 0]
+        for j in range(rows - 1):
+            p1 = [matrix_dem[j, 0, 0], matrix_dem[j, 0, 1], 0]
+            p2 = matrix_dem[j + 1, 0]
+            p3 = matrix_dem[j, 0]
+            p4 = [matrix_dem[j + 1, 0, 0], matrix_dem[j + 1, 0, 1], d]
+            self.writeStlFace(stream, p1, p2, p3, v_normal_y_neg)
+            self.writeStlFace(stream, p1, p4, p2, v_normal_y_neg)
+            count += 2
+
+            p1 = matrix_dem[j, cols - 1]
+            p2 = matrix_dem[j + 1, cols - 1]
+            p3 = [matrix_dem[j, cols - 1, 0], matrix_dem[j, cols - 1, 1], d]
+            p4 = [matrix_dem[j + 1, cols - 1, 0], matrix_dem[j + 1, cols - 1, 1], d]
+            self.writeStlFace(stream, p1, p2, p3, v_normal_y_pos)
+            self.writeStlFace(stream, p2, p4, p3, v_normal_y_pos)
+            count += 2
+
+        for j in range(cols - 1):
+            p3 = [matrix_dem[0, j, 0], matrix_dem[0, j, 1], d]
+            p2 = matrix_dem[0, j + 1]
+            p1 = matrix_dem[0, j]
+            p4 = [matrix_dem[0, j + 1, 0], matrix_dem[0, j + 1, 1], d]
+            self.writeStlFace(stream, p1, p2, p3, v_normal_x_neg)
+            self.writeStlFace(stream, p2, p4, p3, v_normal_x_neg)
+            count += 2
+
+            p1 = [matrix_dem[rows - 1, j, 0], matrix_dem[rows - 1, j, 1], d]
+            p2 = matrix_dem[rows - 1, j + 1]
+            p3 = matrix_dem[rows - 1, j]
+            p4 = [matrix_dem[rows - 1, j + 1, 0], matrix_dem[rows - 1, j + 1, 1], d]
+            self.writeStlFace(stream, p1, p2, p3, v_normal_y_pos)
+            self.writeStlFace(stream, p1, p4, p2, v_normal_y_pos)
+            count += 2
+
+        return count
+
+    def write_face_wall_borders_np(self, matrix_dem: np.ndarray, stream):
+        borders = self.parameters["borders"]
+        rows, cols = matrix_dem.shape[:2]
+        count = 0
+        base_normal = [0, 0, -1]
+
+        # UPPER RIGHT CORNER
+        p0 = matrix_dem[0, cols - 1]
+        p1 = [p0[0], p0[1], p0[2]]
+        p2 = [p0[0] + borders, p0[1] + borders, 0]
+        p3 = [p0[0], p0[1] + borders, 0]
+        p4 = [p0[0] + borders, p0[1], 0]
+        v_normal = self.get_normal_np(p1, p2, p3)
+        self.writeStlFace(stream, p1, p2, p3, v_normal)
+        v_normal = self.get_normal_np(p1, p4, p2)
+        self.writeStlFace(stream, p1, p4, p2, v_normal)
+        p1[2] = 0
+        self.writeStlFace(stream, p1, p3, p2, base_normal)
+        self.writeStlFace(stream, p1, p2, p4, base_normal)
+        count += 4
+
+        # UPPER LEFT CORNER
+        p0 = matrix_dem[0, 0]
+        p1 = [p0[0], p0[1], p0[2]]
+        p2 = [p0[0] - borders, p0[1] + borders, 0]
+        p3 = [p0[0] - borders, p0[1], 0]
+        p4 = [p0[0], p0[1] + borders, 0]
+        v_normal = self.get_normal_np(p1, p2, p3)
+        self.writeStlFace(stream, p1, p2, p3, v_normal)
+        v_normal = self.get_normal_np(p1, p4, p2)
+        self.writeStlFace(stream, p1, p4, p2, v_normal)
+        p1[2] = 0
+        self.writeStlFace(stream, p1, p3, p2, base_normal)
+        self.writeStlFace(stream, p1, p2, p4, base_normal)
+        count += 4
+
+        # BOTTOM LEFT CORNER
+        p0 = matrix_dem[rows - 1, 0]
+        p1 = [p0[0], p0[1], p0[2]]
+        p2 = [p0[0] - borders, p0[1] - borders, 0]
+        p3 = [p0[0], p0[1] - borders, 0]
+        p4 = [p0[0] - borders, p0[1], 0]
+        v_normal = self.get_normal_np(p1, p2, p3)
+        self.writeStlFace(stream, p1, p2, p3, v_normal)
+        v_normal = self.get_normal_np(p1, p4, p2)
+        self.writeStlFace(stream, p1, p4, p2, v_normal)
+        p1[2] = 0
+        self.writeStlFace(stream, p1, p3, p2, base_normal)
+        self.writeStlFace(stream, p1, p2, p4, base_normal)
+        count += 4
+
+        # BOTTOM RIGHT CORNER
+        p0 = matrix_dem[rows - 1, cols - 1]
+        p1 = [p0[0], p0[1], p0[2]]
+        p2 = [p0[0] + borders, p0[1] - borders, 0]
+        p3 = [p0[0] + borders, p0[1], 0]
+        p4 = [p0[0], p0[1] - borders, 0]
+        v_normal = self.get_normal_np(p1, p2, p3)
+        self.writeStlFace(stream, p1, p2, p3, v_normal)
+        v_normal = self.get_normal_np(p1, p4, p2)
+        self.writeStlFace(stream, p1, p4, p2, v_normal)
+        p1[2] = 0
+        self.writeStlFace(stream, p1, p3, p2, base_normal)
+        self.writeStlFace(stream, p1, p2, p4, base_normal)
+        count += 4
+
+        # LEFT & RIGHT BORDERS
+        for j in range(rows - 1):
+            p3 = [matrix_dem[j, 0, 0], matrix_dem[j, 0, 1], matrix_dem[j, 0, 2]]
+            p2 = [matrix_dem[j + 1, 0, 0], matrix_dem[j + 1, 0, 1], matrix_dem[j + 1, 0, 2]]
+            p1 = [p3[0] - borders, p3[1], 0]
+            p4 = [p2[0] - borders, p2[1], 0]
+            v_normal = self.get_normal_np(p1, p2, p3)
+            self.writeStlFace(stream, p1, p2, p3, v_normal)
+            self.writeStlFace(stream, p1, p4, p2, v_normal)
+            p2[2] = 0
+            p3[2] = 0
+            self.writeStlFace(stream, p1, p3, p2, base_normal)
+            self.writeStlFace(stream, p1, p2, p4, base_normal)
+            count += 4
+
+            p1 = [matrix_dem[j, cols - 1, 0], matrix_dem[j, cols - 1, 1], matrix_dem[j, cols - 1, 2]]
+            p2 = [matrix_dem[j + 1, cols - 1, 0], matrix_dem[j + 1, cols - 1, 1], matrix_dem[j + 1, cols - 1, 2]]
+            p3 = [p1[0] + borders, p1[1], 0]
+            p4 = [p2[0] + borders, p2[1], 0]
+            v_normal = self.get_normal_np(p1, p2, p3)
+            self.writeStlFace(stream, p1, p2, p3, v_normal)
+            self.writeStlFace(stream, p2, p4, p3, v_normal)
+            p1[2] = 0
+            p2[2] = 0
+            self.writeStlFace(stream, p1, p3, p2, base_normal)
+            self.writeStlFace(stream, p2, p3, p4, base_normal)
+            count += 4
+
+        # UPPER & BOTTOM BORDERS
+        for j in range(cols - 1):
+            p1 = [matrix_dem[0, j, 0], matrix_dem[0, j, 1], matrix_dem[0, j, 2]]
+            p2 = [matrix_dem[0, j + 1, 0], matrix_dem[0, j + 1, 1], matrix_dem[0, j + 1, 2]]
+            p3 = [p1[0], p1[1] + borders, 0]
+            p4 = [p2[0], p2[1] + borders, 0]
+            v_normal = self.get_normal_np(p1, p2, p3)
+            self.writeStlFace(stream, p1, p2, p3, v_normal)
+            self.writeStlFace(stream, p2, p4, p3, v_normal)
+            p1[2] = 0
+            p2[2] = 0
+            self.writeStlFace(stream, p1, p3, p2, base_normal)
+            self.writeStlFace(stream, p2, p3, p4, base_normal)
+            count += 4
+
+            p2 = [matrix_dem[rows - 1, j + 1, 0], matrix_dem[rows - 1, j + 1, 1], matrix_dem[rows - 1, j + 1, 2]]
+            p3 = [matrix_dem[rows - 1, j, 0], matrix_dem[rows - 1, j, 1], matrix_dem[rows - 1, j, 2]]
+            p1 = [p3[0], p3[1] - borders, 0]
+            p4 = [p2[0], p2[1] - borders, 0]
+            v_normal = self.get_normal_np(p1, p2, p3)
+            self.writeStlFace(stream, p1, p2, p3, v_normal)
+            self.writeStlFace(stream, p1, p4, p2, v_normal)
+            p2[2] = 0
+            p3[2] = 0
+            self.writeStlFace(stream, p1, p3, p2, base_normal)
+            self.writeStlFace(stream, p1, p2, p4, base_normal)
+            count += 4
+
+        return count

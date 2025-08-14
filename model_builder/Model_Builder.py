@@ -5,7 +5,7 @@
                                  A QGIS plugin
  Description
                              -------------------
-        copyright            : (C) 2022 by Javier
+        copyright            : (C) 2025 by Javier
         email                : demto3d@gmail.com
  ***************************************************************************/
 
