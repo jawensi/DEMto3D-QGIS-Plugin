@@ -18,76 +18,79 @@
  *                                                                         *
  ***************************************************************************/
 """
-from __future__ import absolute_import
-from builtins import object
 
-import os.path
+import os
+from typing import TYPE_CHECKING, Optional
 
-from qgis.core import QgsProject
-from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from qgis.PyQt.QtWidgets import QAction, QMessageBox
+from qgis.core import QgsApplication, QgsProject, QgsRasterLayer
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTimer, QTranslator
 from qgis.PyQt.QtGui import QIcon
-# Initialize Qt resources from file resources.py
+from qgis.PyQt.QtWidgets import QAction, QMessageBox
+
 from . import resources
-# Import the code for the dialog
 from .DEMto3D_Dialog import DEMto3D_dialog
 
+if TYPE_CHECKING:
+    from qgis.gui import QgisInterface
 
-class DEMto3D(object):
+
+class DEMto3D:
     """QGIS Plugin Implementation."""
 
-    def __init__(self, iface):
-        """Constructor.
+    def __init__(self, iface: "QgisInterface") -> None:
+        self.iface: "QgisInterface" = iface
+        self.plugin_dir: str = os.path.dirname(__file__)
+        self.menu = "&DEMto3D"
+        self.action: Optional[QAction] = None
+        self._translator: Optional[QTranslator] = None
+        self._running: bool = False
 
-        :param iface: An interface instance that will be passed to this class
-            which provides the hook by which you can manipulate the QGIS
-            application at run time.
-        :type iface: QgsInterface
+        self._install_translator()
+
+        # React to language change (QGIS >= 3.22)
+        try:
+            QgsApplication.localeChanged.connect(self._on_locale_changed)  # type: ignore
+        except Exception:
+            pass
+
+    def _install_translator(self) -> None:
         """
-        # Save reference to the QGIS interface
-        self.iface = iface
-        # initialize plugin directory
-        self.plugin_dir = os.path.dirname(__file__)
-        # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
-        locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'DEMto3D_{}.qm'.format(locale))
-
-        if os.path.exists(locale_path):
-            self.translator = QTranslator()
-            self.translator.load(locale_path)
-
-            if qVersion() > '4.3.3':
-                QCoreApplication.installTranslator(self.translator)
-
-        # Declare instance attributes
-        self.action = None
-        self.menu = '&DEMto3D'
-
-        self.window = True
-
-    # noinspection PyMethodMayBeStatic
-    def tr(self, message):
-        """Get the translation for a string using Qt translation API.
-
-        We implement this ourselves since we do not inherit QObject.
-
-        :param message: String for translation.
-        :type message: str, QString
-
-        :returns: Translated version of message.
-        :rtype: QString
+        Install the appropriate .qm file according to current QGIS locale.
         """
-        # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('DEMto3D', message)
+        if self._translator:
+            QCoreApplication.removeTranslator(self._translator)
+            self._translator = None
+
+        locale = QgsApplication.locale() or "en"
+        lang = locale.split("_", 1)[0]
+
+        qm_path = os.path.join(self.plugin_dir, "i18n", f"DEMto3D_{lang}.qm")
+        if os.path.exists(qm_path):
+            translator = QTranslator()
+            if translator.load(qm_path):
+                QCoreApplication.installTranslator(translator)
+                self._translator = translator
+
+    def _on_locale_changed(self):
+        """
+        Reinstall translator and update UI strings when QGIS locale changes.
+        """
+        self._install_translator()
+        if self.action:
+            text = self.tr("DEM 3D printing")
+            self.action.setText(text)
+            self.action.setStatusTip(text)
+
+    def tr(self, message: str) -> str:
+        """Translate a string using Qt's translation system."""
+        return QCoreApplication.translate("DEMto3D", message)
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
         icon = QIcon(":/plugins/DEMto3D/icons/demto3d.png")
         text = self.tr("DEM 3D printing")
         parent = self.iface.mainWindow()
+
         self.action = QAction(icon, text, parent)
         self.action.setObjectName(text)
         self.action.setStatusTip(text)
@@ -96,30 +99,97 @@ class DEMto3D(object):
         self.iface.addRasterToolBarIcon(self.action)
         self.iface.addPluginToRasterMenu(self.menu, self.action)
 
-    def unload(self):
-        """Removes the plugin menu item and icon from QGIS GUI."""
-        self.iface.removePluginRasterMenu(self.menu, self.action)
-        self.iface.removeRasterToolBarIcon(self.action)
+        self._update_action_enabled()
 
-    def run(self):
-        layers = self.iface.mapCanvas().layers()
-        raster = False
-        if layers:
-            for layer in layers:
-                if layer.type() == layer.RasterLayer and QgsProject.instance().layerTreeRoot().findLayer(layer).isVisible():
-                    raster = True
-                    break
-            if raster and self.window:
-                self.window = False
-                demto3d_dlg = DEMto3D_dialog.DEMto3DDialog(self.iface)
-                demto3d_dlg.exec_()
-                canvas = self.iface.mapCanvas()
-                if demto3d_dlg.extent:
-                    canvas.scene().removeItem(demto3d_dlg.extent)
-                if demto3d_dlg.divisions:
-                    canvas.scene().removeItem(demto3d_dlg.divisions)
-                self.window = True
-            elif not raster:
-                QMessageBox.information(self.iface.mainWindow(), "DEMto3D", self.tr("No visible raster layer loaded"))
-        elif not layers:
-            QMessageBox.information(self.iface.mainWindow(), "DEMto3D", self.tr("No visible raster layer loaded"))
+        project = QgsProject.instance()
+        assert project is not None
+        root = project.layerTreeRoot()
+        assert root is not None
+        canvas = self.iface.mapCanvas()
+
+        if canvas:
+            canvas.layersChanged.connect(lambda *_: self._update_action_enabled())
+
+        project.layersAdded.connect(lambda *_: self._update_action_enabled())
+        project.layersRemoved.connect(lambda *_: self._update_action_enabled())
+        root.addedChildren.connect(lambda *_: self._update_action_enabled())
+        root.removedChildren.connect(lambda *_: self._update_action_enabled())
+        try:
+            root.visibilityChanged.connect(lambda *_: self._update_action_enabled())
+        except Exception:
+            pass
+
+        QTimer.singleShot(0, self._update_action_enabled)
+
+    def unload(self) -> None:
+        """Remove UI elements when the plugin is disabled/uninstalled."""
+        if self.action:
+            self.iface.removePluginRasterMenu(self.menu, self.action)
+            self.iface.removeRasterToolBarIcon(self.action)
+            self.action = None
+
+    def _has_visible_raster(self) -> bool:
+        """
+        Return True if there is at least one *visible* raster layer in the project.
+        """
+        project = QgsProject.instance()
+        assert project is not None
+        root = project.layerTreeRoot()
+        assert root is not None
+
+        for lyr in project.mapLayers().values():
+            if isinstance(lyr, QgsRasterLayer):
+                node = root.findLayer(lyr.id())
+                if node is not None and node.isVisible():
+                    return True
+        return False
+
+    def _update_action_enabled(self) -> None:
+        """Enable/disable the action depending on whether a visible raster exists."""
+        if self.action:
+            self.action.setEnabled(self._has_visible_raster())
+
+    def _cleanup_canvas_items(self, dlg: "DEMto3D_dialog.DEMto3DDialog") -> None:
+        """
+        Remove canvas overlays (extent/divisions) created by the dialog, if any.
+        """
+        canvas = self.iface.mapCanvas()
+        if not canvas:
+            return
+        scene = canvas.scene()
+        for attr in ("extent", "divisions"):
+            item = getattr(dlg, attr, None)
+            if item is not None:
+                try:
+                    scene.removeItem(item)  # type: ignore[arg-type]
+                except Exception:
+                    pass
+                finally:
+                    setattr(dlg, attr, None)
+
+    def run(self) -> None:
+        """
+        Entry point for the plugin action.
+        Prevents re-entry, ensures there's a visible raster, and opens dialog modally.
+        """
+        if self._running:
+            return
+
+        if not self._has_visible_raster():
+            QMessageBox.information(
+                self.iface.mainWindow(),
+                "DEMto3D",
+                self.tr("No visible raster layer loaded"),
+            )
+            return
+
+        self._running = True
+        demto3d_dlg = None
+        try:
+            demto3d_dlg = DEMto3D_dialog.DEMto3DDialog(self.iface)
+            demto3d_dlg.exec_()
+        finally:
+            if demto3d_dlg is not None:
+                self._cleanup_canvas_items(demto3d_dlg)
+            self._running = False
+            self._update_action_enabled()

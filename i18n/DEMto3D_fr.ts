@@ -265,7 +265,7 @@
 	<message>
         <location filename="DEMto3D_dialog.py" line="249"/>
         <source>Click and drag the mouse to draw print extent</source>
-        <translation>Cliquez et traînez la souris pour définir l'emprise à imprimer</translation>
+        <translation>Cliquez et traînez la souris pour définir l'emprise à imprimer. Maintenez la touche Maj enfoncée pour dessiner un carré.</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog.py" line="249"/>

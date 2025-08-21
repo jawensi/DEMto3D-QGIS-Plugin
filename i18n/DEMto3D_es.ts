@@ -263,7 +263,7 @@
     <message>
         <location filename="DEMto3D_dialog.py" line="249"/>
         <source>Click and drag the mouse to draw print extent</source>
-        <translation>Haga click y arrastre para definir la extensión a imprimir</translation>
+        <translation> Haga click y arrastre para definir la extensión a imprimir. Pulse la tecla shift para dibujar un cuadrado.</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="249"/>

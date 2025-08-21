@@ -194,9 +194,9 @@
         Extensión exportada
         Extension exportée
 
-        Click and drag the mouse to draw print extent
-        Haga click y arrastre para definir la extensión a imprimir
-        Cliquez et traînez la souris pour définir l'emprise à imprimer
+        Click and drag the mouse to draw print extent. Hold the Shift key to draw a square.
+        Haga click y arrastre para definir la extensión a imprimir. Pulse la tecla shift para dibujar un cuadrado.
+        Cliquez et traînez la souris pour définir l'emprise à imprimer. Maintenez la touche Maj enfoncée pour dessiner un carré.
 
         Print extent defined outside layer extent
         Extensión definida fuera de la extensión de la capa
