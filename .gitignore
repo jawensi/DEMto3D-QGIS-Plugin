@@ -1,12 +1,30 @@
 
-\.vscode/
 
-\__pycache__
+# Entorno de desarrollo
+.vscode/
+.idea/
 
-\zip_build
+# Archivos Python compilados y cachés
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
+# Archivos de recursos generados
+resources_rc.py
+resources.py
+
+# Archivos de traducción generados
+i18n/*.qm
+
+# Archivos de empaquetado y temporales
+zip_build/
+*.zip
 resourcesCompile.bat
-pyproject.toml
 
+# Configuración y metadatos locales
+pyproject.toml
 .gitignore
-.idea
+
+# Otros archivos temporales
+*.bak

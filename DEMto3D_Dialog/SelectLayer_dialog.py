@@ -21,13 +21,18 @@
 
 from __future__ import absolute_import
 
+from qgis.core import QgsMapLayer
+from qgis.gui import QgsMapLayerComboBox
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QDialog
+
 from .SelectLayer_dialog_base import Ui_SelectLayer_dialog_base
 
 
 class Dialog(QDialog, Ui_SelectLayer_dialog_base):
-    def __init__(self):
+    ui: Ui_SelectLayer_dialog_base
+
+    def __init__(self) -> None:
         """Constructor for the dialog."""
         QDialog.__init__(self, None, Qt.WindowStaysOnTopHint)
         self.ui = Ui_SelectLayer_dialog_base()
@@ -36,5 +41,6 @@ class Dialog(QDialog, Ui_SelectLayer_dialog_base):
         self.ui.buttonBox.accepted.connect(self.accept)
         self.ui.buttonBox.rejected.connect(self.reject)
 
-    def get_layer(self):
-        return self.ui.mMapLayerComboBox.currentLayer()
+    def get_layer(self) -> QgsMapLayer | None:
+        combo: QgsMapLayerComboBox = self.ui.mMapLayerComboBox
+        return combo.currentLayer()

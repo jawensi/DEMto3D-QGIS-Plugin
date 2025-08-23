@@ -3,10 +3,45 @@
 Utility functions for rectangle and geometry operations used in DEMto3D.
 """
 
+import logging
 import math
-from typing import Any, Dict, List
+from typing import List, TypedDict
 
-from qgis.core import QgsPointXY
+from qgis.core import QgsCoordinateReferenceSystem, QgsPointXY
+
+
+# Type for rectangle parameters
+class RectParams(TypedDict):
+    center: list[float]
+    width: float
+    height: float
+    rotation: float
+
+
+class ParametersDict(TypedDict):
+    layer: str
+    roi_x_max: float
+    roi_x_min: float
+    roi_y_max: float
+    roi_y_min: float
+    roi_rect_Param: RectParams
+    spacing_mm: float
+    height: float
+    width: float
+    z_scale: float
+    scale: float
+    scale_h: float
+    scale_w: float
+    z_inv: bool
+    z_base: float
+    baseModel: float
+    projected: bool
+    crs_layer: QgsCoordinateReferenceSystem
+    crs_map: QgsCoordinateReferenceSystem
+    divideRow: int
+    divideCols: int
+    borders: float
+    has_borders: bool
 
 
 def rectangle2pCreate(
@@ -52,7 +87,7 @@ def rectangle2pCreate(
 
 def rectangleHWCenterFrom2pCreate(
     firstPoint: QgsPointXY, secondPoint: QgsPointXY, rotation: float
-) -> Dict[str, Any]:
+) -> RectParams:
     templinePoint = getPolarPoint(secondPoint.x(), secondPoint.y(), rotation, 10)
     p1 = pointToLine2D(
         firstPoint.x(),
@@ -78,7 +113,7 @@ def rectangleHWCenterFrom2pCreate(
     }
 
 
-def getPointsFromRectangleParams(rectParam: Dict[str, Any]) -> List[List[float]]:
+def getPointsFromRectangleParams(rectParam: RectParams) -> List[List[float]]:
     center = rectParam["center"]
     width = rectParam["width"]
     height = rectParam["height"]
@@ -100,7 +135,7 @@ def pointToLine2D(
         )
         return QgsPointXY(x1 + u * (x2 - x1), y1 + u * (y2 - y1))
     except ZeroDivisionError as err:
-        print("POINT In LINE:", err)
+        logging.error("POINT In LINE: %s", err)
         return QgsPointXY(px, py)
 
 
@@ -124,4 +159,6 @@ def normalizeAngle(angle: float) -> float:
 def getPolarPoint(x0: float, y0: float, angle: float, dist: float) -> List[float]:
     x = x0 + dist * math.cos(angle)
     y = y0 + dist * math.sin(angle)
+    return [x, y]
+    return [x, y]
     return [x, y]

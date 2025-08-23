@@ -24,6 +24,7 @@ from __future__ import absolute_import
 import json
 import math
 import os
+from typing import TYPE_CHECKING, Optional
 
 from qgis.analysis import QgsZonalStatistics
 from qgis.core import (
@@ -32,16 +33,15 @@ from qgis.core import (
     QgsCoordinateTransform,
     QgsFeature,
     QgsGeometry,
-    QgsMapLayerProxyModel,
     QgsPoint,
     QgsPointXY,
     QgsProject,
+    QgsRasterLayer,
     QgsRectangle,
     QgsVectorFileWriter,
     QgsVectorLayer,
-    QgsWkbTypes,
 )
-from qgis.gui import QgsRubberBand
+from qgis.gui import QgsMapCanvas, QgsMapLayerComboBox, QgsRubberBand
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QColor, QCursor
 
@@ -52,90 +52,80 @@ from ..model_builder.Model_Builder import Model
 from . import Export_dialog, SelectLayer_dialog
 from .DEMto3D_dialog_base import Ui_DEMto3DDialogBase
 from .geometry_utils import (
+    ParametersDict,
+    RectParams,
     getPointsFromRectangleParams,
     getPolarPoint,
-    lineAzimut2p,
-    normalizeAngle,
-    pointToLine2D,
-    rectangle2pCreate,
     rectangleHWCenterFrom2pCreate,
 )
 from .rectangle_map_tool import RectangleMapTool
+
+if TYPE_CHECKING:
+    from qgis.gui import QgisInterface
 
 
 class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     """Layer to print."""
 
-    layer = None
+    layer: QgsRasterLayer = None  # type: ignore
 
     """ Region of interest properties """
-    map_crs = None
-    units = None
-    roi_x_max = 0
-    roi_x_min = 0
-    roi_y_max = 0
-    roi_y_min = 0
-    z_max = 0
-    z_min = 0
-    rect_Params = None
-    extent = None
+    map_crs: QgsCoordinateReferenceSystem = None  # type: ignore
+    units: Qgis.DistanceUnit = None  # type: ignore
+    roi_x_max: float = 0
+    roi_x_min: float = 0
+    roi_y_max: float = 0
+    roi_y_min: float = 0
+    z_max: float = 0
+    z_min: float = 0
+    rect_Params: Optional[RectParams] = None  # type: ignore
+    extent: QgsRubberBand | None = None
 
     """ Model dimensions """
-    height = 0
-    width = 0
-    scale_h = 0
-    scale_w = 0
-    scale = 0
-    z_scale = 0
-    borders = 0
+    height: float = 0
+    width: float = 0
+    scale_h: float = 0
+    scale_w: float = 0
+    scale: float = 0
+    z_scale: float = 0
+    borders: float = 0
 
     """ Raster properties """
-    cell_size = 0
-    cols = 0
-    rows = 0
-    raster_x_max = 0
-    raster_x_min = 0
-    raster_y_max = 0
-    raster_y_min = 0
+    cell_size: float = 0
+    cols: int = 0
+    rows: int = 0
+    raster_x_max: float = 0
+    raster_x_min: float = 0
+    raster_y_max: float = 0
+    raster_y_min: float = 0
 
-    divisions = None
-    rect_map_tool = None
-    lastSavingPath = ""
+    divisions: QgsRubberBand | None = None
+    rect_map_tool: RectangleMapTool | None = None
+    lastSavingPath: str = ""
 
-    changeScale = True
+    changeScale: bool = True
 
-    def __init__(self, iface):
+    def __init__(self, iface: "QgisInterface"):
         """Constructor."""
         QDialog.__init__(self)
         self.ui = Ui_DEMto3DDialogBase()
         self.ui.setupUi(self)
-        self.iface = iface
-        self.canvas = iface.mapCanvas()
+        self.iface: "QgisInterface" = iface
+        self.canvas: QgsMapCanvas = iface.mapCanvas()  # type: ignore
 
         self.canvas.destinationCrsChanged.connect(self.setCanvasCRS)
-        self.setCanvasCRS()
-
+        self.map_crs = self.canvas.mapSettings().destinationCrs()
         self.units = self.map_crs.mapUnits()
-        # --- QgsUnitTypes.DistanceUnit ---
-        # DistanceMeters         0 Meters.
-        # DistanceKilometers     1 Kilometers.
-        # DistanceFeet           2 Imperial feet.
-        # DistanceNauticalMiles  3 Nautical miles.
-        # DistanceYards          4 Imperial yards.
-        # DistanceMiles          5 Terrestrial miles.
-        # DistanceDegrees        6 Degrees, for planar geographic CRS distance measurements.
-        # DistanceCentimeters    7 Centimeters.
-        # DistanceMillimeters    8 Millimeters.
-        # DistanceUnknownUnit    9 Unknown distance unit.
 
         # region LAYER ACTION
         # fill layer combobox with raster visible layers in mapCanvas
         self.viewLayers = self.canvas.layers()
-        self.ui.mMapLayerComboBox.setFilters(QgsMapLayerProxyModel.RasterLayer)
-        self.ui.mMapLayerComboBox.setExcludedProviders(["wms", "wfs"])
-        self.layer = self.ui.mMapLayerComboBox.currentLayer()
+        combo: QgsMapLayerComboBox = self.ui.mMapLayerComboBox
+        combo.setFilters(Qgis.LayerFilter.RasterLayer)
+        combo.setExcludedProviders(["wms", "wfs"])
+        self.layer = combo.currentLayer()  # type: ignore
         self.get_raster_properties()
-        self.ui.mMapLayerComboBox.layerChanged.connect(self.get_currlayer)
+        combo.layerChanged.connect(self.get_currlayer)
         # endregion
 
         # region EXTENSION ACTION
@@ -190,16 +180,15 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ui.ProgressLabel.hide()
 
     def setCanvasCRS(self):
-        try:
-            self.map_crs = self.canvas.mapSettings().destinationCrs()
-        except BaseException:
-            self.map_crs = self.canvas.mapRenderer().destinationCrs()
+        self.map_crs = self.canvas.mapSettings().destinationCrs()
 
     def reject_func(self):
         if self.rect_map_tool is not None:
             self.rect_map_tool.reset()
             self.rect_map_tool.deactivate()
-            self.iface.actionPan().trigger()
+            action = self.iface.actionPan()
+            assert action is not None
+            action.trigger()
 
     # region Extension functions
     def getFileNameParams(self):
@@ -221,7 +210,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             + self.getFileNameParams()
             + "_param.txt"
         )
-        if parameters != 0:
+        if parameters != None:
             setting_file = QFileDialog.getSaveFileName(
                 self, self.tr("Export settings"), file_name, "*.txt"
             )
@@ -391,6 +380,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 # Add a new feature and assign the geometry
                 feat = QgsFeature()
                 feat.setGeometry(QgsGeometry.fromPolygonXY(points))
+                assert prov is not None
                 prov.addFeatures([feat])
                 # Update extent of the layer
                 layer.updateExtents()
@@ -429,6 +419,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 layer = QgsVectorLayer("Polygon?crs=EPSG:4326", "polygon", "memory")
                 # Set the provider to accept the data source
                 prov = layer.dataProvider()
+                assert prov is not None
 
                 points = getPointsFromRectangleParams(self.rect_Params)
                 points = [
@@ -480,7 +471,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
     def do_export(self):
 
-        def export():
+        def export(parameters: ParametersDict):
             stl_file = QFileDialog.getSaveFileName(
                 self, self.tr("Export to STL"), layer_name, filter="*.stl"
             )
@@ -492,7 +483,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         layer_name = (
             self.lastSavingPath + self.layer.name() + self.getFileNameParams() + ".stl"
         )
-        if parameters != 0:
+        if parameters != None:
             row_stl = int(math.ceil(self.height / parameters["spacing_mm"]) + 1)
             col_stl = int(math.ceil(self.width / parameters["spacing_mm"]) + 1)
             tooMuchPoints = row_stl * col_stl > 500000
@@ -508,9 +499,9 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                     QMessageBox.No,
                 )
                 if reply == QMessageBox.Yes:
-                    export()
+                    export(parameters)
             else:
-                export()
+                export(parameters)
         else:
             QMessageBox.warning(
                 self, self.tr("Attention"), self.tr("Fill the data correctly")
@@ -533,7 +524,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.extent = None
         if self.divisions:
             self.canvas.scene().removeItem(self.divisions)
-            self.divisions = []
+            self.divisions = None
         self.ini_dimensions()
         self.ui.ZMaxLabel.setText("0 m")
         self.ui.ZMinLabel.setText("0 m")
@@ -574,7 +565,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             )
             rec = transform.transform(rec)
 
-        self.rect_Params = {
+        self.rect_Params: RectParams = {
             "center": [rec.center().x(), rec.center().y()],
             "width": rec.width(),
             "height": rec.height(),
@@ -607,18 +598,21 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 self.get_custom_extent_cb(self.rect_Params)
 
     def custom_extent(self):
-        self.iface.messageBar().pushMessage(
+        messageBar = self.iface.messageBar()
+        assert messageBar is not None
+        messageBar.pushMessage(
             "Info",
             self.tr("Click and drag the mouse to draw print extent"),
-            level=Qgis.Info,
+            level=Qgis.MessageLevel.Info,
             duration=3,
         )
+
         if self.extent:
             self.canvas.scene().removeItem(self.extent)
             self.extent = None
         if self.divisions:
             self.canvas.scene().removeItem(self.divisions)
-            self.divisions = []
+            self.divisions = None
         self.rect_map_tool = RectangleMapTool(self.canvas, self.get_custom_extent_cb)
         self.canvas.setMapTool(self.rect_map_tool)
 
@@ -648,7 +642,9 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             # extension = rec.intersect(layer_extension)
             self.rect_Params = rectParams
             self.paint_extent(rectParams)
-            self.iface.actionPan().trigger()
+            action = self.iface.actionPan()
+            assert action is not None
+            action.trigger()
             self.get_z_max_z_min()
             self.ini_dimensions()
         else:
@@ -668,8 +664,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.roi_x_min = float(self.ui.XMinLineEdit.text())
             self.roi_y_max = float(self.ui.YMaxLineEdit.text())
             self.roi_y_min = float(self.ui.YMinLineEdit.text())
-            p3 = QgsPoint(self.roi_x_min, self.roi_y_min)
-            p1 = QgsPoint(self.roi_x_max, self.roi_y_max)
+            p3 = QgsPointXY(self.roi_x_min, self.roi_y_min)
+            p1 = QgsPointXY(self.roi_x_max, self.roi_y_max)
             self.rect_Params = rectangleHWCenterFrom2pCreate(
                 p3, p1, self.rect_Params["rotation"]
             )
@@ -740,11 +736,9 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.extent = None
         if self.divisions:
             self.canvas.scene().removeItem(self.divisions)
-            self.divisions = []
+            self.divisions = None
 
-        self.extent = QgsRubberBand(
-            self.canvas, QgsWkbTypes.GeometryType.PolygonGeometry
-        )
+        self.extent = QgsRubberBand(self.canvas, Qgis.GeometryType.Polygon)
 
         points = [
             QgsPoint(self.roi_x_max, self.roi_y_min),
@@ -793,11 +787,9 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.extent = None
         if self.divisions:
             self.canvas.scene().removeItem(self.divisions)
-            self.divisions = []
+            self.divisions = None
 
-        self.extent = QgsRubberBand(
-            self.canvas, QgsWkbTypes.GeometryType.PolygonGeometry
-        )
+        self.extent = QgsRubberBand(self.canvas, Qgis.GeometryType.Polygon)
 
         points = [
             QgsPoint(points[0][0], points[0][1]),
@@ -821,7 +813,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             return
         if self.divisions:
             self.canvas.scene().removeItem(self.divisions)
-            self.divisions = []
+            self.divisions = None
         x_models = int(self.ui.ColPartsSpinBox.value())
         y_models = int(self.ui.RowPartsSpinBox.value())
         points = getPointsFromRectangleParams(self.rect_Params)
@@ -854,9 +846,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 )
                 lines.append([QgsPointXY(p1[0], p1[1]), QgsPointXY(p2[0], p2[1])])
         if lines:
-            self.divisions = QgsRubberBand(
-                self.canvas, QgsWkbTypes.GeometryType.PolygonGeometry
-            )
+            self.divisions = QgsRubberBand(self.canvas, Qgis.GeometryType.Polygon)
             self.divisions.setColor(QColor(227, 26, 28, 255))
             self.divisions.setWidth(3)
             self.divisions.setLineStyle(Qt.PenStyle(Qt.DashDotLine))
@@ -884,6 +874,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             # Add a new feature and assign the geometry
             feat = QgsFeature()
             feat.setGeometry(QgsGeometry.fromPolygonXY(geom))
+            assert prov is not None
             prov.addFeatures([feat])
             # Update extent of the layer
             PolygonLayer.updateExtents()
@@ -893,7 +884,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 self.layer,
                 "",
                 1,
-                QgsZonalStatistics.Max | QgsZonalStatistics.Min,
+                QgsZonalStatistics.Min | QgsZonalStatistics.Max,  # type: ignore
             )
             zoneStat.calculateStatistics(None)
 
@@ -920,8 +911,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
     def get_min_spacing(self):
         min_spacing = 0
-        if self.units == 6:  # Map unit -> Degree
-            if self.layer.crs().mapUnits() == 6:  # data unit -> Degree
+        if self.units == Qgis.DistanceUnit.Degrees:
+            if self.layer.crs().mapUnits() == Qgis.DistanceUnit.Degrees:
                 width_roi = self.rect_Params["width"]
                 min_spacing = round(self.cell_size * self.width / width_roi, 2)
             else:  # data unit -> others. Meters, ...
@@ -935,7 +926,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 )
                 min_spacing = round(cell_size_deg * self.width / width_roi, 2)
         else:  # Map unit -> Others, Meters, ...
-            if self.layer.crs().mapUnits() == 6:  # data unit -> Degree
+            if self.layer.crs().mapUnits() == Qgis.DistanceUnit.Degrees:
                 width_roi = self.rect_Params["width"]
                 cell_size_m = (
                     self.cell_size
@@ -969,7 +960,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.height = float(height_str)
             self.width = round(width_roi * self.height / height_roi, 2)
             self.ui.WidthLineEdit.setText(str(self.width))
-            if self.units == 6:  # Degree
+            if self.units == Qgis.DistanceUnit.Degrees:
                 dist = (
                     width_roi
                     * math.pi
@@ -1020,7 +1011,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.width = float(width_str)
             self.height = round(height_roi * self.width / width_roi, 2)
             self.ui.HeightLineEdit.setText(str(self.height))
-            if self.units == 6:  # Degree
+            if self.units == Qgis.DistanceUnit.Degrees:
                 dist = (
                     width_roi
                     * math.pi
@@ -1071,7 +1062,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 self.scale = float(self.ui.ScaleLineEdit.scale())
                 self.scale_h = self.scale
                 self.scale_w = self.scale
-                if self.units == 6:  # Degree
+                if self.units == Qgis.DistanceUnit.Degrees:
                     dist = (
                         width_roi
                         * math.pi
@@ -1153,12 +1144,13 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 )
             self.ui.BaseHeightLineEdit.clear()
 
-    def get_parameters(self):
+    def get_parameters(self) -> ParametersDict | None:
         projected = True
-        if self.units == 6:  # Degree
+        if self.units == Qgis.DistanceUnit.Degrees:
             projected = False
 
         provider = self.layer.dataProvider()
+        assert provider is not None
         path = provider.dataSourceUri()
         path_layer = path.split("|")
         self.z_scale = self.ui.ZScaleDoubleSpinBox.value()
@@ -1168,7 +1160,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             spacing_mm = float(self.ui.SpacingLineEdit.text())
             z_base = float(self.ui.BaseHeightLineEdit.text())
         except ValueError:
-            return 0
+            return None
 
         z_inv = self.ui.RevereseZCheckBox.isChecked()
 
