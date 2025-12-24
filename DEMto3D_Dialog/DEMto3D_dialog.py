@@ -639,7 +639,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             layer_extension = transform.transform(layer_extension)
 
         if rec.intersects(layer_extension):
-            # extension = rec.intersect(layer_extension)
             self.rect_Params = rectParams
             self.paint_extent(rectParams)
             action = self.iface.actionPan()

@@ -8,7 +8,7 @@ from typing import Any, Callable, Optional
 from qgis.core import Qgis, QgsPointXY
 from qgis.gui import QgsMapCanvas, QgsMapTool, QgsRubberBand
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtGui import QColor, QKeyEvent
 from qgis.PyQt.QtWidgets import QApplication
 
 from .geometry_utils import getPointsFromRectangleParams, rectangleHWCenterFrom2pCreate
@@ -65,7 +65,7 @@ class RectangleMapTool(QgsMapTool):
         if self.startPoint is not None and self.endPoint is not None:
             self.showRect(self.startPoint, self.endPoint)
 
-    def keyReleaseEvent(self, e: Any) -> None:
+    def keyReleaseEvent(self, e: QKeyEvent) -> None:
         if e.key() == Qt.Key_Shift and self.square_mode:
             self.square_mode = False
             # Redraw as rectangle if currently drawing
