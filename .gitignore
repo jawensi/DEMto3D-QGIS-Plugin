@@ -7,4 +7,5 @@
 
 resourcesCompile.bat
 
-.gitignore
+*.pyc
+*.pyo   
