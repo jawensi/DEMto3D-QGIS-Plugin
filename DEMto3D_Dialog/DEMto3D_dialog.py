@@ -108,7 +108,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         # region LAYER ACTION
         # fill layer combobox with raster visible layers in mapCanvas
         self.viewLayers = self.canvas.layers()
-        self.ui.mMapLayerComboBox.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        self.ui.mMapLayerComboBox.setFilters(QgsMapLayerProxyModel.Filter.RasterLayer)
         self.ui.mMapLayerComboBox.setExcludedProviders(['wms', 'wfs'])
         self.layer = self.ui.mMapLayerComboBox.currentLayer()
         self.get_raster_properties()
@@ -336,8 +336,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 reply = QMessageBox.question(self, self.tr('Export to STL'),
                                              self.tr(
                     'The construction of the STL file could takes several minutes. Do you want to continue?'),
-                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-                if reply == QMessageBox.Yes:
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
+                if reply == QMessageBox.StandardButton.Yes:
                     export()
             else:
                 export()
@@ -408,7 +408,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
     def layer_extent(self):
         select_layer_dialog = SelectLayer_dialog.Dialog()
-        if select_layer_dialog.exec_():
+        if select_layer_dialog.exec():
             layer = select_layer_dialog.get_layer()
             if layer:
                 rec = layer.extent()
@@ -423,7 +423,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
     def custom_extent(self):
         self.iface.messageBar().pushMessage("Info", self.tr(
-            "Click and drag the mouse to draw print extent"), level=Qgis.Info, duration=3)
+            "Click and drag the mouse to draw print extent"), level=Qgis.MessageLevel.Info, duration=3)
         if self.extent:
             self.canvas.scene().removeItem(self.extent)
             self.extent = None
@@ -524,7 +524,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.extent.setToGeometry(QgsGeometry.fromPolyline(points), None)
         self.extent.setColor(QColor(227, 26, 28, 255))
         self.extent.setWidth(3)
-        self.extent.setLineStyle(Qt.PenStyle(Qt.DashLine))
+        self.extent.setLineStyle(Qt.PenStyle(Qt.PenStyle.DashLine))
 
         self.paint_model_division()
 
@@ -571,7 +571,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.extent.setToGeometry(QgsGeometry.fromPolyline(points), None)
         self.extent.setColor(QColor(227, 26, 28, 255))
         self.extent.setWidth(3)
-        self.extent.setLineStyle(Qt.PenStyle(Qt.DashLine))
+        self.extent.setLineStyle(Qt.PenStyle(Qt.PenStyle.DashLine))
 
         self.paint_model_division()
 
@@ -604,12 +604,12 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.divisions = QgsRubberBand(self.canvas, QgsWkbTypes.GeometryType.PolygonGeometry)
             self.divisions.setColor(QColor(227, 26, 28, 255))
             self.divisions.setWidth(3)
-            self.divisions.setLineStyle(Qt.PenStyle(Qt.DashDotLine))
+            self.divisions.setLineStyle(Qt.PenStyle(Qt.PenStyle.DashDotLine))
             self.divisions.setToGeometry(QgsGeometry.fromMultiPolylineXY(lines), None)
 
     def get_z_max_z_min(self):
 
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
 
         points = getPointsFromRectangleParams(self.rect_Params)
         # Specify the geometry type
@@ -625,7 +625,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         # Update extent of the layer
         PolygonLayer.updateExtents()
 
-        zoneStat = QgsZonalStatistics(PolygonLayer, self.layer, "", 1, QgsZonalStatistics.Max | QgsZonalStatistics.Min)
+        zoneStat = QgsZonalStatistics(PolygonLayer, self.layer, "", 1, QgsZonalStatistics.Statistic.Max | QgsZonalStatistics.Statistic.Min)
         zoneStat.calculateStatistics(None)
 
         minVal = 0
@@ -867,7 +867,7 @@ class RectangleMapTool(QgsMapTool):
         self.rubberBand = QgsRubberBand(self.canvas, QgsWkbTypes.GeometryType.LineGeometry)
         self.rubberBand.setColor(QColor(227, 26, 28, 255))
         self.rubberBand.setWidth(3)
-        self.rubberBand.setLineStyle(Qt.PenStyle(Qt.DashLine))
+        self.rubberBand.setLineStyle(Qt.PenStyle(Qt.PenStyle.DashLine))
         self.rotation = self.canvas.rotation() * math.pi / 180
         self.reset()
 

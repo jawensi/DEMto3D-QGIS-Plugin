@@ -5,11 +5,11 @@
 [general]
 name=DEMto3D
 qgisMinimumVersion=2.99
-qgisMaximumVersion=3.99
+qgisMaximumVersion=4.99
 
 # Provide a brief description of the plugin
 description=3D Printing of terrain models.
-version=3.6
+version=3.7
 author=Francisco Javier Venceslá Simón
 email=demto3d@gmail.com
 about=DEMto3D is the first tool that links GIS (Geographic Information System) and 3D printing. DEMto3D allows export raster DEM to STL format ready to 3D printing.
@@ -25,6 +25,7 @@ repository=https://github.com/jawensi/DEMto3D
 
 # Uncomment the following line and add your changelog:
 changelog=
+    Update for QGIS4 and Qt6
     Change pluging icon. 
     Resize default dialog dimension.
     Inverse height with mirror in X axis.
@@ -40,11 +41,6 @@ experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
-
-# Since QGIS 3.8, a comma separated list of plugins to be installed
-# (or upgraded) can be specified.
-# Check the documentation for more information.
-# plugin_dependencies=
 
 Category of the plugin: Raster, Vector, Database or Web
 category=Raster
