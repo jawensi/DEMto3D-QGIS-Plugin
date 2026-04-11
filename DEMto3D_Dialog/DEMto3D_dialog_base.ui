@@ -121,7 +121,7 @@
                <item row="0" column="0">
                 <widget class="QLabel" name="label">
                  <property name="pixmap">
-                  <pixmap resource="../resources.qrc">:/plugins/DEMto3D/icons/upright.png</pixmap>
+                  <pixmap resource="../resources.qrc">:/plugins/DEMto3D/icons/upRight.png</pixmap>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -570,7 +570,7 @@
             <item row="0" column="0">
              <widget class="QLabel" name="label_17">
               <property name="text">
-               <string>Height (m):</string>
+               <string>Height (mm):</string>
               </property>
               <property name="buddy">
                <cstring>BaseHeightLineEdit</cstring>

@@ -45,12 +45,6 @@ class Model(QThread):
     def run(self):
         dem_dataset = gdal.Open(self.parameters["layer"])
 
-        # self.matrix_dem = self.matrix_dem_builder(dem_dataset, self.parameters["height"], self.parameters["width"],
-        #                                           self.parameters["scale"], self.parameters["spacing_mm"],
-        #                                           self.parameters["roi_x_max"], self.parameters["roi_x_min"],
-        #                                           self.parameters["roi_y_min"], self.parameters["z_base"],
-        #                                           self.parameters["z_scale"], self.parameters["projected"])
-
         self.matrix_dem = self.matrix_dem_builder_interpolation(dem_dataset,
                                                                 self.parameters["height"], self.parameters["width"],
                                                                 self.parameters["scale"], self.parameters["scale_h"],
@@ -93,7 +87,7 @@ class Model(QThread):
             transform = QgsCoordinateTransform(
                 source, target, QgsProject.instance())
 
-        #  RECORRIDO
+        #  traversal or path
         #  0 ---------------------------> 1
         #    --------------------------->
         #  ^ --------------------------->
@@ -440,7 +434,7 @@ class Model(QThread):
                 zb = math.fabs(p.x - p1.x) * dif_z2 / d1 + p3.z
                 return (p1.y - p.y) * (zb - zt) / d2 + zt
         except ZeroDivisionError as err:
-            print('Bilineal interpolation error:', err)
+            print('Bilinear interpolation error:', err)
             print('P', p.x, p.y, sep=" : ")
             print('P1', p1.x, p1.y, p1.z, sep=" : ")
             print('P2', p2.x, p2.y, p2.z, sep=" : ")
