@@ -207,8 +207,6 @@ class Model(QThread):
                     x, y = getPolarPoint(
                         x0, y0, rotation + math.pi * 0.5, y_model * spacing_deg / spacing_mm)
 
-                # print('punto cuajado (row - col - x - y)', i, j, x_model, y_model, round(x, 3), round(y, 3), sep=" - ")
-
                 # Model layer geo_coordinates to query z value
                 # point = QgsPoint(x, y)
                 source = self.parameters["crs_map"]

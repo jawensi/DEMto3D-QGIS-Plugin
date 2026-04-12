@@ -7,6 +7,7 @@
 
 
 from qgis.PyQt import QtCore, QtGui, QtWidgets
+from qgis.gui import QgsMapLayerComboBox, QgsScaleWidget
 
 
 class Ui_DEMto3DDialogBase(object):
@@ -15,7 +16,9 @@ class Ui_DEMto3DDialogBase(object):
         DEMto3DDialogBase.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
         DEMto3DDialogBase.resize(503, 803)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/plugins/DEMto3D/icons/demto3d.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap(":/plugins/DEMto3D/icons/demto3d.png"),
+                       QtGui.QIcon.Mode.Normal,
+                       QtGui.QIcon.State.Off)
         DEMto3DDialogBase.setWindowIcon(icon)
         self.verticalLayout = QtWidgets.QVBoxLayout(DEMto3DDialogBase)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -40,7 +43,8 @@ class Ui_DEMto3DDialogBase(object):
         self.label_19.setObjectName("label_19")
         self.horizontalLayout_5.addWidget(self.label_19)
         self.mMapLayerComboBox = QgsMapLayerComboBox(parent=self.groupBox_1)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.MinimumExpanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.MinimumExpanding,
+                                           QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.mMapLayerComboBox.sizePolicy().hasHeightForWidth())
@@ -118,24 +122,32 @@ class Ui_DEMto3DDialogBase(object):
         self.RotationCheckBox = QtWidgets.QCheckBox(parent=self.groupBox_1)
         self.RotationCheckBox.setObjectName("RotationCheckBox")
         self.horizontalLayout.addWidget(self.RotationCheckBox)
-        spacerItem = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(0, 0,
+                                           QtWidgets.QSizePolicy.Policy.Expanding,
+                                           QtWidgets.QSizePolicy.Policy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
         self.FullExtToolButton = QtWidgets.QToolButton(parent=self.groupBox_1)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(":/plugins/DEMto3D/icons/zoom-extent.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap(":/plugins/DEMto3D/icons/zoom-extent.png"),
+                        QtGui.QIcon.Mode.Normal,
+                        QtGui.QIcon.State.Off)
         self.FullExtToolButton.setIcon(icon1)
         self.FullExtToolButton.setObjectName("FullExtToolButton")
         self.horizontalLayout.addWidget(self.FullExtToolButton)
         self.LayerExtToolButton = QtWidgets.QToolButton(parent=self.groupBox_1)
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(":/plugins/DEMto3D/icons/zoom-layer.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon2.addPixmap(QtGui.QPixmap(":/plugins/DEMto3D/icons/zoom-layer.png"),
+                        QtGui.QIcon.Mode.Normal,
+                        QtGui.QIcon.State.Off)
         self.LayerExtToolButton.setIcon(icon2)
         self.LayerExtToolButton.setObjectName("LayerExtToolButton")
         self.horizontalLayout.addWidget(self.LayerExtToolButton)
         self.CustomExtToolButton = QtWidgets.QToolButton(parent=self.groupBox_1)
         self.CustomExtToolButton.setText("")
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(":/plugins/DEMto3D/icons/zoom-region.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon3.addPixmap(QtGui.QPixmap(":/plugins/DEMto3D/icons/zoom-region.png"),
+                        QtGui.QIcon.Mode.Normal,
+                        QtGui.QIcon.State.Off)
         self.CustomExtToolButton.setIcon(icon3)
         self.CustomExtToolButton.setObjectName("CustomExtToolButton")
         self.horizontalLayout.addWidget(self.CustomExtToolButton)
@@ -148,7 +160,8 @@ class Ui_DEMto3DDialogBase(object):
         self.gridLayout_3 = QtWidgets.QGridLayout()
         self.gridLayout_3.setObjectName("gridLayout_3")
         self.HeightLineEdit = QtWidgets.QLineEdit(parent=self.groupBox_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred,
+                                           QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.HeightLineEdit.sizePolicy().hasHeightForWidth())
@@ -159,7 +172,8 @@ class Ui_DEMto3DDialogBase(object):
         self.label_9.setObjectName("label_9")
         self.gridLayout_3.addWidget(self.label_9, 0, 0, 1, 1)
         self.WidthLineEdit = QtWidgets.QLineEdit(parent=self.groupBox_3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred,
+                                           QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.WidthLineEdit.sizePolicy().hasHeightForWidth())
@@ -244,7 +258,10 @@ class Ui_DEMto3DDialogBase(object):
         self.gridLayout_2.addWidget(self.label_8, 0, 2, 1, 1)
         self.ZMaxLabel = QtWidgets.QLabel(parent=self.groupBox_5)
         self.ZMaxLabel.setMinimumSize(QtCore.QSize(100, 0))
-        self.ZMaxLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.ZMaxLabel.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignRight
+            | QtCore.Qt.AlignmentFlag.AlignTrailing
+            | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.ZMaxLabel.setObjectName("ZMaxLabel")
         self.gridLayout_2.addWidget(self.ZMaxLabel, 1, 3, 1, 1)
         self.label_11 = QtWidgets.QLabel(parent=self.groupBox_5)
@@ -257,7 +274,10 @@ class Ui_DEMto3DDialogBase(object):
         self.gridLayout_2.addWidget(self.label_11, 2, 0, 1, 1)
         self.ZMinLabel = QtWidgets.QLabel(parent=self.groupBox_5)
         self.ZMinLabel.setMinimumSize(QtCore.QSize(100, 0))
-        self.ZMinLabel.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.ZMinLabel.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignRight
+            | QtCore.Qt.AlignmentFlag.AlignTrailing
+            | QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.ZMinLabel.setObjectName("ZMinLabel")
         self.gridLayout_2.addWidget(self.ZMinLabel, 0, 3, 1, 1)
         self.label_17 = QtWidgets.QLabel(parent=self.groupBox_5)
@@ -304,7 +324,8 @@ class Ui_DEMto3DDialogBase(object):
         self.gridLayout.addWidget(self.label_24, 0, 1, 1, 1)
         self.horizontalLayout_7.addLayout(self.gridLayout)
         self.verticalLayout_8.addWidget(self.groupBox)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum,
+                                            QtWidgets.QSizePolicy.Policy.Expanding)
         self.verticalLayout_8.addItem(spacerItem1)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.verticalLayout.addWidget(self.scrollArea)
@@ -338,7 +359,8 @@ class Ui_DEMto3DDialogBase(object):
         self.ParamPushButton.setAutoDefault(False)
         self.ParamPushButton.setObjectName("ParamPushButton")
         self.horizontalLayout_9.addWidget(self.ParamPushButton)
-        spacerItem2 = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem2 = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Policy.Expanding,
+                                            QtWidgets.QSizePolicy.Policy.Minimum)
         self.horizontalLayout_9.addItem(spacerItem2)
         self.STLToolButton = QtWidgets.QToolButton(parent=DEMto3DDialogBase)
         self.STLToolButton.setMinimumSize(QtCore.QSize(100, 25))
@@ -363,8 +385,8 @@ class Ui_DEMto3DDialogBase(object):
         self.label_17.setBuddy(self.BaseHeightLineEdit)
 
         self.retranslateUi(DEMto3DDialogBase)
-        self.RotationCheckBox.clicked['bool'].connect(self.LimitsParamGframe.setVisible) # type: ignore
-        self.SidesCheckBox.clicked['bool'].connect(self.borderModelLineEdit.setEnabled) # type: ignore
+        self.RotationCheckBox.clicked['bool'].connect(self.LimitsParamGframe.setVisible)  # type: ignore
+        self.SidesCheckBox.clicked['bool'].connect(self.borderModelLineEdit.setEnabled)  # type: ignore
         QtCore.QMetaObject.connectSlotsByName(DEMto3DDialogBase)
         DEMto3DDialogBase.setTabOrder(self.XMaxLineEdit, self.YMaxLineEdit)
         DEMto3DDialogBase.setTabOrder(self.YMaxLineEdit, self.XMinLineEdit)
@@ -440,5 +462,3 @@ class Ui_DEMto3DDialogBase(object):
         self.ParamPushButton.setText(_translate("DEMto3DDialogBase", "Settings"))
         self.STLToolButton.setText(_translate("DEMto3DDialogBase", "Export to STL"))
         self.CancelToolButton.setText(_translate("DEMto3DDialogBase", "Close"))
-
-from qgis.gui import QgsMapLayerComboBox, QgsScaleWidget

@@ -106,7 +106,9 @@ class DEMto3D(object):
         raster = False
         if layers:
             for layer in layers:
-                if layer.type() == layer.RasterLayer and QgsProject.instance().layerTreeRoot().findLayer(layer).isVisible():
+                if (layer.type() == layer.RasterLayer and
+                        QgsProject.instance().layerTreeRoot().findLayer(
+                            layer).isVisible()):
                     raster = True
                     break
             if raster and self.window:
