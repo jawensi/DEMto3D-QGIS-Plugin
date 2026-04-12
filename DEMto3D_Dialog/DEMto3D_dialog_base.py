@@ -324,9 +324,28 @@ class Ui_DEMto3DDialogBase(object):
         self.gridLayout.addWidget(self.label_24, 0, 1, 1, 1)
         self.horizontalLayout_7.addLayout(self.gridLayout)
         self.verticalLayout_8.addWidget(self.groupBox)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum,
-                                            QtWidgets.QSizePolicy.Policy.Expanding)
-        self.verticalLayout_8.addItem(spacerItem1)
+        self.groupBox_2 = QtWidgets.QGroupBox(parent=self.scrollAreaWidgetContents)
+        self.groupBox_2.setObjectName("groupBox_2")
+        self.horizontalLayout_8 = QtWidgets.QHBoxLayout(self.groupBox_2)
+        self.horizontalLayout_8.setObjectName("horizontalLayout_8")
+        self.radioButton_binary = QtWidgets.QRadioButton(parent=self.groupBox_2)
+        self.radioButton_binary.setChecked(True)
+        self.radioButton_binary.setObjectName("radioButton_binary")
+        self.horizontalLayout_8.addWidget(self.radioButton_binary)
+        self.radioButton_ascii = QtWidgets.QRadioButton(parent=self.groupBox_2)
+        self.radioButton_ascii.setObjectName("radioButton_ascii")
+        self.horizontalLayout_8.addWidget(self.radioButton_ascii)
+        spacerItem1 = QtWidgets.QSpacerItem(
+            40, 20,
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Minimum)
+        self.horizontalLayout_8.addItem(spacerItem1)
+        self.verticalLayout_8.addWidget(self.groupBox_2)
+        spacerItem2 = QtWidgets.QSpacerItem(
+            20, 40,
+            QtWidgets.QSizePolicy.Policy.Minimum,
+            QtWidgets.QSizePolicy.Policy.Expanding)
+        self.verticalLayout_8.addItem(spacerItem2)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.verticalLayout.addWidget(self.scrollArea)
         self.progressLayoutV = QtWidgets.QVBoxLayout()
@@ -457,6 +476,9 @@ class Ui_DEMto3DDialogBase(object):
         self.borderModelLineEdit.setText(_translate("DEMto3DDialogBase", "0"))
         self.SidesCheckBox.setText(_translate("DEMto3DDialogBase", "Build sides"))
         self.label_23.setText(_translate("DEMto3DDialogBase", "Border (mm):"))
+        self.groupBox_2.setTitle(_translate("DEMto3DDialogBase", "Output Format"))
+        self.radioButton_binary.setText(_translate("DEMto3DDialogBase", "Binary Format"))
+        self.radioButton_ascii.setText(_translate("DEMto3DDialogBase", "ASCII Format"))
         self.ProgressLabel.setText(_translate("DEMto3DDialogBase", "TextLabel..."))
         self.cancelProgressToolButton.setText(_translate("DEMto3DDialogBase", "Cancel"))
         self.ParamPushButton.setText(_translate("DEMto3DDialogBase", "Settings"))

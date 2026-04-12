@@ -84,15 +84,16 @@ class STL(QThread):
                     x_max_model,
                     y_max_model
                 )
-                self.write_binary(path, dem_model)
+                if self.parameters.get("stl_format") == "ascii":
+                    self.write_ascii(path, dem_model)
+                else:
+                    self.write_binary(path, dem_model)
 
-        # self.write_binary(self.stl_file, self.matrix_dem)
-
-    def write_ascii(self):
-        f = open(self.stl_file, "w")
+    def write_ascii(self, fileName, demData):
+        f = open(fileName, "w")
         f.write("solid model\n")
 
-        dem = self.face_dem_vector(self.matrix_dem)
+        dem = self.face_dem_vector(demData)
         for face in dem:
             self.updateProgress.emit()
             f.write("   facet normal 0 0 -1 " + "\n")
@@ -109,7 +110,7 @@ class STL(QThread):
                 f.close()
                 return 0
 
-        wall = self.face_wall_vector(self.matrix_dem)
+        wall = self.face_wall_vector(demData)
         for face in wall:
             f.write("   facet normal " + str(getattr(face[3], "normal_x")) + " " +
                     str(getattr(face[3], "normal_y")) + " " + str(getattr(face[3], "normal_z")) + "\n")

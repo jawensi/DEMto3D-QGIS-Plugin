@@ -309,8 +309,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 prov.addFeatures([feat])
                 # Update extent of the layer
                 layer.updateExtents()
-                # # Add the layer to the Layers panel
-                # QgsMapLayerRegistry.instance().addMapLayers([layer])
+                # Add the layer to the Layers panel
                 QgsVectorFileWriter.writeAsVectorFormat(
                     layer, setting_file[0], 'utf-8', self.map_crs,
                     'GeoJSON', layerOptions=['COORDINATE_PRECISION=3'])
@@ -869,6 +868,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         has_borders = self.ui.SidesCheckBox.isChecked()
         borders = float(self.ui.borderModelLineEdit.text())
 
+        stl_format = "ascii" if self.ui.radioButton_ascii.isChecked() else "binary"
+
         return {"layer": path_layer[0],
                 "roi_x_max": self.roi_x_max,
                 "roi_x_min": self.roi_x_min,
@@ -891,7 +892,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 "divideRow": rows,
                 "divideCols": cols,
                 "borders": borders,
-                "has_borders": has_borders}
+                "has_borders": has_borders,
+                "stl_format": stl_format}
 
 
 class RectangleMapTool(QgsMapTool):
