@@ -121,7 +121,7 @@
                <item row="0" column="0">
                 <widget class="QLabel" name="label">
                  <property name="pixmap">
-                  <pixmap resource="../resources.qrc">:/plugins/DEMto3D/icons/upright.png</pixmap>
+                  <pixmap resource="../resources.qrc">:/plugins/DEMto3D/icons/upRight.png</pixmap>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -570,7 +570,7 @@
             <item row="0" column="0">
              <widget class="QLabel" name="label_17">
               <property name="text">
-               <string>Height (m):</string>
+               <string>Height (mm):</string>
               </property>
               <property name="buddy">
                <cstring>BaseHeightLineEdit</cstring>
@@ -652,6 +652,45 @@
              </widget>
             </item>
            </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Output Format</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <widget class="QRadioButton" name="radioButton_binary">
+            <property name="text">
+             <string>Binary Format</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButton_ascii">
+            <property name="text">
+             <string>ASCII Format</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>

@@ -106,13 +106,15 @@ class DEMto3D(object):
         raster = False
         if layers:
             for layer in layers:
-                if layer.type() == layer.RasterLayer and QgsProject.instance().layerTreeRoot().findLayer(layer).isVisible():
+                if (layer.type() == layer.RasterLayer and
+                        QgsProject.instance().layerTreeRoot().findLayer(
+                            layer).isVisible()):
                     raster = True
                     break
             if raster and self.window:
                 self.window = False
                 demto3d_dlg = DEMto3D_dialog.DEMto3DDialog(self.iface)
-                demto3d_dlg.exec_()
+                demto3d_dlg.exec()
                 canvas = self.iface.mapCanvas()
                 if demto3d_dlg.extent:
                     canvas.scene().removeItem(demto3d_dlg.extent)
