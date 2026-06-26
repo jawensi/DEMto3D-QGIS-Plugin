@@ -14,7 +14,7 @@ class Ui_DEMto3DDialogBase(object):
     def setupUi(self, DEMto3DDialogBase):
         DEMto3DDialogBase.setObjectName("DEMto3DDialogBase")
         DEMto3DDialogBase.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
-        DEMto3DDialogBase.resize(503, 803)
+        DEMto3DDialogBase.resize(425, 650)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/plugins/DEMto3D/icons/demto3d.png"),
                        QtGui.QIcon.Mode.Normal,

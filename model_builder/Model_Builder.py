@@ -5,7 +5,7 @@
                                  A QGIS plugin
  Description
                              -------------------
-        copyright            : (C) 2022 by Javier
+        copyright            : (C) 2026 by Jawensi
         email                : demto3d@gmail.com
  ***************************************************************************/
 
@@ -45,10 +45,9 @@ class Model(QThread):
     def run(self):
         dem_dataset = gdal.Open(self.parameters["layer"])
 
-        self.matrix_dem = self.matrix_dem_builder_interpolation(dem_dataset,
+        self.matrix_dem = self.matrix_dem_builder(dem_dataset,
                                                                 self.parameters["height"], self.parameters["width"],
-                                                                self.parameters["scale"], self.parameters["scale_h"],
-                                                                self.parameters["scale_w"],
+                                                                self.parameters["scale"],
                                                                 self.parameters["spacing_mm"],
                                                                 self.parameters["roi_x_max"],
                                                                 self.parameters["roi_x_min"],
@@ -56,6 +55,7 @@ class Model(QThread):
                                                                 self.parameters["z_base"],
                                                                 self.parameters["z_scale"],
                                                                 self.parameters["projected"])
+
         if self.parameters["z_inv"]:
             self.matrix_dem = self.matrix_dem_inverse_build(self.matrix_dem)
         dem_dataset = None
@@ -74,6 +74,7 @@ class Model(QThread):
 
         rectParam = self.parameters["roi_rect_Param"]
         rotation = rectParam["rotation"]
+        spacing_mm = 0.75
         if not projected:
             spacing_deg = spacing_mm * rectParam["width"] / width
 

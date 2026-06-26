@@ -5,7 +5,7 @@
                                  A QGIS plugin
  Description
                              -------------------
-        copyright            : (C) 2022 by Javier
+        copyright            : (C) 2026 by Jawensi
         email                : demto3d@gmail.com
  ***************************************************************************/
 
@@ -159,6 +159,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         # endregion
 
         self.ui.ProgressLabel.hide()
+        self.ui.groupBox.hide()
+        self.ui.groupBox_2.hide()
 
     def setCanvasCRS(self):
         try:
