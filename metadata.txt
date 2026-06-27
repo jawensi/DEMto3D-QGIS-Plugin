@@ -11,7 +11,7 @@ qgisMaximumVersion=4.99
 description=3D Printing of terrain models.
 version=4.0.0
 author=Francisco Javier Venceslá Simón
-email=demto3d@gmail.com
+email=info@demto3d.com
 about=DEMto3D is the first tool that links GIS (Geographic Information System) and 3D printing. DEMto3D allows export raster DEM to STL format ready to 3D printing.
 
 icon=icons/demto3d.png
@@ -41,4 +41,5 @@ category=Raster
 
 # If the plugin can run on QGIS Server.
 server=False
+
 

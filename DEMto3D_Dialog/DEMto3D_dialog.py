@@ -6,7 +6,7 @@
  Description
                              -------------------
         copyright            : (C) 2026 by Jawensi
-        email                : demto3d@gmail.com
+        email                : info@demto3d.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -1093,3 +1093,4 @@ def getPolarPoint(x0, y0, angle, dist):
     x = x0 + dist * math.cos(angle)
     y = y0 + dist * math.sin(angle)
     return [x, y]
+

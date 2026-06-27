@@ -484,3 +484,4 @@ class Ui_DEMto3DDialogBase(object):
         self.ParamPushButton.setText(_translate("DEMto3DDialogBase", "Settings"))
         self.STLToolButton.setText(_translate("DEMto3DDialogBase", "Export to STL"))
         self.CancelToolButton.setText(_translate("DEMto3DDialogBase", "Close"))
+

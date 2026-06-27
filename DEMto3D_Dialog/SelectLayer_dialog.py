@@ -6,7 +6,7 @@
  Description
                              -------------------
         copyright            : (C) 2026 by Jawensi
-        email                : demto3d@gmail.com
+        email                : info@demto3d.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -38,3 +38,4 @@ class Dialog(QDialog, Ui_SelectLayer_dialog_base):
 
     def get_layer(self):
         return self.ui.mMapLayerComboBox.currentLayer()
+

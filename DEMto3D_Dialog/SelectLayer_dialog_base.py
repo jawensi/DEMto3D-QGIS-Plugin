@@ -46,3 +46,4 @@ class Ui_SelectLayer_dialog_base(object):
         self.label.setText(_translate("SelectLayer_dialog_base", "Select a layer:"))
 
 from qgis.gui import QgsMapLayerComboBox
+

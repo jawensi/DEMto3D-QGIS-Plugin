@@ -6,7 +6,7 @@
  Description
                              -------------------
         copyright            : (C) 2026 by Jawensi
-        email                : demto3d@gmail.com
+        email                : info@demto3d.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -103,3 +103,4 @@ class Export(QDialog):
         self.mainDlg.ui.STLToolButton.setEnabled(not start)
         self.mainDlg.ui.ParamPushButton.setEnabled(not start)
         self.mainDlg.ui.CancelToolButton.setEnabled(not start)
+

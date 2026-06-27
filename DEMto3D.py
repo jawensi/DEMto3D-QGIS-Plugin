@@ -6,7 +6,7 @@
  Description
                              -------------------
         copyright            : (C) 2026 by Jawensi
-        email                : demto3d@gmail.com
+        email                : info@demto3d.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -125,3 +125,4 @@ class DEMto3D(object):
                 QMessageBox.information(self.iface.mainWindow(), "DEMto3D", self.tr("No visible raster layer loaded"))
         elif not layers:
             QMessageBox.information(self.iface.mainWindow(), "DEMto3D", self.tr("No visible raster layer loaded"))
+

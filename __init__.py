@@ -6,7 +6,7 @@
  Description
                              -------------------
         copyright            : (C) 2026 by Jawensi
-        email                : demto3d@gmail.com
+        email                : info@demto3d.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -28,3 +28,4 @@ def classFactory(iface):
     """
     from .DEMto3D import DEMto3D
     return DEMto3D(iface)
+
