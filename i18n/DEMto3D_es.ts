@@ -145,6 +145,11 @@
         <translation>Cota máxima:</translation>
     </message>
     <message>
+        <location filename="DEMto3D_dialog_base.py" line="471"/>
+        <source>Height (mm):</source>
+        <translation>Altura (mm):</translation>
+    </message>
+    <message>
         <location filename="DEMto3D_dialog.py" line="399"/>
         <source>Base height (mm):</source>
         <translation>Altura de la base (mm):</translation>
@@ -169,6 +174,21 @@
         <location filename="DEMto3D_dialog.py" line="403"/>
         <source>Border (mm):</source>
         <translation>Borde (mm):</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="479"/>
+        <source>Output Format</source>
+        <translation>Formato de salida</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="480"/>
+        <source>Binary Format</source>
+        <translation>Formato binario</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="481"/>
+        <source>ASCII Format</source>
+        <translation>Formato ASCII</translation>
     </message>
 
     <message>

@@ -145,12 +145,11 @@
         <translation>Côte maximale:</translation>
     </message>
     <message>
-        <location filename="DEMto3D_dialog.py" line="399"/>
-        <source>Base height (mm):</source>
-        <translation>Hauteur de la base (mm):</translation>
+        <location filename="DEMto3D_dialog_base.py" line="471"/>
+        <source>Height (mm):</source>
+        <translation>Hauteur (mm):</translation>
     </message>
-	<message>
-        <location filename="DEMto3D_dialog.py" line="399"/>
+    <message>
         <source>Model height:</source>
         <translation>Hauteur du modèle:</translation>
     </message>
@@ -171,9 +170,23 @@
         <source>Border (mm):</source>
         <translation>Bord (mm):</translation>
     </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="479"/>
+        <source>Output Format</source>
+        <translation>Format de sortie</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="480"/>
+        <source>Binary Format</source>
+        <translation>Format binaire</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="481"/>
+        <source>ASCII Format</source>
+        <translation>Format ASCII</translation>
+    </message>
 
-
-	<message>
+    <message>
         <location filename="DEMto3D_dialog.py" line="48"/>
         <source>Settings</source>
         <translation>Paramètres</translation>
