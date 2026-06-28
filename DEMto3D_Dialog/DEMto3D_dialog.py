@@ -125,9 +125,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ui.YMinLineEdit.returnPressed.connect(self.upload_extent)
 
         self.ui.WidthGeoLineEdit.returnPressed.connect(self.upload_extent_fromWH)
-        self.ui.HeightGeoLineEdit.returnPressed.connect(self.upload_extent_fromWH)
-
-        self.ui.LimitsParamGframe.hide()
+        self.ui.HeightGeoLineEdit.returnPressed.connect(self.upload_extent_fromWH)        
 
         # endregion
 
@@ -382,7 +380,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.scale_h = 0
         self.scale_w = 0
         self.scale = 0
-        self.ui.RecomSpacinglabel.setText('0.2 mm')
+        # self.ui.RecomSpacinglabel.setText('0.2 mm')
         self.ui.BaseHeightLineEdit.clear()
         self.ui.HeightModelLabel.setText('0 mm')
 
@@ -692,10 +690,10 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             else:                                 # data unit -> others. Meters, ...
                 width_roi = self.rect_Params["width"]
                 min_spacing = round(self.cell_size * self.width / width_roi, 2)
-        if min_spacing < 0.2:
-            self.ui.RecomSpacinglabel.setText('0.2 mm')
-        else:
-            self.ui.RecomSpacinglabel.setText(str(min_spacing) + ' mm')
+        # if min_spacing < 0.2:
+        #     self.ui.RecomSpacinglabel.setText('0.2 mm')
+        # else:
+        #     self.ui.RecomSpacinglabel.setText(str(min_spacing) + ' mm')
 
     def upload_size_from_height(self):
         try:
