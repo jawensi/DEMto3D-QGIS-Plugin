@@ -246,6 +246,126 @@ class Qgis3UiTests(unittest.TestCase):
                 QgsProject.instance().clear()
 
 
+class RuntimeGuardTests(unittest.TestCase):
+    def setUp(self):
+        self.plugin_module = importlib.import_module(PACKAGE + ".DEMto3D")
+        self.dialog_module = importlib.import_module(PACKAGE + ".DEMto3D_Dialog.DEMto3D_dialog")
+        self.plugin = self.plugin_module.DEMto3D(types.SimpleNamespace())
+
+    def test_optional_locale_signal_uses_application_instance(self):
+        for signal in (None, Mock()):
+            application = types.SimpleNamespace(localeChanged=signal)
+            with patch.object(self.plugin_module, "QgsApplication") as qgis_app:
+                qgis_app.instance.return_value = application
+                with patch.object(self.plugin_module.DEMto3D, "_install_translator"):
+                    plugin = self.plugin_module.DEMto3D(types.SimpleNamespace())
+            if signal is not None:
+                signal.connect.assert_called_once_with(plugin._on_locale_changed)
+
+    def test_missing_project_or_layer_tree_disables_action_and_rejects_gui(self):
+        for project in (None, types.SimpleNamespace(layerTreeRoot=lambda: None)):
+            with patch.object(self.plugin_module, "QgsProject") as project_class:
+                project_class.instance.return_value = project
+                self.assertFalse(self.plugin._has_visible_raster())
+                with self.assertRaises(RuntimeError):
+                    self.plugin.initGui()
+
+    def test_gui_can_initialize_without_optional_visibility_signal(self):
+        root = types.SimpleNamespace(addedChildren=Mock(), removedChildren=Mock())
+        project = types.SimpleNamespace(
+            layerTreeRoot=lambda: root, mapLayers=lambda: {},
+            layersAdded=Mock(), layersRemoved=Mock(),
+        )
+        self.plugin.iface = Mock()
+        self.plugin.iface.mainWindow.return_value = None
+        self.plugin.iface.mapCanvas.return_value = None
+        with patch.object(self.plugin_module, "QgsProject") as project_class, patch.object(
+            self.plugin_module, "QTimer"
+        ):
+            project_class.instance.return_value = project
+            self.plugin.initGui()
+            self.assertFalse(self.plugin.action.isEnabled())
+            self.plugin.unload()
+
+    def test_deleted_canvas_overlays_are_logged_and_references_cleared(self):
+        scene = Mock()
+        scene.removeItem.side_effect = RuntimeError("wrapped C++ object has been deleted")
+        self.plugin.iface = types.SimpleNamespace(
+            mapCanvas=lambda: types.SimpleNamespace(scene=lambda: scene)
+        )
+        dialog = types.SimpleNamespace(extent=object(), divisions=object())
+        with self.assertLogs(self.plugin_module.LOGGER, level="DEBUG") as logs:
+            self.plugin._cleanup_canvas_items(dialog)
+        self.assertEqual(len(logs.records), 2)
+        self.assertIsNone(dialog.extent)
+        self.assertIsNone(dialog.divisions)
+
+    def test_unexpected_canvas_cleanup_errors_are_not_swallowed(self):
+        scene = Mock()
+        scene.removeItem.side_effect = TypeError("invalid overlay")
+        self.plugin.iface = types.SimpleNamespace(
+            mapCanvas=lambda: types.SimpleNamespace(scene=lambda: scene)
+        )
+        dialog = types.SimpleNamespace(extent=object(), divisions=None)
+        with self.assertRaisesRegex(TypeError, "invalid overlay"):
+            self.plugin._cleanup_canvas_items(dialog)
+        self.assertIsNone(dialog.extent)
+
+    def test_extent_selection_without_optional_pan_action_or_message_bar(self):
+        dialog = types.SimpleNamespace(
+            iface=types.SimpleNamespace(actionPan=lambda: None, messageBar=lambda: None),
+            rect_map_tool=Mock(), extent=None, divisions=None, canvas=Mock(),
+            get_custom_extent_cb=Mock(),
+        )
+        self.dialog_module.DEMto3DDialog.reject_func(dialog)
+        dialog.rect_map_tool.reset.assert_called_once()
+        dialog.rect_map_tool.deactivate.assert_called_once()
+        with patch.object(self.dialog_module, "RectangleMapTool") as tool_class:
+            self.dialog_module.DEMto3DDialog.custom_extent(dialog)
+        dialog.canvas.setMapTool.assert_called_once_with(tool_class.return_value)
+
+    def test_unavailable_raster_provider_does_not_produce_export_parameters(self):
+        from qgis.core import Qgis
+        dialog = types.SimpleNamespace(
+            units=Qgis.DistanceUnit.Meters,
+            layer=types.SimpleNamespace(dataProvider=lambda: None),
+        )
+        self.assertIsNone(self.dialog_module.DEMto3DDialog.get_parameters(dialog))
+
+    def test_unavailable_vector_provider_raises_and_restores_cursor(self):
+        from qgis.core import QgsCoordinateReferenceSystem
+        from qgis.PyQt.QtWidgets import QApplication
+        dialog = types.SimpleNamespace(
+            rect_Params=dict(center=[0, 0], width=10, height=10, rotation=0),
+            map_crs=QgsCoordinateReferenceSystem("EPSG:3857"),
+        )
+        cursor_before = QApplication.overrideCursor()
+        with patch.object(self.dialog_module, "QgsVectorLayer") as layer_class:
+            layer_class.return_value.dataProvider.return_value = None
+            with self.assertRaisesRegex(RuntimeError, "vector layer provider"):
+                self.dialog_module.DEMto3DDialog.get_z_max_z_min(dialog)
+        self.assertIs(QApplication.overrideCursor(), cursor_before)
+
+    def test_rectangle_tool_ignores_missing_events_and_accepts_valid_press(self):
+        from qgis.core import QgsPointXY
+        module = importlib.import_module(PACKAGE + ".DEMto3D_Dialog.rectangle_map_tool")
+        point = QgsPointXY(1, 2)
+        tool = types.SimpleNamespace(
+            startPoint=None, endPoint=None, isEmittingPoint=True,
+            toMapCoordinates=Mock(return_value=point), showRect=Mock(),
+        )
+        module.RectangleMapTool.canvasPressEvent(tool, None)
+        module.RectangleMapTool.canvasMoveEvent(tool, None)
+        tool.toMapCoordinates.assert_not_called()
+        self.assertIsNone(tool.startPoint)
+        self.assertIsNone(tool.endPoint)
+        event = types.SimpleNamespace(pos=lambda: object())
+        module.RectangleMapTool.canvasPressEvent(tool, event)
+        self.assertEqual(tool.startPoint, point)
+        self.assertTrue(tool.isEmittingPoint)
+        tool.showRect.assert_called_once_with(point, point)
+
+
 if __name__ == "__main__":
     app = QgsApplication([], False)
     app.initQgis()

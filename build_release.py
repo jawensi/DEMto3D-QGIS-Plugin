@@ -1,7 +1,9 @@
 """Build and test the QGIS 3 release using the QGIS Python interpreter."""
 
+import argparse
 import ast
 import configparser
+import json
 from pathlib import Path
 import shutil
 import subprocess
@@ -14,7 +16,43 @@ ROOT = Path(__file__).resolve().parent
 PACKAGE = "DEMto3D"
 
 
+def check_quality(stage):
+    """Check shipped files, including every Bandit severity level."""
+    python_files = sorted(str(path) for path in stage.rglob("*.py"))
+    subprocess.run(
+        [sys.executable, "-m", "flake8", "--isolated", "--jobs=1",
+         "--max-line-length=120", *python_files],
+        check=True,
+    )
+    print(f"Flake8: 0 issues in {len(python_files)} packaged Python files", flush=True)
+    bandit = subprocess.run(
+        [sys.executable, "-m", "bandit", "-q", "-r", str(stage), "-f", "json"],
+        capture_output=True, text=True,
+    )
+    report = json.loads(bandit.stdout)
+    findings = report.get("results", [])
+    print(f"Bandit (all severities): {len(findings)} issues", flush=True)
+    if bandit.returncode or findings or report.get("errors"):
+        for finding in findings:
+            print(f"{finding['filename']}:{finding['line_number']}: "
+                  f"{finding['test_id']} {finding['issue_text']}")
+        raise RuntimeError("Bandit security checks failed")
+    secrets = subprocess.run(
+        [sys.executable, "-m", "detect_secrets", "scan", "--all-files", str(stage)],
+        capture_output=True, text=True, check=True,
+    )
+    secret_findings = json.loads(secrets.stdout)["results"]
+    count = sum(len(items) for items in secret_findings.values())
+    print(f"Secrets detection: {count} findings", flush=True)
+    if count:
+        raise RuntimeError("Potential secrets detected in release files")
+
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check-quality", action="store_true",
+                        help="Require Flake8, full Bandit and detect-secrets checks")
+    args = parser.parse_args()
     metadata = configparser.ConfigParser(interpolation=None)
     metadata.read(ROOT / "metadata.txt", encoding="utf-8")
     general = metadata["general"]
@@ -73,6 +111,9 @@ def main():
             ast.parse(source.read_text(encoding="utf-8"), filename=str(source))
         if not (stage / general["icon"]).is_file():
             raise ValueError("Plugin icon is missing")
+
+        if args.check_quality:
+            check_quality(stage)
 
         # Run the existing integration tests against the staged release files.
         test_dir = stage / "tests"

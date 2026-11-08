@@ -41,7 +41,8 @@ class RectangleMapTool(QgsMapTool):
         self.rubberBand.reset(geometryType)
 
     def canvasPressEvent(self, e: Any) -> None:
-        assert e is not None
+        if e is None:
+            return
         self.startPoint = self.toMapCoordinates(e.pos())
         self.endPoint = self.startPoint
         self.isEmittingPoint = True
@@ -56,9 +57,8 @@ class RectangleMapTool(QgsMapTool):
         return None
 
     def canvasMoveEvent(self, e: Any) -> None:
-        if not self.isEmittingPoint:
+        if e is None or not self.isEmittingPoint:
             return
-        assert e is not None
         self.endPoint = self.toMapCoordinates(e.pos())
         # Dynamically check shift key state
         self.square_mode = bool(QApplication.keyboardModifiers() & Qt.ShiftModifier)

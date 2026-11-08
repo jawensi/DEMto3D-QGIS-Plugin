@@ -19,6 +19,7 @@
  ***************************************************************************/
 """
 
+import logging
 import os
 from typing import TYPE_CHECKING, Optional
 
@@ -35,6 +36,9 @@ if TYPE_CHECKING:
     from qgis.gui import QgisInterface
 
 
+LOGGER = logging.getLogger(__name__)
+
+
 class DEMto3D:
     """QGIS Plugin Implementation."""
 
@@ -48,11 +52,10 @@ class DEMto3D:
 
         self._install_translator()
 
-        # React to language change (QGIS >= 3.22)
-        try:
-            QgsApplication.localeChanged.connect(self._on_locale_changed)  # type: ignore
-        except Exception:
-            pass
+        # Optional signals must be taken from the running application instance.
+        locale_changed = getattr(QgsApplication.instance(), "localeChanged", None)
+        if locale_changed is not None:
+            locale_changed.connect(self._on_locale_changed)
 
     def _install_translator(self) -> None:
         """
@@ -88,6 +91,13 @@ class DEMto3D:
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
+        project = QgsProject.instance()
+        if project is None:
+            raise RuntimeError("QGIS project is not available")
+        root = project.layerTreeRoot()
+        if root is None:
+            raise RuntimeError("QGIS layer tree is not available")
+
         icon = QIcon(":/plugins/DEMto3D/icons/demto3d.png")
         text = self.tr("DEM 3D printing")
         parent = self.iface.mainWindow()
@@ -102,10 +112,6 @@ class DEMto3D:
 
         self._update_action_enabled()
 
-        project = QgsProject.instance()
-        assert project is not None
-        root = project.layerTreeRoot()
-        assert root is not None
         canvas = self.iface.mapCanvas()
 
         if canvas:
@@ -115,10 +121,9 @@ class DEMto3D:
         project.layersRemoved.connect(lambda *_: self._update_action_enabled())
         root.addedChildren.connect(lambda *_: self._update_action_enabled())
         root.removedChildren.connect(lambda *_: self._update_action_enabled())
-        try:
-            root.visibilityChanged.connect(lambda *_: self._update_action_enabled())
-        except Exception:
-            pass
+        visibility_changed = getattr(root, "visibilityChanged", None)
+        if visibility_changed is not None:
+            visibility_changed.connect(lambda *_: self._update_action_enabled())
 
         QTimer.singleShot(0, self._update_action_enabled)
 
@@ -134,9 +139,11 @@ class DEMto3D:
         Return True if there is at least one *visible* raster layer in the project.
         """
         project = QgsProject.instance()
-        assert project is not None
+        if project is None:
+            return False
         root = project.layerTreeRoot()
-        assert root is not None
+        if root is None:
+            return False
 
         for lyr in project.mapLayers().values():
             if isinstance(lyr, QgsRasterLayer):
@@ -158,13 +165,15 @@ class DEMto3D:
         if not canvas:
             return
         scene = canvas.scene()
+        if scene is None:
+            return
         for attr in ("extent", "divisions"):
             item = getattr(dlg, attr, None)
             if item is not None:
                 try:
                     scene.removeItem(item)  # type: ignore[arg-type]
-                except Exception:
-                    pass
+                except RuntimeError:
+                    LOGGER.debug("Canvas overlay %s is no longer available", attr, exc_info=True)
                 finally:
                     setattr(dlg, attr, None)
 

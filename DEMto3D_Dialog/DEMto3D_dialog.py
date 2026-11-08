@@ -193,8 +193,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.rect_map_tool.reset()
             self.rect_map_tool.deactivate()
             action = self.iface.actionPan()
-            assert action is not None
-            action.trigger()
+            if action is not None:
+                action.trigger()
 
     # region Extension functions
     def getFileNameParams(self):
@@ -390,7 +390,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 # Add a new feature and assign the geometry
                 feat = QgsFeature()
                 feat.setGeometry(QgsGeometry.fromPolygonXY(points))
-                assert prov is not None
+                if prov is None:
+                    raise RuntimeError("Cannot access the temporary vector layer provider")
                 prov.addFeatures([feat])
                 # Update extent of the layer
                 layer.updateExtents()
@@ -543,13 +544,13 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
     def custom_extent(self):
         messageBar = self.iface.messageBar()
-        assert messageBar is not None
-        messageBar.pushMessage(
-            "Info",
-            self.tr("Click and drag the mouse to draw print extent"),
-            level=Qgis.MessageLevel.Info,
-            duration=3,
-        )
+        if messageBar is not None:
+            messageBar.pushMessage(
+                "Info",
+                self.tr("Click and drag the mouse to draw print extent"),
+                level=Qgis.MessageLevel.Info,
+                duration=3,
+            )
 
         if self.extent:
             self.canvas.scene().removeItem(self.extent)
@@ -586,8 +587,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.rect_Params = rectParams
             self.paint_extent(rectParams)
             action = self.iface.actionPan()
-            assert action is not None
-            action.trigger()
+            if action is not None:
+                action.trigger()
             self.get_z_max_z_min()
             self.ini_dimensions()
         else:
@@ -817,7 +818,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             # Add a new feature and assign the geometry
             feat = QgsFeature()
             feat.setGeometry(QgsGeometry.fromPolygonXY(geom))
-            assert prov is not None
+            if prov is None:
+                raise RuntimeError("Cannot access the temporary vector layer provider")
             prov.addFeatures([feat])
             # Update extent of the layer
             PolygonLayer.updateExtents()
@@ -1055,7 +1057,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             projected = False
 
         provider = self.layer.dataProvider()
-        assert provider is not None
+        if provider is None:
+            return None
         path = provider.dataSourceUri()
         path_layer = path.split("|")
         self.z_scale = self.ui.ZScaleDoubleSpinBox.value()

@@ -27,6 +27,7 @@ repository=https://github.com/jawensi/DEMto3D-QGIS-Plugin
 
 # Uncomment the following line and add your changelog:
 changelog=
+    Replace runtime assertions and handle optional signals and deleted canvas overlays explicitly.
     Clean up code-quality findings and improve STL file error handling.
     Improve terrain mesh generation using NumPy and export cancellation cleanup.
     Add square selection with the Shift key.
