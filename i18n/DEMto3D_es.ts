@@ -101,12 +101,12 @@
 	<message>
         <location filename="DEMto3D_dialog.py" line="401"/>
         <source>Terrain inversion:</source>
-        <translation>Inversion del relieve:</translation>
+        <translation>Inversión del relieve:</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="401"/>
         <source>enable</source>
-        <translation>habilitar</translation>
+        <translation>Habilitar</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="401"/>
@@ -132,7 +132,7 @@
     <message>
         <location filename="DEMto3D_dialog_base.py" line="394"/>
         <source>Height (m):</source>
-        <translation>Cota (m):</translation>
+        <translation>Altura (m):</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="396"/>
@@ -147,7 +147,7 @@
     <message>
         <location filename="DEMto3D_dialog.py" line="399"/>
         <source>Base height (mm):</source>
-        <translation>Altura base (mm):</translation>
+        <translation>Altura de la base (mm):</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="399"/>
@@ -174,7 +174,7 @@
     <message>
         <location filename="DEMto3D_dialog.py" line="403"/>
         <source>Settings</source>
-        <translation>Parametros</translation>
+        <translation>Parámetros</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="402"/>
@@ -190,6 +190,21 @@
         <location filename="DEMto3D_dialog.py" line="404"/>
         <source>Close</source>
         <translation>Cerrar</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="479"/>
+        <source>Output Format</source>
+        <translation>Formato de salida</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="480"/>
+        <source>Binary Format</source>
+        <translation>Formato binario</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="481"/>
+        <source>ASCII Format</source>
+        <translation>Formato ASCII</translation>
     </message>
 </context>
 

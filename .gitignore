@@ -21,10 +21,10 @@ i18n/*.qm
 zip_build/
 *.zip
 resourcesCompile.bat
+scripts/
 
 # Configuración y metadatos locales
 pyproject.toml
-.gitignore
 
 # Otros archivos temporales
 *.bak

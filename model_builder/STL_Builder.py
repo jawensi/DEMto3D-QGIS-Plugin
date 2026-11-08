@@ -5,8 +5,8 @@
                                  A QGIS plugin
  Description
                              -------------------
-        copyright            : (C) 2025 by Javier
-        email                : demto3d@gmail.com
+        copyright            : (C) 2026 by Jawensi
+        email                : info@demto3d.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -22,6 +22,7 @@
 import collections
 from io import BufferedWriter
 import math
+import os
 import struct
 from builtins import range, str
 from typing import Any
@@ -54,6 +55,10 @@ bevel_segments: int = 15
 #     P1 +--------------- P2
 
 
+class _ExportCancelled(Exception):
+    """Stop writing the current mesh when the user cancels export."""
+
+
 class STL(QThread):
     """Class where is built the stl file from the mesh point that decribe the model surface"""
 
@@ -67,6 +72,7 @@ class STL(QThread):
         self.stl_file = stl_file
         self.matrix_dem: np.ndarray = dem_matrix
         self.quit = False
+        self.output_files = []
 
     def run(self):
         x_models = self.parameters["divideCols"]
@@ -81,9 +87,11 @@ class STL(QThread):
         spacing = self.parameters["spacing_mm"]
         for i in range(y_models):
             for j in range(x_models):
+                if self.quit:
+                    return
                 path = self.stl_file
                 if y_models * x_models > 1:
-                    path = self.stl_file.split(".")[0] + "_" + str(i) + str(j) + ".stl"
+                    path = os.path.splitext(self.stl_file)[0] + "_" + str(i) + str(j) + ".stl"
                 xmin_model = width_model * j
                 ymin_model = self.parameters["height"] - i * high_model - high_model
                 xmax_model = width_model * j + width_model
@@ -98,139 +106,24 @@ class STL(QThread):
                     xmax_model,
                     ymax_model,
                 )
-                self.write_binary_np(path, dem_model)
+                self.output_files.append(path)
+                if self.parameters.get("stl_format", "binary") == "ascii":
+                    self.write_ascii(path, dem_model)
+                else:
+                    self.write_binary_np(path, dem_model)
 
-    def write_ascii(self):
-        f = open(self.stl_file, "w")
-        f.write("solid model\n")
-
-        dem = self.face_dem_vector(self.matrix_dem)
-        for face in dem:
-            self.updateProgress.emit()
-            f.write("   facet normal 0 0 -1 " + "\n")
-            f.write("       outer loop\n")
-            f.write(
-                "           vertex "
-                + str(getattr(face[1], "x"))
-                + " "
-                + str(getattr(face[1], "y"))
-                + " 0"
-                + "\n"
-            )
-            f.write(
-                "           vertex "
-                + str(getattr(face[0], "x"))
-                + " "
-                + str(getattr(face[0], "y"))
-                + " 0"
-                + "\n"
-            )
-            f.write(
-                "           vertex "
-                + str(getattr(face[2], "x"))
-                + " "
-                + str(getattr(face[2], "y"))
-                + " 0"
-                + "\n"
-            )
-            f.write("       endloop\n")
-            f.write("   endfacet\n")
-            if self.quit:
-                f.close()
-                return 0
-
-        wall = self.face_wall_vector(self.matrix_dem)
-        for face in wall:
-            f.write(
-                "   facet normal "
-                + str(getattr(face[3], "normal_x"))
-                + " "
-                + str(getattr(face[3], "normal_y"))
-                + " "
-                + str(getattr(face[3], "normal_z"))
-                + "\n"
-            )
-            f.write("       outer loop\n")
-            f.write(
-                "           vertex "
-                + str(getattr(face[0], "x"))
-                + " "
-                + str(getattr(face[0], "y"))
-                + " "
-                + str(getattr(face[0], "z"))
-                + "\n"
-            )
-            f.write(
-                "           vertex "
-                + str(getattr(face[1], "x"))
-                + " "
-                + str(getattr(face[1], "y"))
-                + " "
-                + str(getattr(face[1], "z"))
-                + "\n"
-            )
-            f.write(
-                "           vertex "
-                + str(getattr(face[2], "x"))
-                + " "
-                + str(getattr(face[2], "y"))
-                + " "
-                + str(getattr(face[2], "z"))
-                + "\n"
-            )
-            f.write("       endloop\n")
-            f.write("   endfacet\n")
-            if self.quit:
-                f.close()
-                return 0
-
-        for face in dem:
-            self.updateProgress.emit()
-            f.write(
-                "   facet normal "
-                + str(getattr(face[3], "normal_x"))
-                + " "
-                + str(getattr(face[3], "normal_y"))
-                + " "
-                + str(getattr(face[3], "normal_z"))
-                + "\n"
-            )
-            f.write("       outer loop\n")
-            f.write(
-                "           vertex "
-                + str(getattr(face[0], "x"))
-                + " "
-                + str(getattr(face[0], "y"))
-                + " "
-                + str(getattr(face[0], "z"))
-                + "\n"
-            )
-            f.write(
-                "           vertex "
-                + str(getattr(face[1], "x"))
-                + " "
-                + str(getattr(face[1], "y"))
-                + " "
-                + str(getattr(face[1], "z"))
-                + "\n"
-            )
-            f.write(
-                "           vertex "
-                + str(getattr(face[2], "x"))
-                + " "
-                + str(getattr(face[2], "y"))
-                + " "
-                + str(getattr(face[2], "z"))
-                + "\n"
-            )
-            f.write("       endloop\n")
-            f.write("   endfacet\n")
-            if self.quit:
-                f.close()
-                return 0
-
-        f.write("endsolid model\n")
-        f.close()
+    def write_ascii(self, fileName, demData):
+        """Write the same terrain, base and walls as the binary NumPy exporter."""
+        with open(fileName, "w", encoding="ascii") as stream:
+            stream.write("solid model\n")
+            try:
+                self.write_face_dem_np(demData, stream)
+                if self.parameters["has_borders"]:
+                    self.write_face_base_np(demData, stream)
+                    self.write_face_wall_np(demData, stream)
+            except _ExportCancelled:
+                return
+            stream.write("endsolid model\n")
 
     def write_binary(self, fileName: str, demData: list[list[pto]]):
         try:
@@ -680,16 +573,17 @@ class STL(QThread):
                 struct.pack(BINARY_HEADER, b"Python Binary STL Writer", counter)
             )
             stream.close()
-        except:
-            stream.close()    
+        except (IOError, OSError, _ExportCancelled):
+            stream.close()
 
     def writeStlBaseFace(self, stream, p1, p2, p3):
-        self.updateProgress.emit()
-        data = [0, 0, -1, p2[0], p2[1], 0, p1[0], p1[1], 0, p3[0], p3[1], 0, 0]
-        stream.write(struct.pack(BINARY_FACET, *data))
-        if self.quit:
-            stream.close()
-            return 0
+        self.writeStlFace(
+            stream,
+            [p2[0], p2[1], 0],
+            [p1[0], p1[1], 0],
+            [p3[0], p3[1], 0],
+            base_normal,
+        )
 
     def write_face_base_np(self, matrix_dem: np.ndarray, stream: BufferedWriter):
         rows, cols = matrix_dem.shape[:2]
@@ -721,27 +615,19 @@ class STL(QThread):
 
     ####################################################
 
-    def writeStlFace(self, stream: BufferedWriter, p1: list[float], p2: list[float], p3: list[float], normal: list[float]):
-        self.updateProgress.emit()
-        data = [
-            normal[0],
-            normal[1],
-            normal[2],
-            p1[0],
-            p1[1],
-            p1[2],
-            p2[0],
-            p2[1],
-            p2[2],
-            p3[0],
-            p3[1],
-            p3[2],
-            0,
-        ]
-        stream.write(struct.pack(BINARY_FACET, *data))
+    def writeStlFace(self, stream, p1, p2, p3, normal):
         if self.quit:
-            stream.close()
-            return 0
+            raise _ExportCancelled()
+        self.updateProgress.emit()
+        if "b" in stream.mode:
+            data = [*normal, *p1, *p2, *p3, 0]
+            stream.write(struct.pack(BINARY_FACET, *data))
+        else:
+            stream.write("   facet normal {} {} {}\n".format(*normal))
+            stream.write("       outer loop\n")
+            for point in (p1, p2, p3):
+                stream.write("           vertex {} {} {}\n".format(*point))
+            stream.write("       endloop\n   endfacet\n")
 
     def write_face_dem_np(self, matrix_dem: np.ndarray, stream: BufferedWriter):
         rows, cols = matrix_dem.shape[:2]

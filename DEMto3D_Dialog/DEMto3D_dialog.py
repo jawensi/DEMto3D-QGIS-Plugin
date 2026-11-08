@@ -5,8 +5,8 @@
                                  A QGIS plugin
  Description
                              -------------------
-        copyright            : (C) 2025 by Javier
-        email                : demto3d@gmail.com
+        copyright            : (C) 2026 by Jawensi
+        email                : info@demto3d.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -228,6 +228,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                     "width": parameters["width"],
                     "z_scale": parameters["z_scale"],
                     "has_borders": parameters["has_borders"],
+                    "stl_format": parameters["stl_format"],
                     "borders": parameters["borders"],
                     "scale": parameters["scale"],
                     "scale_h": parameters["scale_h"],
@@ -341,9 +342,12 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                         self.ui.SidesCheckBox.setChecked(hasbordes)
                         self.ui.borderModelLineEdit.setEnabled(hasbordes)
 
+                    stl_format = parameters.get("stl_format", "binary")
+                    self.ui.radioButton_ascii.setChecked(stl_format == "ascii")
+                    self.ui.radioButton_binary.setChecked(stl_format != "ascii")
                     self.paint_extent(self.rect_Params)
 
-                except:
+                except Exception:
                     QMessageBox.warning(
                         self, self.tr("Attention"), self.tr("Wrong file")
                     )
@@ -1195,4 +1199,5 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             "divideCols": cols,
             "borders": borders,
             "has_borders": has_borders,
+            "stl_format": "ascii" if self.ui.radioButton_ascii.isChecked() else "binary",
         }

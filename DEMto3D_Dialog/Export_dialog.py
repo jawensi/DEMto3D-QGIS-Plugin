@@ -5,8 +5,8 @@
                                  A QGIS plugin
  Description
                              -------------------
-        copyright            : (C) 2025 by Javier
-        email                : demto3d@gmail.com
+        copyright            : (C) 2026 by Jawensi
+        email                : info@demto3d.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -113,7 +113,9 @@ class Export(QDialog):
         self.prepareUi(False)
         self.mainDlg.ui.progressBar.setValue(0)
         if self.STLBuilder.quit:
-            os.remove(self.stl_file)
+            for path in self.STLBuilder.output_files:
+                if os.path.exists(path):
+                    os.remove(path)
             QMessageBox.information(
                 self.mainDlg,
                 self.mainDlg.tr("Attention"),
@@ -132,6 +134,7 @@ class Export(QDialog):
         else:
             self.mainDlg.ui.ProgressLabel.hide()
         self.mainDlg.ui.cancelProgressToolButton.setEnabled(start)
+        self.mainDlg.ui.groupBox_2.setEnabled(not start)
         self.mainDlg.ui.groupBox.setEnabled(not start)
         self.mainDlg.ui.groupBox_1.setEnabled(not start)
         self.mainDlg.ui.groupBox_3.setEnabled(not start)

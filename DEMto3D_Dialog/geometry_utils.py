@@ -42,6 +42,7 @@ class ParametersDict(TypedDict):
     divideCols: int
     borders: float
     has_borders: bool
+    stl_format: str
 
 
 def rectangle2pCreate(

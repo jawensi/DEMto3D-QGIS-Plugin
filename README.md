@@ -19,7 +19,7 @@ DEMto3D es una extensión que permite la exportación de MDE a formato STL.
 3. Haz clic en Instalar.
 
 **Opción manual:**
-1. Descarga el archivo ZIP del plugin desde [demto3d.com](http://demto3d.com) o desde este repositorio.
+1. Descarga el archivo ZIP del plugin desde [demto3d.com](https://demto3d.com) o desde este repositorio.
 2. En QGIS, ve a Complementos > Administrar e instalar complementos > Instalar desde ZIP.
 3. Selecciona el archivo descargado y sigue las instrucciones.
 
@@ -27,13 +27,14 @@ DEMto3D es una extensión que permite la exportación de MDE a formato STL.
 1. Carga una capa raster de MDE en QGIS.
 2. Abre el plugin DEMto3D desde el menú Complementos.
 3. Configura la región, escala y parámetros de impresión.
-4. Exporta el modelo a STL y ábrelo en tu software de impresión 3D.
+4. Selecciona el formato de salida: binario (predeterminado) o ASCII.
+5. Exporta el modelo a STL y ábrelo en tu software de impresión 3D.
 
 ## Ejemplo visual
 ![Ejemplo de uso](https://demto3d.com/img/demto3d_example.png)
 
 ## Documentación y ayuda
-Más información, manual de usuario y guía de instalación en [demto3d.com](http://demto3d.com)
+Más información, manual de usuario y guía de instalación en [demto3d.com](https://demto3d.com)
 
 ## Créditos
 DEMto3D ha sido desarrollado como parte del Proyecto Fin de Carrera:
@@ -41,7 +42,7 @@ DEMto3D ha sido desarrollado como parte del Proyecto Fin de Carrera:
 de la Ingeniería en Geodesía y Cartografía de la Universidad de Jaén.
 
 Desarrollado por: Fco Javier Venceslá Simón
-Contacto: demto3d@gmail.com
+Contacto: info@demto3d.com
 
 ## Licencia
 Este proyecto está licenciado bajo la GNU GPL v2 o superior.
@@ -72,7 +73,7 @@ DEMto3D allows export DEM to STL format.
 3. Click Install.
 
 **Manual option:**
-1. Download the plugin ZIP file from [demto3d.com](http://demto3d.com) or from this repository.
+1. Download the plugin ZIP file from [demto3d.com](https://demto3d.com) or from this repository.
 2. In QGIS, go to Plugins > Manage and Install Plugins > Install from ZIP.
 3. Select the downloaded file and follow the instructions.
 
@@ -80,13 +81,14 @@ DEMto3D allows export DEM to STL format.
 1. Load a DEM raster layer in QGIS.
 2. Open the DEMto3D plugin from the Plugins menu.
 3. Set the region, scale, and print parameters.
-4. Export the model to STL and open it in your 3D printing software.
+4. Choose the output format: Binary (default) or ASCII.
+5. Export the model to STL and open it in your 3D printing software.
 
 ## Visual example
 ![Usage example](https://demto3d.com/img/demto3d_example.png)
 
 ## Documentation and help
-More information, user manual and installation guide at [demto3d.com](http://demto3d.com)
+More information, user manual and installation guide at [demto3d.com](https://demto3d.com)
 
 ## Credits
 DEMto3D has been developed as part of the thesis:
@@ -94,7 +96,7 @@ DEMto3D has been developed as part of the thesis:
 of the Master Degree in Cartography and Geodesy of the University of Jaén
 
 Developed by: Francisco Javier Venceslá Simón
-Contact: demto3d@gmail.com
+Contact: info@demto3d.com
 
 ## License
 This project is licensed under the GNU GPL v2 or later.
