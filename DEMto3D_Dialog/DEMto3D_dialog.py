@@ -29,6 +29,7 @@ from typing import TYPE_CHECKING, Optional
 from qgis.analysis import QgsZonalStatistics
 from qgis.core import (
     Qgis,
+    QgsApplication,
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
     QgsFeature,
@@ -42,8 +43,8 @@ from qgis.core import (
     QgsVectorLayer,
 )
 from qgis.gui import QgsMapCanvas, QgsMapLayerComboBox, QgsRubberBand
-from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtGui import QColor, QCursor
+from qgis.PyQt.QtCore import Qt, QUrl
+from qgis.PyQt.QtGui import QColor, QCursor, QDesktopServices
 
 # from osgeo import gdal
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QFileDialog, QMenu, QMessageBox
@@ -172,12 +173,19 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
         self.ui.CancelToolButton.clicked.connect(self.reject)
         self.ui.STLToolButton.clicked.connect(self.do_export)
+        self.ui.getProButton.clicked.connect(self.open_pro_page)
         self.rejected.connect(self.reject_func)
         # endregion
 
         self.ui.ProgressLabel.hide()
         self.ui.groupBox.hide()
         self.ui.groupBox_2.hide()
+
+    def open_pro_page(self):
+        locale = QgsApplication.locale() or "en"
+        language = locale.replace("-", "_").split("_", 1)[0].lower()
+        web_language = "es" if language == "es" else "en"
+        QDesktopServices.openUrl(QUrl(f"https://demto3d.com/{web_language}/#pro"))
 
     def setCanvasCRS(self):
         self.map_crs = self.canvas.mapSettings().destinationCrs()

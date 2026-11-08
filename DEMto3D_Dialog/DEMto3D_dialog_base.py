@@ -15,7 +15,7 @@ class Ui_DEMto3DDialogBase(object):
     def setupUi(self, DEMto3DDialogBase):
         DEMto3DDialogBase.setObjectName("DEMto3DDialogBase")
         DEMto3DDialogBase.setWindowModality(QtCore.Qt.WindowModal)
-        DEMto3DDialogBase.resize(450, 640)
+        DEMto3DDialogBase.resize(450, 665)
         icon = QtGui.QIcon()
         icon.addPixmap(
             QtGui.QPixmap(":/plugins/DEMto3D/icons/demto3d.png"),
@@ -307,6 +307,16 @@ class Ui_DEMto3DDialogBase(object):
         self.gridLayout_2.addWidget(self.label_21, 1, 0, 1, 1)
         self.verticalLayout_5.addLayout(self.gridLayout_2)
         self.verticalLayout_8.addWidget(self.groupBox_5)
+        self.getProButton = QtWidgets.QPushButton(self.scrollAreaWidgetContents)
+        self.getProButton.setStyleSheet(
+            "QPushButton { background-color: #00aeef; color: white; font-weight: bold; padding: 7px 12px; border: none; border-radius: 4px; }\n"
+            "QPushButton:hover { background-color: #009bd6; }\n"
+            "QPushButton:pressed { background-color: #0088bc; }\n"
+            "QPushButton:focus { border: 1px solid #006c96; }"
+        )
+        self.getProButton.setAutoDefault(False)
+        self.getProButton.setObjectName("getProButton")
+        self.verticalLayout_8.addWidget(self.getProButton)
         self.groupBox = QtWidgets.QGroupBox(self.scrollAreaWidgetContents)
         self.groupBox.setObjectName("groupBox")
         self.horizontalLayout_7 = QtWidgets.QHBoxLayout(self.groupBox)
@@ -511,6 +521,12 @@ class Ui_DEMto3DDialogBase(object):
         self.HeightModelLabel.setText(_translate("DEMto3DDialogBase", "0 mm"))
         self.label_10.setText(_translate("DEMto3DDialogBase", "Highest point:"))
         self.label_21.setText(_translate("DEMto3DDialogBase", "Base height (mm):"))
+        self.getProButton.setToolTip(
+            _translate("DEMto3DDialogBase", "Explore new features with DEMto3D PRO")
+        )
+        self.getProButton.setText(
+            _translate("DEMto3DDialogBase", "Discover DEMto3D PRO")
+        )
         self.groupBox.setTitle(_translate("DEMto3DDialogBase", "Sides"))
         self.borderModelLineEdit.setText(_translate("DEMto3DDialogBase", "0"))
         self.SidesCheckBox.setText(_translate("DEMto3DDialogBase", "Build sides"))

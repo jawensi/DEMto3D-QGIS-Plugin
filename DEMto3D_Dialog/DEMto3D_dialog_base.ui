@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
-    <height>600</height>
+    <width>450</width>
+    <height>640</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -577,6 +577,25 @@
            </layout>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="getProButton">
+         <property name="toolTip">
+          <string>Explore new features with DEMto3D PRO</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton { background-color: #00aeef; color: white; font-weight: bold; padding: 7px 12px; border: none; border-radius: 4px; }
+QPushButton:hover { background-color: #009bd6; }
+QPushButton:pressed { background-color: #0088bc; }
+QPushButton:focus { border: 1px solid #006c96; }</string>
+         </property>
+         <property name="text">
+          <string>Discover DEMto3D PRO</string>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
+         </property>
         </widget>
        </item>
        <item>

@@ -18,6 +18,14 @@
 <context>
     <name>DEMto3DDialogBase</name>
     <message>
+        <source>Explore new features with DEMto3D PRO</source>
+        <translation>Explora nuevas funcionalidades con DEMto3D PRO</translation>
+    </message>
+    <message>
+        <source>Discover DEMto3D PRO</source>
+        <translation>Descubre DEMto3D PRO</translation>
+    </message>
+    <message>
         <location filename="DEMto3D_dialog_base.py" line="364"/>
         <source>DEM 3D printing</source>
         <translation>Impresión 3D de MDE</translation>
