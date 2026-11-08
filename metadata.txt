@@ -9,7 +9,7 @@ qgisMaximumVersion=4.99
 
 # Provide a brief description of the plugin
 description=3D Printing of terrain models.
-version=4.0.0
+version=4.0.1
 author=Francisco Javier Venceslá Simón
 email=info@demto3d.com
 license=GNU General Public License v2.0 or later
@@ -26,7 +26,12 @@ repository=https://github.com/jawensi/DEMto3D-QGIS-Plugin
 
 # Uncomment the following line and add your changelog:
 changelog=
-    Update for QGIS4 and Qt6
+    4.0.1
+    - Add a Discover DEMto3D PRO button with a localized website link.
+    - Update Spanish and French translations.
+    - Replace map extent toolbar icons with scalable SVG icons.
+    4.0.0
+    - Update for QGIS 4 and Qt 6.
 
 # Tags are comma separated with spaces allowed
 tags=dem, 3D printing, raster, 3D, relief terrain, STL

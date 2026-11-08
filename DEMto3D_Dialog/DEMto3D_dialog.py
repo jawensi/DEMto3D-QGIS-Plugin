@@ -164,8 +164,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     def open_pro_page(self):
         locale = QgsApplication.locale() or "en"
         language = locale.replace("-", "_").split("_", 1)[0].lower()
-        web_language = "es" if language == "es" else "en"
-        QDesktopServices.openUrl(QUrl(f"https://demto3d.com/{web_language}/#pro"))
+        web_path = "es/comparar" if language == "es" else "en/compare"
+        QDesktopServices.openUrl(QUrl(f"https://demto3d.com/{web_path}/"))
 
     def setCanvasCRS(self):
         try:
