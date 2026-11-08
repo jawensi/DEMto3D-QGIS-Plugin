@@ -145,11 +145,6 @@
         <translation>Cota máxima:</translation>
     </message>
     <message>
-        <location filename="DEMto3D_dialog_base.py" line="471"/>
-        <source>Height (mm):</source>
-        <translation>Altura (mm):</translation>
-    </message>
-    <message>
         <location filename="DEMto3D_dialog.py" line="399"/>
         <source>Base height (mm):</source>
         <translation>Altura de la base (mm):</translation>

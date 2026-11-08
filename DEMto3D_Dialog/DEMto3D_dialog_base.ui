@@ -114,14 +114,14 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap resource="../resources.qrc">:/plugins/DEMto3D/icons/downleft.png</pixmap>
+                  <pixmap resource="../resources.qrc">:/plugins/DEMto3D/icons/downleft.svg</pixmap>
                  </property>
                 </widget>
                </item>
                <item row="0" column="0">
                 <widget class="QLabel" name="label">
                  <property name="pixmap">
-                  <pixmap resource="../resources.qrc">:/plugins/DEMto3D/icons/upRight.png</pixmap>
+                  <pixmap resource="../resources.qrc">:/plugins/DEMto3D/icons/upRight.svg</pixmap>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -242,7 +242,7 @@
               </property>
               <property name="icon">
                <iconset resource="../resources.qrc">
-                <normaloff>:/plugins/DEMto3D/icons/zoom-extent.png</normaloff>:/plugins/DEMto3D/icons/zoom-extent.png</iconset>
+                <normaloff>:/plugins/DEMto3D/icons/zoom-extent.svg</normaloff>:/plugins/DEMto3D/icons/zoom-extent.svg</iconset>
               </property>
              </widget>
             </item>
@@ -262,7 +262,7 @@
               </property>
               <property name="icon">
                <iconset resource="../resources.qrc">
-                <normaloff>:/plugins/DEMto3D/icons/zoom-layer.png</normaloff>:/plugins/DEMto3D/icons/zoom-layer.png</iconset>
+                <normaloff>:/plugins/DEMto3D/icons/zoom-layer.svg</normaloff>:/plugins/DEMto3D/icons/zoom-layer.svg</iconset>
               </property>
              </widget>
             </item>
@@ -285,7 +285,7 @@
               </property>
               <property name="icon">
                <iconset resource="../resources.qrc">
-                <normaloff>:/plugins/DEMto3D/icons/zoom-region.png</normaloff>:/plugins/DEMto3D/icons/zoom-region.png</iconset>
+                <normaloff>:/plugins/DEMto3D/icons/zoom-region.svg</normaloff>:/plugins/DEMto3D/icons/zoom-region.svg</iconset>
               </property>
              </widget>
             </item>
@@ -543,7 +543,7 @@
             <item row="0" column="0">
              <widget class="QLabel" name="label_17">
               <property name="text">
-               <string>Height (mm):</string>
+               <string>Height (m):</string>
               </property>
               <property name="buddy">
                <cstring>BaseHeightLineEdit</cstring>

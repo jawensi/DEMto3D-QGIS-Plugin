@@ -1,12 +1,10 @@
 <RCC>
     <qresource prefix="/plugins/DEMto3D" >
-        <file>icons/downright.png</file>
-        <file>icons/upleft.png</file>
-        <file>icons/downleft.png</file>
-        <file>icons/upRight.png</file>
-        <file>icons/zoom-region.png</file>
-        <file>icons/zoom-extent.png</file>
-        <file>icons/zoom-layer.png</file>
+        <file>icons/downleft.svg</file>
+        <file>icons/upRight.svg</file>
+        <file>icons/zoom-region.svg</file>
+        <file>icons/zoom-extent.svg</file>
+        <file>icons/zoom-layer.svg</file>
         <file>icons/demto3d.png</file>
     </qresource>
 </RCC>

@@ -145,11 +145,6 @@
         <translation>Côte maximale:</translation>
     </message>
     <message>
-        <location filename="DEMto3D_dialog_base.py" line="471"/>
-        <source>Height (mm):</source>
-        <translation>Hauteur (mm):</translation>
-    </message>
-    <message>
         <source>Model height:</source>
         <translation>Hauteur du modèle:</translation>
     </message>
