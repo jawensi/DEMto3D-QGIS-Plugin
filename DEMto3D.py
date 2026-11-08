@@ -23,11 +23,12 @@ import os
 from typing import TYPE_CHECKING, Optional
 
 from qgis.core import QgsApplication, QgsProject, QgsRasterLayer
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTimer, QTranslator
+from qgis.PyQt.QtCore import QCoreApplication, QTimer, QTranslator
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QMessageBox
 
-from . import resources
+# Importing the generated module registers the embedded Qt icons.
+from . import resources  # noqa: F401
 from .DEMto3D_Dialog import DEMto3D_dialog
 
 if TYPE_CHECKING:

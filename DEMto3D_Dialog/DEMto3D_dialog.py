@@ -49,7 +49,6 @@ from qgis.PyQt.QtGui import QColor, QCursor, QDesktopServices
 # from osgeo import gdal
 from qgis.PyQt.QtWidgets import QApplication, QDialog, QFileDialog, QMenu, QMessageBox
 
-from ..model_builder.Model_Builder import Model
 from . import Export_dialog, SelectLayer_dialog
 from .DEMto3D_dialog_base import Ui_DEMto3DDialogBase
 from .geometry_utils import (
@@ -144,7 +143,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ui.WidthGeoLineEdit.returnPressed.connect(self.upload_extent_fromWH)
         self.ui.HeightGeoLineEdit.returnPressed.connect(self.upload_extent_fromWH)
 
-
         # endregion
 
         # region DIMENSION ACTION
@@ -218,7 +216,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             + self.getFileNameParams()
             + "_param.txt"
         )
-        if parameters != None:
+        if parameters is not None:
             setting_file = QFileDialog.getSaveFileName(
                 self, self.tr("Export settings"), file_name, "*.txt"
             )
@@ -409,7 +407,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 QMessageBox.information(
                     self, self.tr("Attention"), self.tr("Extension exported")
                 )
-        except:
+        except Exception:
             QMessageBox.warning(
                 self, self.tr("Attention"), self.tr("Fill the data correctly")
             )
@@ -430,7 +428,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         layer_name = (
             self.lastSavingPath + self.layer.name() + self.getFileNameParams() + ".stl"
         )
-        if parameters != None:
+        if parameters is not None:
             row_stl = int(math.ceil(self.height / parameters["spacing_mm"]) + 1)
             col_stl = int(math.ceil(self.width / parameters["spacing_mm"]) + 1)
             tooMuchPoints = row_stl * col_stl > 500000
@@ -955,7 +953,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.ui.WidthLineEdit.clear()
 
     def upload_size_from_scale(self):
-        if self.changeScale == False:
+        if not self.changeScale:
             self.changeScale = True
         else:
             try:

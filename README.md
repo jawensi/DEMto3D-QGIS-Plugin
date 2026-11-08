@@ -6,8 +6,11 @@ Extensión para impresión 3D de MDE (Modelos Digitales de Elevaciones) sobre QG
 DEMto3D es una extensión que permite la exportación de MDE a formato STL.
 
 ## Requisitos previos
+Esta rama admite QGIS 3.30–3.99 con Qt 5 y Python 3.9 o posterior.
+El paquete se verifica con QGIS 3.44.11.
+
 - QGIS 3.x instalado ([descargar QGIS](https://qgis.org/es/site/forusers/download.html))
-- Python 3.7+
+- Python 3.9+
 - Dependencias: PyQt5, numpy, osgeo (GDAL)
 
 
@@ -60,8 +63,12 @@ Extension to 3D printing DEM (Digital Elevation Model) in QGIS.
 DEMto3D allows export DEM to STL format.
 
 ## Requirements
+
+This branch supports QGIS 3.30–3.99 with Qt 5 and Python 3.9 or later.
+Release checks run on QGIS 3.44.11. For QGIS 4, use the separate 4.x release
+available in the QGIS plugin repository.
 - QGIS 3.x installed ([download QGIS](https://qgis.org/en/site/forusers/download.html))
-- Python 3.7+
+- Python 3.9+
 - Dependencies: PyQt5, numpy, osgeo (GDAL)
 
 

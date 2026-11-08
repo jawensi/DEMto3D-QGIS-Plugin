@@ -124,6 +124,23 @@ class ExportTests(unittest.TestCase):
                 self.assertTrue(builder.quit)
                 self.assertEqual(len(builder.output_files), 1)
 
+    def test_legacy_binary_export_closes_file_and_propagates_mesh_errors(self):
+        target = self.directory / "invalid.stl"
+        builder = STL(self.params, str(target), self.matrix)
+        stream = target.open("wb")
+        with patch("builtins.open", return_value=stream), patch.object(
+            builder, "face_dem_vector", side_effect=ValueError("invalid mesh")
+        ):
+            with self.assertRaisesRegex(ValueError, "invalid mesh"):
+                builder.write_binary(str(target), self.matrix)
+        self.assertTrue(stream.closed)
+
+    def test_legacy_binary_export_propagates_file_open_errors(self):
+        builder = STL(self.params, str(self.directory), self.matrix)
+        with patch("builtins.open", side_effect=OSError("cannot write STL")):
+            with self.assertRaisesRegex(OSError, "cannot write STL"):
+                builder.write_binary(str(self.directory), self.matrix)
+
     def test_cancelled_split_export_removes_generated_parts(self):
         module = importlib.import_module(PACKAGE + ".DEMto3D_Dialog.Export_dialog")
         from qgis.PyQt.QtWidgets import QMessageBox

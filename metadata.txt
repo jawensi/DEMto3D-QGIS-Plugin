@@ -4,16 +4,17 @@
 
 [general]
 name=DEMto3D
-qgisMinimumVersion=2.99
+qgisMinimumVersion=3.30
 qgisMaximumVersion=3.99
 
 # Provide a brief description of the plugin
 description=3D Printing of terrain models.
-version=3.6
+version=3.7
 author=Francisco Javier Venceslá Simón
 email=info@demto3d.com
 license=GNU General Public License v2.0 or later
 about=DEMto3D is the first tool that links GIS (Geographic Information System) and 3D printing. DEMto3D allows export raster DEM to STL format ready to 3D printing.
+    Requires QGIS 3.30 or later in the QGIS 3 series, with Python 3.9+, PyQt5, NumPy and GDAL (provided by standard QGIS installations).
 
 icon=icons/demto3d.png
 homepage=https://demto3d.com/
@@ -26,12 +27,11 @@ repository=https://github.com/jawensi/DEMto3D-QGIS-Plugin
 
 # Uncomment the following line and add your changelog:
 changelog=
-    Change pluging icon. 
-    Resize default dialog dimension.
-    Inverse height with mirror in X axis.
-    Add input for base height.
-    Fix some bugs due to precission.
-    Update pyQgis fruntion parameters
+    Clean up code-quality findings and improve STL file error handling.
+    Improve terrain mesh generation using NumPy and export cancellation cleanup.
+    Add square selection with the Shift key.
+    Update plugin icons, Spanish and French translations, and add a DEMto3D PRO link.
+    Require QGIS 3.30 or later in the QGIS 3 series.
 
 # Tags are comma separated with spaces allowed
 tags=dem, 3D printing, raster, 3D, relief terrain, STL

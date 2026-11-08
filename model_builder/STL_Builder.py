@@ -25,7 +25,6 @@ import math
 import os
 import struct
 from builtins import range, str
-from typing import Any
 
 import numpy as np
 from qgis.PyQt.QtCore import QThread, pyqtSignal
@@ -126,9 +125,8 @@ class STL(QThread):
             stream.write("endsolid model\n")
 
     def write_binary(self, fileName: str, demData: list[list[pto]]):
-        try:
+        with open(fileName, "wb") as stream:
             counter = 0
-            stream = open(fileName, "wb")
             stream.seek(0)
             stream.write(
                 struct.pack(BINARY_HEADER, b"Python Binary STL Writer", counter)
@@ -155,7 +153,6 @@ class STL(QThread):
                 ]
                 stream.write(struct.pack(BINARY_FACET, *data))
                 if self.quit:
-                    stream.close()
                     return 0
 
             wall = self.face_wall_vector(demData)
@@ -178,7 +175,6 @@ class STL(QThread):
                 ]
                 stream.write(struct.pack(BINARY_FACET, *data))
                 if self.quit:
-                    stream.close()
                     return 0
 
             for face in dem:
@@ -201,16 +197,12 @@ class STL(QThread):
                 ]
                 stream.write(struct.pack(BINARY_FACET, *data))
                 if self.quit:
-                    stream.close()
                     return 0
 
             stream.seek(0)
             stream.write(
                 struct.pack(BINARY_HEADER, b"Python Binary STL Writer", counter)
             )
-            stream.close()
-        except:
-            stream.close()
 
     def face_wall_vector(self, matrix_dem: list[list[pto]]):
         borders = self.parameters["borders"]
@@ -449,7 +441,6 @@ class STL(QThread):
     ):
         rows, cols = matrix_dem_build.shape[:2]
         rowIndex = 0
-        colIndex = 0
         dem = []
         for i in range(rows):
             aux = []
@@ -525,7 +516,7 @@ class STL(QThread):
         # Obtener los índices mínimo y máximo de fila y columna
         rowIndex0, rowIndexN = row_indices.min(), row_indices.max()
         colIndex0, colIndexN = col_indices.min(), col_indices.max()
-        return matrix_dem_build[rowIndex0 : rowIndexN + 1, colIndex0 : colIndexN + 1]
+        return matrix_dem_build[rowIndex0: rowIndexN + 1, colIndex0: colIndexN + 1]
 
         # rows, cols = matrix_dem_build.shape[:2]
         # rowIndex0 = None
@@ -657,7 +648,7 @@ class STL(QThread):
 
     def write_face_wall_No_borders_np(self, matrix_dem: np.ndarray, stream: BufferedWriter):
         rows, cols = matrix_dem.shape[:2]
-        count = 0   
+        count = 0
         d = 0
         v_normal_y_neg: list[float] = [0, -1, 0]
         v_normal_y_pos: list[float] = [0, 1, 0]
@@ -806,7 +797,7 @@ class STL(QThread):
         return count
 
     def writeUpperRightCornerBevel(self, p0, stream, borders):
-        count = 0        
+        count = 0
         p1 = [p0[0], p0[1], p0[2]]
         p3 = [p0[0], p0[1] + borders, 0]
         p4 = [p0[0] + borders, p0[1], 0]
@@ -870,12 +861,12 @@ class STL(QThread):
         return count
 
     def writeBottomLeftCornerBevel(self, p0, stream, borders):
-        count = 0           
+        count = 0
         p1 = [p0[0], p0[1], p0[2]]
         p3 = [p0[0], p0[1] - borders, 0]
         p4 = [p0[0] - borders, p0[1], 0]
 
-        offset = 5  #  if 5.0 < borders else borders * 0.7
+        offset = 5  # if 5.0 < borders else borders * 0.7
         center = [p0[0] - borders + offset, p0[1] - borders + offset, 0]
         radius = offset
         theta_start = 3 * np.pi / 2
@@ -902,7 +893,7 @@ class STL(QThread):
         return count
 
     def writeBottomRightCornerBevel(self, p0, stream, borders):
-        count = 0        
+        count = 0
         p1 = [p0[0], p0[1], p0[2]]
         p3 = [p0[0] + borders, p0[1], 0]
         p4 = [p0[0], p0[1] - borders, 0]
@@ -947,7 +938,7 @@ class STL(QThread):
         self.writeStlFace(stream, p1, p2, p4, base_normal)
         return 4
 
-    def writeUpperLeftCorner(self, p0, stream, borders):        
+    def writeUpperLeftCorner(self, p0, stream, borders):
         p1 = [p0[0], p0[1], p0[2]]
         p2 = [p0[0] - borders, p0[1] + borders, 0]
         p3 = [p0[0] - borders, p0[1], 0]
@@ -961,7 +952,7 @@ class STL(QThread):
         self.writeStlFace(stream, p1, p2, p4, base_normal)
         return 4
 
-    def writeBottomLeftCorner(self, p0, stream, borders):        
+    def writeBottomLeftCorner(self, p0, stream, borders):
         p1 = [p0[0], p0[1], p0[2]]
         p2 = [p0[0] - borders, p0[1] - borders, 0]
         p3 = [p0[0], p0[1] - borders, 0]
@@ -975,7 +966,7 @@ class STL(QThread):
         self.writeStlFace(stream, p1, p2, p4, base_normal)
         return 4
 
-    def writeBottomRightCorner(self, p0, stream, borders):        
+    def writeBottomRightCorner(self, p0, stream, borders):
         p1 = [p0[0], p0[1], p0[2]]
         p2 = [p0[0] + borders, p0[1] - borders, 0]
         p3 = [p0[0] + borders, p0[1], 0]
