@@ -143,7 +143,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ui.WidthGeoLineEdit.returnPressed.connect(self.upload_extent_fromWH)
         self.ui.HeightGeoLineEdit.returnPressed.connect(self.upload_extent_fromWH)
 
-        self.ui.LimitsParamGframe.hide()
 
         # endregion
 
@@ -168,7 +167,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         menu.addAction(
             self.tr("Export extension to GeoJSON"), self.exportExtensionToJSON
         )
-        menu.addAction(self.tr("Export extension to KML"), self.exportExtensionToKML)
 
         self.ui.ParamPushButton.setMenu(menu)
 
@@ -178,6 +176,8 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         # endregion
 
         self.ui.ProgressLabel.hide()
+        self.ui.groupBox.hide()
+        self.ui.groupBox_2.hide()
 
     def setCanvasCRS(self):
         self.map_crs = self.canvas.mapSettings().destinationCrs()
@@ -406,71 +406,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 self, self.tr("Attention"), self.tr("Fill the data correctly")
             )
 
-    def exportExtensionToKML(self):
-        try:
-            file_name = (
-                self.lastSavingPath
-                + self.layer.name()
-                + self.getFileNameParams()
-                + ".kml"
-            )
-            setting_file = QFileDialog.getSaveFileName(
-                self, self.tr("Export extension to KML"), file_name, "*.kml"
-            )
-            if setting_file[0] != "":
-                self.lastSavingPath = os.path.dirname(setting_file[0]) + "//"
-                # Specify the geometry type
-                layer = QgsVectorLayer("Polygon?crs=EPSG:4326", "polygon", "memory")
-                # Set the provider to accept the data source
-                prov = layer.dataProvider()
-                assert prov is not None
-
-                points = getPointsFromRectangleParams(self.rect_Params)
-                points = [
-                    [
-                        QgsPointXY(points[0][0], points[0][1]),
-                        QgsPointXY(points[1][0], points[1][1]),
-                        QgsPointXY(points[2][0], points[2][1]),
-                        QgsPointXY(points[3][0], points[3][1]),
-                    ]
-                ]
-
-                # Transform coordinates to EPSG:4326 coordinate reference system
-                crs_source = (
-                    self.layer.crs()
-                )  # Original layer's coordinate reference system
-                crs_target = QgsCoordinateReferenceSystem("EPSG:4326")  # EPSG:4326
-                transform = QgsCoordinateTransform(
-                    crs_source, crs_target, QgsProject.instance()
-                )
-                # Apply transformation to each point of the polygon
-                transformed_points = [
-                    [transform.transform(pt) for pt in ring] for ring in points
-                ]
-
-                # Add a new feature and assign the geometry
-                feat = QgsFeature()
-                feat.setGeometry(QgsGeometry.fromPolygonXY(transformed_points))
-                prov.addFeatures([feat])
-                # Update extent of the layer
-                layer.updateExtents()
-
-                QgsVectorFileWriter.writeAsVectorFormat(
-                    layer,
-                    setting_file[0],
-                    "utf-8",
-                    crs_target,
-                    "KML",
-                    layerOptions=["COORDINATE_PRECISION=6"],
-                )
-                QMessageBox.information(
-                    self, self.tr("Attention"), self.tr("Extension exported")
-                )
-        except:
-            QMessageBox.warning(
-                self, self.tr("Attention"), self.tr("Fill the data correctly")
-            )
-
     # endregion
 
     def do_export(self):
@@ -543,7 +478,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.scale_h = 0
         self.scale_w = 0
         self.scale = 0
-        self.ui.RecomSpacinglabel.setText("0.2 mm")
         self.ui.BaseHeightLineEdit.clear()
         self.ui.HeightModelLabel.setText("0 mm")
 
@@ -912,41 +846,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
     # region Dimensions function
 
-    def get_min_spacing(self):
-        min_spacing = 0
-        if self.units == Qgis.DistanceUnit.Degrees:
-            if self.layer.crs().mapUnits() == Qgis.DistanceUnit.Degrees:
-                width_roi = self.rect_Params["width"]
-                min_spacing = round(self.cell_size * self.width / width_roi, 2)
-            else:  # data unit -> others. Meters, ...
-                width_roi = self.rect_Params["width"]
-                cell_size_deg = (
-                    self.cell_size
-                    / math.pi
-                    * 180
-                    / math.cos(self.roi_y_max * math.pi / 180)
-                    / 6371000
-                )
-                min_spacing = round(cell_size_deg * self.width / width_roi, 2)
-        else:  # Map unit -> Others, Meters, ...
-            if self.layer.crs().mapUnits() == Qgis.DistanceUnit.Degrees:
-                width_roi = self.rect_Params["width"]
-                cell_size_m = (
-                    self.cell_size
-                    * math.pi
-                    / 180
-                    * math.cos(self.raster_y_max * math.pi / 180)
-                    * 6371000
-                )
-                min_spacing = round(cell_size_m * self.width / width_roi, 2)
-            else:  # data unit -> others. Meters, ...
-                width_roi = self.rect_Params["width"]
-                min_spacing = round(self.cell_size * self.width / width_roi, 2)
-        if min_spacing < 0.2:
-            self.ui.RecomSpacinglabel.setText("0.2 mm")
-        else:
-            self.ui.RecomSpacinglabel.setText(str(min_spacing) + " mm")
-
     def upload_size_from_height(self):
         try:
             if self.rect_Params is None:
@@ -985,7 +884,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 self.scale = round((self.scale_h + self.scale_w) / 2, 6)
                 self.changeScale = False
                 self.ui.ScaleLineEdit.setScale(int(self.scale))
-            self.get_min_spacing()
             self.get_height_model()
         except ZeroDivisionError:
             QMessageBox.warning(
@@ -1036,7 +934,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 self.scale = round((self.scale_h + self.scale_w) / 2, 6)
                 self.changeScale = False
                 self.ui.ScaleLineEdit.setScale(int(self.scale))
-            self.get_min_spacing()
             self.get_height_model()
         except ZeroDivisionError:
             QMessageBox.warning(
@@ -1085,7 +982,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                     self.ui.HeightLineEdit.setText(str(self.height))
                     self.width = round(width_roi / self.scale * 1000, 2)
                     self.ui.WidthLineEdit.setText(str(self.width))
-                self.get_min_spacing()
                 self.get_height_model()
 
             except ZeroDivisionError:

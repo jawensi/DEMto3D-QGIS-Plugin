@@ -57,11 +57,6 @@
         <source>Length:</source>
         <translation>Longueur:</translation>
     </message>
-    <message>
-        <location filename="DEMto3D_dialog_base.py" line="373"/>
-        <source>Show width/length</source>
-        <translation>Afficher largeur/longueur</translation>
-    </message>
 
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="374"/>
@@ -72,11 +67,6 @@
         <location filename="DEMto3D_dialog_base.py" line="382"/>
         <source>Spacing (mm):</source>
         <translation>Espacement (mm):</translation>
-    </message>
-	<message>
-        <location filename="DEMto3D_dialog_base.py" line="383"/>
-        <source>Recommended</source>
-        <translation>Recommandé</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="386"/>
@@ -266,11 +256,6 @@
         <location filename="DEMto3D_dialog.py" line="403"/>
         <source>Export extension to GeoJSON</source>
         <translation>Exporter extension GeoJSON</translation>
-    </message>
-    <message>
-        <location filename="DEMto3D_dialog.py" line="403"/>
-        <source>Export extension to KML</source>
-        <translation>Exporter extension KML</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="403"/>

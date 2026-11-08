@@ -38,10 +38,6 @@
         Largo:
         Longue:
 
-        Show width/length
-        Mostrar ancho/largo
-        Afficher largeur/longue
-        
         Model size
         Dimensiones del modelo
         Dimensions du modèle
@@ -49,10 +45,6 @@
         Spacing (mm):
         Espaciado (mm):
         Espacement (mm):
-
-        Recommended
-        Recomendado
-        Recommandé
 
         Lenght (mm):
         Largo (mm):
@@ -185,10 +177,6 @@
         Export extension to GeoJSON
         Exportar extensión a GeoJSON
         Exporter extension GeoJSON
-
-        Export extension to KML
-        Exportar extensión a KML
-        Exporter extension KML
 
         Extension exported
         Extensión exportada

@@ -15,7 +15,7 @@ class Ui_DEMto3DDialogBase(object):
     def setupUi(self, DEMto3DDialogBase):
         DEMto3DDialogBase.setObjectName("DEMto3DDialogBase")
         DEMto3DDialogBase.setWindowModality(QtCore.Qt.WindowModal)
-        DEMto3DDialogBase.resize(500, 700)
+        DEMto3DDialogBase.resize(450, 640)
         icon = QtGui.QIcon()
         icon.addPixmap(
             QtGui.QPixmap(":/plugins/DEMto3D/icons/demto3d.png"),
@@ -79,11 +79,11 @@ class Ui_DEMto3DDialogBase(object):
         self._3.addWidget(self.YMaxLineEdit, 0, 4, 1, 1)
         self.label_4 = QtWidgets.QLabel(self.LimitsAbsGframe)
         self.label_4.setText("")
-        self.label_4.setPixmap(QtGui.QPixmap(":/plugins/DEMto3D/icons/downleft.png"))
+        self.label_4.setPixmap(QtGui.QPixmap(":/plugins/DEMto3D/icons/downleft.svg"))
         self.label_4.setObjectName("label_4")
         self._3.addWidget(self.label_4, 1, 0, 1, 1)
         self.label = QtWidgets.QLabel(self.LimitsAbsGframe)
-        self.label.setPixmap(QtGui.QPixmap(":/plugins/DEMto3D/icons/upRight.png"))
+        self.label.setPixmap(QtGui.QPixmap(":/plugins/DEMto3D/icons/upRight.svg"))
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setObjectName("label")
         self._3.addWidget(self.label, 0, 0, 1, 1)
@@ -127,9 +127,6 @@ class Ui_DEMto3DDialogBase(object):
         self.verticalLayout_3.addWidget(self.LimitsParamGframe)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.RotationCheckBox = QtWidgets.QCheckBox(self.groupBox_1)
-        self.RotationCheckBox.setObjectName("RotationCheckBox")
-        self.horizontalLayout.addWidget(self.RotationCheckBox)
         spacerItem = QtWidgets.QSpacerItem(
             0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
         )
@@ -137,7 +134,7 @@ class Ui_DEMto3DDialogBase(object):
         self.FullExtToolButton = QtWidgets.QToolButton(self.groupBox_1)
         icon1 = QtGui.QIcon()
         icon1.addPixmap(
-            QtGui.QPixmap(":/plugins/DEMto3D/icons/zoom-extent.png"),
+            QtGui.QPixmap(":/plugins/DEMto3D/icons/zoom-extent.svg"),
             QtGui.QIcon.Normal,
             QtGui.QIcon.Off,
         )
@@ -147,7 +144,7 @@ class Ui_DEMto3DDialogBase(object):
         self.LayerExtToolButton = QtWidgets.QToolButton(self.groupBox_1)
         icon2 = QtGui.QIcon()
         icon2.addPixmap(
-            QtGui.QPixmap(":/plugins/DEMto3D/icons/zoom-layer.png"),
+            QtGui.QPixmap(":/plugins/DEMto3D/icons/zoom-layer.svg"),
             QtGui.QIcon.Normal,
             QtGui.QIcon.Off,
         )
@@ -158,7 +155,7 @@ class Ui_DEMto3DDialogBase(object):
         self.CustomExtToolButton.setText("")
         icon3 = QtGui.QIcon()
         icon3.addPixmap(
-            QtGui.QPixmap(":/plugins/DEMto3D/icons/zoom-region.png"),
+            QtGui.QPixmap(":/plugins/DEMto3D/icons/zoom-region.svg"),
             QtGui.QIcon.Normal,
             QtGui.QIcon.Off,
         )
@@ -223,13 +220,6 @@ class Ui_DEMto3DDialogBase(object):
         self.SpacingLineEdit = QtWidgets.QLineEdit(self.groupBox_3)
         self.SpacingLineEdit.setObjectName("SpacingLineEdit")
         self.horizontalLayout_6.addWidget(self.SpacingLineEdit)
-        self.label18 = QtWidgets.QLabel(self.groupBox_3)
-        self.label18.setObjectName("label18")
-        self.horizontalLayout_6.addWidget(self.label18)
-        self.RecomSpacinglabel = QtWidgets.QLabel(self.groupBox_3)
-        self.RecomSpacinglabel.setMinimumSize(QtCore.QSize(47, 20))
-        self.RecomSpacinglabel.setObjectName("RecomSpacinglabel")
-        self.horizontalLayout_6.addWidget(self.RecomSpacinglabel)
         self.gridLayout_3.addLayout(self.horizontalLayout_6, 0, 1, 1, 1)
         self.RevereseZCheckBox = QtWidgets.QCheckBox(self.groupBox_3)
         self.RevereseZCheckBox.setObjectName("RevereseZCheckBox")
@@ -431,7 +421,6 @@ class Ui_DEMto3DDialogBase(object):
         self.label_17.setBuddy(self.BaseHeightLineEdit)
 
         self.retranslateUi(DEMto3DDialogBase)
-        self.RotationCheckBox.clicked["bool"].connect(self.LimitsParamGframe.setVisible)  # type: ignore
         self.SidesCheckBox.clicked["bool"].connect(self.borderModelLineEdit.setEnabled)  # type: ignore
         QtCore.QMetaObject.connectSlotsByName(DEMto3DDialogBase)
         DEMto3DDialogBase.setTabOrder(self.XMaxLineEdit, self.YMaxLineEdit)
@@ -463,9 +452,6 @@ class Ui_DEMto3DDialogBase(object):
         self.label_6.setText(_translate("DEMto3DDialogBase", "Y:"))
         self.label_20.setText(_translate("DEMto3DDialogBase", "Width:"))
         self.label_22.setText(_translate("DEMto3DDialogBase", "Length:"))
-        self.RotationCheckBox.setText(
-            _translate("DEMto3DDialogBase", "Show width/length")
-        )
         self.FullExtToolButton.setToolTip(
             _translate("DEMto3DDialogBase", "Select full extent")
         )
@@ -508,8 +494,6 @@ class Ui_DEMto3DDialogBase(object):
         self.label_13.setText(_translate("DEMto3DDialogBase", "Length (mm):"))
         self.label_16.setText(_translate("DEMto3DDialogBase", "Vertical exaggeration:"))
         self.label_7.setText(_translate("DEMto3DDialogBase", "Terrain inversion:"))
-        self.label18.setText(_translate("DEMto3DDialogBase", "Recommended"))
-        self.RecomSpacinglabel.setText(_translate("DEMto3DDialogBase", "0.2 mm"))
         self.RevereseZCheckBox.setText(_translate("DEMto3DDialogBase", "enable"))
         self.label_12.setText(_translate("DEMto3DDialogBase", "Width (mm):"))
         self.label_15.setText(_translate("DEMto3DDialogBase", "Scale:"))
@@ -543,5 +527,6 @@ class Ui_DEMto3DDialogBase(object):
         self.CancelToolButton.setText(_translate("DEMto3DDialogBase", "Close"))
 
 
-from qgis.gui import QgsMapLayerComboBox, QgsScaleWidget
+from qgis.gui import QgsMapLayerComboBox
+from qgis.gui import QgsScaleWidget
 from .. import resources

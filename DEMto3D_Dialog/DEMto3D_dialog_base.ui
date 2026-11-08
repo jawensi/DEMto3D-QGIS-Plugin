@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>700</height>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -114,14 +114,14 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap resource="../resources.qrc">:/plugins/DEMto3D/icons/downleft.png</pixmap>
+                  <pixmap resource="../resources.qrc">:/plugins/DEMto3D/icons/downleft.svg</pixmap>
                  </property>
                 </widget>
                </item>
                <item row="0" column="0">
                 <widget class="QLabel" name="label">
                  <property name="pixmap">
-                  <pixmap resource="../resources.qrc">:/plugins/DEMto3D/icons/upRight.png</pixmap>
+                  <pixmap resource="../resources.qrc">:/plugins/DEMto3D/icons/upRight.svg</pixmap>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -214,13 +214,6 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
-             <widget class="QCheckBox" name="RotationCheckBox">
-              <property name="text">
-               <string>Show width/length</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <spacer name="horizontalSpacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
@@ -249,7 +242,7 @@
               </property>
               <property name="icon">
                <iconset resource="../resources.qrc">
-                <normaloff>:/plugins/DEMto3D/icons/zoom-extent.png</normaloff>:/plugins/DEMto3D/icons/zoom-extent.png</iconset>
+                <normaloff>:/plugins/DEMto3D/icons/zoom-extent.svg</normaloff>:/plugins/DEMto3D/icons/zoom-extent.svg</iconset>
               </property>
              </widget>
             </item>
@@ -269,7 +262,7 @@
               </property>
               <property name="icon">
                <iconset resource="../resources.qrc">
-                <normaloff>:/plugins/DEMto3D/icons/zoom-layer.png</normaloff>:/plugins/DEMto3D/icons/zoom-layer.png</iconset>
+                <normaloff>:/plugins/DEMto3D/icons/zoom-layer.svg</normaloff>:/plugins/DEMto3D/icons/zoom-layer.svg</iconset>
               </property>
              </widget>
             </item>
@@ -292,7 +285,7 @@
               </property>
               <property name="icon">
                <iconset resource="../resources.qrc">
-                <normaloff>:/plugins/DEMto3D/icons/zoom-region.png</normaloff>:/plugins/DEMto3D/icons/zoom-region.png</iconset>
+                <normaloff>:/plugins/DEMto3D/icons/zoom-region.svg</normaloff>:/plugins/DEMto3D/icons/zoom-region.svg</iconset>
               </property>
              </widget>
             </item>
@@ -392,26 +385,6 @@
              <layout class="QHBoxLayout" name="horizontalLayout_6">
               <item>
                <widget class="QLineEdit" name="SpacingLineEdit"/>
-              </item>
-              <item>
-               <widget class="QLabel" name="label18">
-                <property name="text">
-                 <string>Recommended</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="RecomSpacinglabel">
-                <property name="minimumSize">
-                 <size>
-                  <width>47</width>
-                  <height>20</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>0.2 mm</string>
-                </property>
-               </widget>
               </item>
              </layout>
             </item>
@@ -866,22 +839,6 @@
   <include location="../resources.qrc"/>
  </resources>
  <connections>
-  <connection>
-   <sender>RotationCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>LimitsParamGframe</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>109</x>
-     <y>207</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>111</x>
-     <y>176</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>SidesCheckBox</sender>
    <signal>clicked(bool)</signal>

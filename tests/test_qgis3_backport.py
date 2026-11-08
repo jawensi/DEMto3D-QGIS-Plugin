@@ -160,7 +160,7 @@ class Qgis3UiTests(unittest.TestCase):
                 self.assertFalse(ui.radioButton_binary.isChecked())
                 self.assertEqual(ui.groupBox_2.title(), title)
                 self.assertIn("(m)", ui.label_17.text())
-                self.assertFalse(QPixmap(":/plugins/DEMto3D/icons/upRight.png").isNull())
+                self.assertFalse(QPixmap(":/plugins/DEMto3D/icons/upRight.svg").isNull())
                 self.assertFalse(dialog.windowIcon().isNull())
                 dialog.close()
             finally:
