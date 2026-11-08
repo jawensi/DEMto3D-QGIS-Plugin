@@ -38,4 +38,3 @@ class Dialog(QDialog, Ui_SelectLayer_dialog_base):
 
     def get_layer(self):
         return self.ui.mMapLayerComboBox.currentLayer()
-

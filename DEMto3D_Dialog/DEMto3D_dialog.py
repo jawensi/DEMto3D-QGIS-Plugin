@@ -125,7 +125,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ui.YMinLineEdit.returnPressed.connect(self.upload_extent)
 
         self.ui.WidthGeoLineEdit.returnPressed.connect(self.upload_extent_fromWH)
-        self.ui.HeightGeoLineEdit.returnPressed.connect(self.upload_extent_fromWH)        
+        self.ui.HeightGeoLineEdit.returnPressed.connect(self.upload_extent_fromWH)
 
         # endregion
 
@@ -690,6 +690,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             else:                                 # data unit -> others. Meters, ...
                 width_roi = self.rect_Params["width"]
                 min_spacing = round(self.cell_size * self.width / width_roi, 2)
+        _ = min_spacing
         # if min_spacing < 0.2:
         #     self.ui.RecomSpacinglabel.setText('0.2 mm')
         # else:
@@ -1091,4 +1092,3 @@ def getPolarPoint(x0, y0, angle, dist):
     x = x0 + dist * math.cos(angle)
     y = y0 + dist * math.sin(angle)
     return [x, y]
-

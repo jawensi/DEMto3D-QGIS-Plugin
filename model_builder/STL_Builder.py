@@ -453,4 +453,3 @@ class STL(QThread):
             if aux:
                 dem.append(aux)
         return dem
-

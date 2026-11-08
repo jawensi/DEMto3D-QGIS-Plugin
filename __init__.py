@@ -28,4 +28,3 @@ def classFactory(iface):
     """
     from .DEMto3D import DEMto3D
     return DEMto3D(iface)
-

@@ -51,7 +51,7 @@ class Export(QDialog):
         self.mainDlg.ui.ProgressLabel.setText(self.tr("Building STL geometry"))
 
         self.Model = Model(self.parameters)
-        self.Model.updateProgress.connect(lambda: self.mainDlg.ui.progressBar.setValue(self.mainDlg.ui.progressBar.value() + 1))
+        self.Model.updateProgress.connect(self.increment_progress)
         self.Model.finished.connect(self.do_stl_model)
         self.Model.start()
 
@@ -73,9 +73,13 @@ class Export(QDialog):
             self.mainDlg.ui.progressBar.setMaximum(maxVal)
 
             self.STL = STL(self.parameters, self.stl_file, dem_matrix)
-            self.STL.updateProgress.connect(lambda: self.mainDlg.ui.progressBar.setValue(self.mainDlg.ui.progressBar.value() + 1))
+            self.STL.updateProgress.connect(self.increment_progress)
             self.STL.finished.connect(self.finish_model)
             self.STL.start()
+
+    def increment_progress(self):
+        progress_bar = self.mainDlg.ui.progressBar
+        progress_bar.setValue(progress_bar.value() + 1)
 
     def cancel_stl_model(self):
         self.STL.quit = True
@@ -103,4 +107,3 @@ class Export(QDialog):
         self.mainDlg.ui.STLToolButton.setEnabled(not start)
         self.mainDlg.ui.ParamPushButton.setEnabled(not start)
         self.mainDlg.ui.CancelToolButton.setEnabled(not start)
-

@@ -45,16 +45,18 @@ class Model(QThread):
     def run(self):
         dem_dataset = gdal.Open(self.parameters["layer"])
 
-        self.matrix_dem = self.matrix_dem_builder(dem_dataset,
-                                                                self.parameters["height"], self.parameters["width"],
-                                                                self.parameters["scale"],
-                                                                self.parameters["spacing_mm"],
-                                                                self.parameters["roi_x_max"],
-                                                                self.parameters["roi_x_min"],
-                                                                self.parameters["roi_y_min"],
-                                                                self.parameters["z_base"],
-                                                                self.parameters["z_scale"],
-                                                                self.parameters["projected"])
+        self.matrix_dem = self.matrix_dem_builder(
+            dem_dataset,
+            self.parameters["height"], self.parameters["width"],
+            self.parameters["scale"],
+            self.parameters["spacing_mm"],
+            self.parameters["roi_x_max"],
+            self.parameters["roi_x_min"],
+            self.parameters["roi_y_min"],
+            self.parameters["z_base"],
+            self.parameters["z_scale"],
+            self.parameters["projected"]
+        )
 
         if self.parameters["z_inv"]:
             self.matrix_dem = self.matrix_dem_inverse_build(self.matrix_dem)
@@ -453,4 +455,3 @@ def getPolarPoint(x0, y0, angle, dist):
     x = x0 + dist * math.cos(angle)
     y = y0 + dist * math.sin(angle)
     return [x, y]
-
