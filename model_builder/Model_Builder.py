@@ -127,8 +127,8 @@ class Model(QThread):
             var_x = 0
             for j in range(col_stl):
                 # Model coordinate x(mm), y(mm)
-                x_model = round(var_x, 2)
-                y_model = round(var_y, 2)
+                x_model = width if j == col_stl - 1 else round(var_x, 2)
+                y_model = height if i == 0 else round(var_y, 2)
 
                 # Model maps geo_coordinates
                 if projected:
@@ -254,8 +254,8 @@ class Model(QThread):
             var_x = 0
             for j in range(col_stl):
                 # Model coordinate x(mm), y(mm)
-                x_model = round(var_x, 2)
-                y_model = round(var_y, 2)
+                x_model = width if j == col_stl - 1 else round(var_x, 2)
+                y_model = height if i == 0 else round(var_y, 2)
 
                 # Model maps geo_coordinates
                 if projected:

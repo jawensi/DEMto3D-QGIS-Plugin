@@ -1,6 +1,7 @@
 """Run with the QGIS 3 Python interpreter: python tests/test_qgis3_backport.py."""
 
 import hashlib
+from collections import Counter
 import importlib
 import importlib.util
 import os
@@ -108,6 +109,146 @@ class ExportTests(unittest.TestCase):
                 target = self.directory / "default.stl"
                 STL(params, str(target), self.matrix).run()
                 self.assertEqual(hashlib.sha256(target.read_bytes()).hexdigest(), digest)
+
+    @staticmethod
+    def build_mesh(width, height, spacing):
+        from osgeo import gdal
+
+        gdal.UseExceptions()
+        module = importlib.import_module(PACKAGE + ".model_builder.Model_Builder")
+        dataset = gdal.GetDriverByName("MEM").Create("", 8, 8, 1, gdal.GDT_Float32)
+        dataset.SetGeoTransform((0, 1000, 0, 5000, 0, -1000))
+        dataset.GetRasterBand(1).Fill(3)
+        model = module.Model(dict(
+            baseModel=2, crs_map=None, crs_layer=None,
+            roi_rect_Param=dict(rotation=0, width=width),
+        ))
+        return model.matrix_dem_builder_interpolation(
+            dataset, height, width, 1000, 1, 1, spacing,
+            width, 0, 0, 0, 1, True,
+        )
+
+    @staticmethod
+    def mesh_volume(triangles):
+        return np.einsum(
+            "ij,ij->i", triangles[:, 0], np.cross(triangles[:, 1], triangles[:, 2])
+        ).sum() / 6
+
+    def assert_exact_tiles(self, matrix, width, height, columns, rows, output_format):
+        params = dict(
+            width=width, height=height, spacing_mm=10,
+            divideCols=columns, divideRow=rows, has_borders=True, borders=0,
+            stl_format=output_format,
+        )
+        builder = STL(params, str(self.directory / "tiles.stl"), matrix)
+        builder.run()
+        reader = read_ascii if output_format == "ascii" else read_binary
+        triangles = [
+            reader(Path(path))[:, 3:12].reshape((-1, 3, 3))
+            for path in builder.output_files
+        ]
+        self.assertEqual(len(triangles), columns * rows)
+        points = [faces.reshape((-1, 3)) for faces in triangles]
+        lower = [part.min(axis=0) for part in points]
+        upper = [part.max(axis=0) for part in points]
+        tolerance = max(width, height) * np.finfo(np.float32).eps * 2
+        if output_format == "ascii":
+            tolerance = 1e-11
+        for i in range(rows):
+            for j in range(columns):
+                index = i * columns + j
+                np.testing.assert_allclose(
+                    lower[index][:2], [width * j / columns, height * (rows - i - 1) / rows],
+                    rtol=0, atol=tolerance,
+                )
+                np.testing.assert_allclose(
+                    upper[index][:2], [width * (j + 1) / columns, height * (rows - i) / rows],
+                    rtol=0, atol=tolerance,
+                )
+                # Every triangle edge of the closed solid must have exactly two faces.
+                edges = Counter(
+                    tuple(sorted((tuple(face[a]), tuple(face[b]))))
+                    for face in triangles[index] for a, b in ((0, 1), (1, 2), (2, 0))
+                )
+                invalid = [(edge, count) for edge, count in edges.items() if count != 2]
+                self.assertFalse(invalid, invalid[:3])
+                for neighbor, axis, limit in (
+                    (index + 1, 0, upper[index][0]),
+                    (index + columns, 1, lower[index][1]),
+                ):
+                    if (axis == 0 and j + 1 == columns) or (axis == 1 and i + 1 == rows):
+                        continue
+                    first = points[index][points[index][:, axis] == limit]
+                    second = points[neighbor][points[neighbor][:, axis] == limit]
+                    np.testing.assert_array_equal(
+                        np.unique(first, axis=0), np.unique(second, axis=0)
+                    )
+
+        # Cutting must conserve the original triangulated terrain's volume.
+        source = self.directory / "whole.stl"
+        STL(dict(params, divideCols=1, divideRow=1), str(source), matrix).run()
+        expected_volume = self.mesh_volume(reader(source)[:, 3:12].reshape((-1, 3, 3)))
+        actual_volume = sum(self.mesh_volume(faces) for faces in triangles)
+        self.assertAlmostEqual(
+            actual_volume, expected_volume,
+            delta=max(abs(expected_volume) * (5e-7 if output_format == "binary" else 1e-12), 1e-9),
+        )
+        return np.concatenate(points)
+
+    def test_exact_divisions_cross_coarse_cells(self):
+        matrix = self.matrix.copy()
+        matrix[:, :, 2] = [[3, 8, 5], [11, 4, 13], [7, 16, 6]]
+        for output_format in ("binary", "ascii"):
+            with self.subTest(output_format=output_format):
+                self.assert_exact_tiles(matrix, 20, 20, 3, 4, output_format)
+
+    def test_exact_divisions_preserve_nonplanar_cell_triangles(self):
+        matrix = np.array([[[0, 1, 8], [1, 1, 14]], [[0, 0, 2], [1, 0, 4]]], dtype=float)
+        for output_format in ("binary", "ascii"):
+            with self.subTest(output_format=output_format):
+                points = self.assert_exact_tiles(matrix, 1, 1, 3, 4, output_format)
+                for x, y, z in ((1 / 3, 1 / 3, 6), (1 / 3, 1 / 4, 31 / 6)):
+                    selected = points[np.isclose(points[:, 0], x) & np.isclose(points[:, 1], y)]
+                    selected = selected[selected[:, 2] > 0]
+                    self.assertGreater(len(selected), 0)
+                    np.testing.assert_allclose(selected[:, 2], z, rtol=0, atol=2e-6)
+
+    def test_exact_divisions_on_2000_mm_model(self):
+        matrix = self.build_mesh(2000, 1, 0.5)
+        matrix[:, :, 2] += matrix[:, :, 0] * 0.13 + matrix[:, :, 1] * 0.07
+        for output_format in ("binary", "ascii"):
+            with self.subTest(output_format=output_format):
+                self.assert_exact_tiles(matrix, 2000, 1, 30, 1, output_format)
+
+    def test_exact_divisions_with_decimal_height(self):
+        matrix = self.build_mesh(2, 100.1, 0.2)
+        for output_format in ("binary", "ascii"):
+            with self.subTest(output_format=output_format):
+                self.assert_exact_tiles(matrix, 2, 100.1, 1, 7, output_format)
+
+    def test_exact_dimensions_with_nonuniform_edge_cells(self):
+        matrix = self.build_mesh(10.123, 10.345, 0.7)
+        self.assertEqual(matrix[-1, -1, 0], 10.123)
+        self.assertEqual(matrix[0, 0, 1], 10.345)
+        for output_format in ("binary", "ascii"):
+            with self.subTest(output_format=output_format):
+                self.assert_exact_tiles(matrix, 10.123, 10.345, 3, 4, output_format)
+
+    def test_ascii_matches_binary_for_clipped_tiles_with_all_side_options(self):
+        for sides, border in ((False, 0), (True, 0), (True, 2)):
+            with self.subTest(sides=sides, border=border):
+                params = dict(self.params, has_borders=sides, borders=border,
+                              divideCols=3, divideRow=4)
+                files = {}
+                for output_format in ("binary", "ascii"):
+                    builder = STL(dict(params, stl_format=output_format),
+                                  str(self.directory / (output_format + ".stl")), self.matrix)
+                    builder.run()
+                    files[output_format] = builder.output_files
+                for binary, ascii_path in zip(files["binary"], files["ascii"]):
+                    np.testing.assert_allclose(
+                        read_binary(Path(binary)), read_ascii(Path(ascii_path)), atol=2e-6,
+                    )
 
     def test_cancellation_stops_before_the_next_tile(self):
         for output_format in ("ascii", "binary"):

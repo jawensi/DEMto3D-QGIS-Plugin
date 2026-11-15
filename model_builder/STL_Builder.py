@@ -20,11 +20,13 @@
 """
 
 import collections
+from decimal import Decimal
 from io import BufferedWriter
 import math
 import os
 import struct
 from builtins import range, str
+from typing import Union
 
 import numpy as np
 from qgis.PyQt.QtCore import QThread, pyqtSignal
@@ -58,6 +60,37 @@ class _ExportCancelled(Exception):
     """Stop writing the current mesh when the user cancels export."""
 
 
+class _ClippedTile:
+    """A terrain patch clipped to exact bounds, with its boundary polylines."""
+
+    def __init__(self, matrix, bounds):
+        self.matrix = matrix
+        self.bounds = bounds
+        # Counterclockwise: bottom, right, top, left.
+        self.boundaries = [{}, {}, {}, {}]
+
+    def add_boundary_point(self, point):
+        x_min, y_min, x_max, y_max = self.bounds
+        x, y, _ = point
+        if y == y_min:
+            self.boundaries[0][x] = point
+        if x == x_max:
+            self.boundaries[1][y] = point
+        if y == y_max:
+            self.boundaries[2][x] = point
+        if x == x_min:
+            self.boundaries[3][y] = point
+
+    def edges(self):
+        return [
+            [points[key] for key in sorted(points, reverse=i >= 2)]
+            for i, points in enumerate(self.boundaries)
+        ]
+
+
+DEMData = Union[np.ndarray, _ClippedTile]
+
+
 class STL(QThread):
     """Class where is built the stl file from the mesh point that decribe the model surface"""
 
@@ -77,13 +110,8 @@ class STL(QThread):
         x_models = self.parameters["divideCols"]
         y_models = self.parameters["divideRow"]
 
-        # if x_models == 1 and y_models == 1:
-        #     path = self.stl_file
-        #     self.write_binary_np(path, self.matrix_dem)
-        # else:
-        width_model = self.parameters["width"] / x_models
-        high_model = self.parameters["height"] / y_models
-        spacing = self.parameters["spacing_mm"]
+        x_cuts = self._division_positions(self.parameters["width"], x_models)
+        y_cuts = self._division_positions(self.parameters["height"], y_models)[::-1]
         for i in range(y_models):
             for j in range(x_models):
                 if self.quit:
@@ -91,19 +119,12 @@ class STL(QThread):
                 path = self.stl_file
                 if y_models * x_models > 1:
                     path = os.path.splitext(self.stl_file)[0] + "_" + str(i) + str(j) + ".stl"
-                xmin_model = width_model * j
-                ymin_model = self.parameters["height"] - i * high_model - high_model
-                xmax_model = width_model * j + width_model
-                ymax_model = self.parameters["height"] - i * high_model
-                # dem_model = self.divide_dem(self.matrix_dem, spacing, xmin_model, ymin_model, xmax_model, ymax_model)
-                # self.write_binary(path, dem_model)
                 dem_model = self.divide_dem_np(
                     self.matrix_dem,
-                    spacing,
-                    xmin_model,
-                    ymin_model,
-                    xmax_model,
-                    ymax_model,
+                    x_cuts[j],
+                    y_cuts[i + 1],
+                    x_cuts[j + 1],
+                    y_cuts[i],
                 )
                 self.output_files.append(path)
                 if self.parameters.get("stl_format", "binary") == "ascii":
@@ -474,77 +495,162 @@ class STL(QThread):
     # ----------------- numPy methods -----------------
 
     @staticmethod
+    def _division_positions(length, parts):
+        """Locate cuts from model dimensions, independent of the sampling grid."""
+        size = Decimal(str(length))
+        return np.array([float(size * i / parts) for i in range(parts + 1)])
+
+    @staticmethod
     def divide_dem_np(
-        matrix_dem_build: np.ndarray, resolution, x_min, y_min, x_max, y_max
-    ):
-        # Obtener las coordenadas x e y de la matriz DEM
-        x_coords = matrix_dem_build[:, :, 0]
-        y_coords = matrix_dem_build[:, :, 1]
+        matrix_dem_build: np.ndarray, x_min, y_min, x_max, y_max
+    ) -> DEMData:
+        """Select intersecting cells and clip their triangles at the requested bounds."""
+        xs = matrix_dem_build[0, :, 0]
+        ys = -matrix_dem_build[:, 0, 1]
+        col0 = max(0, np.searchsorted(xs, x_min, side="right") - 1)
+        col1 = min(len(xs) - 1, np.searchsorted(xs, x_max, side="left"))
+        row0 = max(0, np.searchsorted(ys, -y_max, side="right") - 1)
+        row1 = min(len(ys) - 1, np.searchsorted(ys, -y_min, side="left"))
+        matrix = matrix_dem_build[row0:row1 + 1, col0:col1 + 1]
+        if (matrix[0, 0, 0] == x_min and matrix[-1, -1, 0] == x_max
+                and matrix[0, 0, 1] == y_max and matrix[-1, -1, 1] == y_min):
+            return matrix
+        return _ClippedTile(matrix, (x_min, y_min, x_max, y_max))
 
-        # Crear máscaras booleanas para cada condición
-        isInArea_mask = (
-            (x_coords >= x_min)
-            & (x_coords <= x_max)
-            & (y_coords >= y_min)
-            & (y_coords <= y_max)
-        )
-        isRightBorder_mask = (
-            (0 < (x_coords - x_max))
-            & ((x_coords - x_max) < resolution)
-            & (y_coords >= y_min)
-            & (y_coords <= y_max)
-        )
-        isDownBorder_mask = (
-            (-resolution < (y_coords - y_min))
-            & ((y_coords - y_min) < 0)
-            & (x_coords >= x_min)
-            & (x_coords <= x_max)
-        )
-        isCorner_mask = (
-            (resolution > (x_coords - x_max))
-            & ((x_coords - x_max) > 0)
-            & (resolution > (y_coords - y_min))
-            & ((y_coords - y_min) > -resolution)
-        )
+    @staticmethod
+    def _clip_cell(p1, p2, p3, p4, bounds):
+        """Intersect a grid cell's two original triangles with a rectangle."""
+        x0, y0, z0 = p1
+        x1, y1, z1 = p2
+        dx, dy = x1 - x0, y1 - y0
+        x_min, y_min, x_max, y_max = bounds
+        left, right = max(x0, x_min), min(x1, x_max)
+        bottom, top = max(y0, y_min), min(y1, y_max)
+        if left >= right or bottom >= top:
+            return
+        rectangle = [(left, bottom), (right, bottom), (right, top), (left, top)]
 
-        # Combinar las máscaras utilizando operadores lógicos
-        combined_mask = (
-            isInArea_mask | isRightBorder_mask | isDownBorder_mask | isCorner_mask
-        )
-        # Encontrar los índices de fila y columna donde la máscara es True
-        row_indices, col_indices = np.where(combined_mask)
-        # Obtener los índices mínimo y máximo de fila y columna
-        rowIndex0, rowIndexN = row_indices.min(), row_indices.max()
-        colIndex0, colIndexN = col_indices.min(), col_indices.max()
-        return matrix_dem_build[rowIndex0: rowIndexN + 1, colIndex0: colIndexN + 1]
+        def diagonal_distance(point):
+            distance = (point[0] - x0) * dy - (point[1] - y0) * dx
+            # Treat numerical noise at a diagonal corner as an exact intersection.
+            tolerance = 8 * np.finfo(float).eps * dx * dy
+            return 0 if abs(distance) <= tolerance else distance
 
-        # rows, cols = matrix_dem_build.shape[:2]
-        # rowIndex0 = None
-        # rowIndexN = 0
-        # colIndex0 = None
-        # colIndexN = 0
-        # for i in range(rows):
-        #     for j in range(cols):
-        #         x = matrix_dem_build[i, j, 0]
-        #         y = matrix_dem_build[i, j, 1]
-        #
-        #         isInArea = x_min <= x <= x_max and y_min <= y <= y_max
-        #         isRigthBorder = 0 < (x - x_max) < resolution and y_min <= y <= y_max
-        #         isDownBorder = -resolution < (y - y_min) < 0 and x_min <= x <= x_max
-        #         isCorner = resolution > (x - x_max) > 0 > (y - y_min) > - resolution
-        #
-        #         if isInArea or isRigthBorder or isDownBorder or isCorner:
-        #             if rowIndex0 is None:
-        #                 rowIndex0 = i
-        #             if rowIndexN < i:
-        #                 rowIndexN = i
-        #             if colIndex0 is None:
-        #                 colIndex0 = j
-        #             if colIndexN < j:
-        #                 colIndexN = j
-        # return matrix_dem_build[rowIndex0:rowIndexN + 1, colIndex0:colIndexN + 1]
+        # Clip the intersection rectangle against each side of the original diagonal.
+        for upper in (True, False):
+            polygon = []
+            previous = rectangle[-1]
+            previous_d = diagonal_distance(previous)
+            previous_inside = previous_d <= 0 if upper else previous_d >= 0
+            for current in rectangle:
+                distance = diagonal_distance(current)
+                inside = distance <= 0 if upper else distance >= 0
+                if inside != previous_inside:
+                    # Use the original diagonal so adjacent tiles compute identical points.
+                    if previous[0] == current[0]:
+                        x = current[0]
+                        y = min(top, max(bottom, y0 + (x - x0) * dy / dx))
+                    else:
+                        y = current[1]
+                        x = min(right, max(left, x0 + (y - y0) * dx / dy))
+                    polygon.append((x, y, True))
+                if inside:
+                    polygon.append((*current, distance == 0))
+                previous, previous_inside = current, inside
 
-    def write_binary_np(self, fileName: str, demData: np.ndarray):
+            points = []
+            for x, y, diagonal in polygon:
+                if points and points[-1][0] == x and points[-1][1] == y:
+                    continue
+                u, v = (x - x0) / dx, (y - y0) / dy
+                # Evaluate original edges consistently from either neighboring cell.
+                if x == x0 and y == y0:
+                    z = z0
+                elif x == x1 and y == y1:
+                    z = z1
+                elif x == x0 and y == y1:
+                    z = p3[2]
+                elif x == x1 and y == y0:
+                    z = p4[2]
+                elif x == x0:
+                    z = z0 + v * (p3[2] - z0)
+                elif x == x1:
+                    z = p4[2] + v * (z1 - p4[2])
+                elif y == y0:
+                    z = z0 + u * (p4[2] - z0)
+                elif y == y1:
+                    z = p3[2] + u * (z1 - p3[2])
+                elif diagonal:
+                    z = z0 + u * (z1 - z0)
+                elif upper:
+                    z = z0 + u * (z1 - p3[2]) + v * (p3[2] - z0)
+                else:
+                    z = z0 + u * (p4[2] - z0) + v * (z1 - p4[2])
+                points.append((x, y, z))
+            if len(points) > 1 and points[0][:2] == points[-1][:2]:
+                points.pop()
+            for k in range(1, len(points) - 1):
+                a, b, c = points[0], points[k], points[k + 1]
+                area2 = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+                if area2 > 0:
+                    yield a, b, c
+
+    def _write_clipped_dem(self, tile, stream):
+        matrix = tile.matrix
+        x_min, y_min, x_max, y_max = tile.bounds
+        count = 0
+        for j in range(matrix.shape[0] - 1):
+            for k in range(matrix.shape[1] - 1):
+                p1, p2 = matrix[j + 1, k], matrix[j, k + 1]
+                p3, p4 = matrix[j, k], matrix[j + 1, k + 1]
+                if (x_min <= p1[0] and p2[0] <= x_max
+                        and y_min <= p1[1] and p2[1] <= y_max):
+                    faces = ((p1, p2, p3), (p1, p4, p2))
+                else:
+                    faces = self._clip_cell(p1, p2, p3, p4, tile.bounds)
+                boundary_cell = (p1[0] <= x_min or p2[0] >= x_max
+                                 or p1[1] <= y_min or p2[1] >= y_max)
+                for face in faces:
+                    self.writeStlFace(stream, *face, get_normal_np(*face))
+                    count += 1
+                    if boundary_cell:
+                        for point in face:
+                            tile.add_boundary_point(point)
+        return count
+
+    def _write_clipped_base(self, tile, stream):
+        x_min, y_min, x_max, y_max = tile.bounds
+        center = [(x_min + x_max) / 2, (y_min + y_max) / 2, 0]
+        count = 0
+        for edge in tile.edges():
+            for p1, p2 in zip(edge, edge[1:]):
+                self.writeStlBaseFace(stream, p1, p2, center)
+                count += 1
+        return count
+
+    def _write_clipped_walls(self, tile, stream):
+        edges = tile.edges()
+        borders = self.parameters["borders"]
+        count = 0
+        offsets = ((0, -borders), (borders, 0), (0, borders), (-borders, 0))
+        for edge, (ox, oy) in zip(edges, offsets):
+            for p1, p2 in zip(edge, edge[1:]):
+                outer1, outer2 = [p1[0] + ox, p1[1] + oy, 0], [p2[0] + ox, p2[1] + oy, 0]
+                for face in ((outer1, outer2, p2), (outer1, p2, p1)):
+                    self.writeStlFace(stream, *face, get_normal_np(*face))
+                    count += 1
+                if borders > 0:
+                    self.writeStlBaseFace(stream, p1, outer1, outer2)
+                    self.writeStlBaseFace(stream, p1, outer2, p2)
+                    count += 2
+        if borders > 0:
+            count += self.writeUpperRightCornerBevel(edges[1][-1], stream, borders)
+            count += self.writeUpperLeftCornerBevel(edges[2][-1], stream, borders)
+            count += self.writeBottomLeftCornerBevel(edges[3][-1], stream, borders)
+            count += self.writeBottomRightCornerBevel(edges[0][-1], stream, borders)
+        return count
+
+    def write_binary_np(self, fileName: str, demData: DEMData):
         stream = open(fileName, "wb")
         try:
             counter = 0
@@ -576,7 +682,9 @@ class STL(QThread):
             base_normal,
         )
 
-    def write_face_base_np(self, matrix_dem: np.ndarray, stream: BufferedWriter):
+    def write_face_base_np(self, matrix_dem: DEMData, stream: BufferedWriter):
+        if isinstance(matrix_dem, _ClippedTile):
+            return self._write_clipped_base(matrix_dem, stream)
         rows, cols = matrix_dem.shape[:2]
         min_x = matrix_dem[0, 0, 0]
         min_y = matrix_dem[0, 0, 1]
@@ -620,7 +728,9 @@ class STL(QThread):
                 stream.write("           vertex {} {} {}\n".format(*point))
             stream.write("       endloop\n   endfacet\n")
 
-    def write_face_dem_np(self, matrix_dem: np.ndarray, stream: BufferedWriter):
+    def write_face_dem_np(self, matrix_dem: DEMData, stream: BufferedWriter):
+        if isinstance(matrix_dem, _ClippedTile):
+            return self._write_clipped_dem(matrix_dem, stream)
         rows, cols = matrix_dem.shape[:2]
         count = 0
         for j in range(rows - 1):
@@ -638,7 +748,9 @@ class STL(QThread):
 
     ####################################################
 
-    def write_face_wall_np(self, matrix_dem: np.ndarray, stream: BufferedWriter):
+    def write_face_wall_np(self, matrix_dem: DEMData, stream: BufferedWriter):
+        if isinstance(matrix_dem, _ClippedTile):
+            return self._write_clipped_walls(matrix_dem, stream)
         borders = self.parameters["borders"]
         hasBorders = borders > 0
         if hasBorders:
