@@ -24,8 +24,11 @@ from builtins import range
 import collections
 import struct
 import math
+import os
 
 from qgis.PyQt.QtCore import QThread, pyqtSignal
+
+from .terrain_clipper import ClippedTerrain, clip_grid, division_positions
 
 BINARY_HEADER = "80sI"
 BINARY_FACET = "12fH"
@@ -59,160 +62,119 @@ class STL(QThread):
         self.stl_file = stl_file
         self.matrix_dem = dem_matrix
         self.quit = False
+        self.output_files = []
 
     def run(self):
         x_models = self.parameters["divideCols"]
         y_models = self.parameters["divideRow"]
 
-        width_model = self.parameters["width"] / x_models
-        high_model = self.parameters["height"] / y_models
+        x_cuts = division_positions(self.parameters["width"], x_models)
+        y_cuts = division_positions(self.parameters["height"], y_models)[::-1]
 
         for i in range(y_models):
             for j in range(x_models):
+                if self.quit:
+                    return
                 path = self.stl_file
                 if (y_models * x_models > 1):
-                    path = self.stl_file.split(".")[0] + '_' + str(i) + str(j) + '.stl'
-                x_min_model = width_model * j
-                y_min_model = self.parameters["height"] - i * high_model - high_model
-                x_max_model = width_model * j + width_model
-                y_max_model = self.parameters["height"] - i * high_model
+                    path = os.path.splitext(self.stl_file)[0] + '_{}_{}.stl'.format(i, j)
                 dem_model = self.cut_dem(
                     self.matrix_dem,
                     self.parameters["spacing_mm"],
-                    x_min_model,
-                    y_min_model,
-                    x_max_model,
-                    y_max_model
+                    x_cuts[j],
+                    y_cuts[i + 1],
+                    x_cuts[j + 1],
+                    y_cuts[i]
                 )
+                self.output_files.append(path)
                 if self.parameters.get("stl_format") == "ascii":
                     self.write_ascii(path, dem_model)
                 else:
                     self.write_binary(path, dem_model)
 
+    def _export_faces(self, dem_data):
+        terrain = self.face_dem_vector(dem_data)
+        if self.parameters.get("has_borders", True):
+            normal = self.normal(0, 0, -1)
+            for p1, p2, p3, _ in terrain:
+                yield p2._replace(z=0), p1._replace(z=0), p3._replace(z=0), normal
+            yield from self.face_wall_vector(dem_data)
+        yield from terrain
+
     def write_ascii(self, fileName, demData):
-        f = open(fileName, "w")
-        f.write("solid model\n")
-
-        dem = self.face_dem_vector(demData)
-        for face in dem:
-            self.updateProgress.emit()
-            f.write("   facet normal 0 0 -1 " + "\n")
-            f.write("       outer loop\n")
-            f.write("           vertex " + str(getattr(face[1], "x")) + " " + str(getattr(face[1], "y")) +
-                    " " + "0" + "\n")
-            f.write("           vertex " + str(getattr(face[0], "x")) + " " + str(getattr(face[0], "y")) +
-                    " " + "0" + "\n")
-            f.write("           vertex " + str(getattr(face[2], "x")) + " " + str(getattr(face[2], "y")) +
-                    " " + "0" + "\n")
-            f.write("       endloop\n")
-            f.write("   endfacet\n")
-            if self.quit:
-                f.close()
-                return 0
-
-        wall = self.face_wall_vector(demData)
-        for face in wall:
-            f.write("   facet normal " + str(getattr(face[3], "normal_x")) + " " +
-                    str(getattr(face[3], "normal_y")) + " " + str(getattr(face[3], "normal_z")) + "\n")
-            f.write("       outer loop\n")
-            f.write("           vertex " + str(getattr(face[0], "x")) + " " + str(getattr(face[0], "y")) +
-                    " " + str(getattr(face[0], "z")) + "\n")
-            f.write("           vertex " + str(getattr(face[1], "x")) + " " + str(getattr(face[1], "y")) +
-                    " " + str(getattr(face[1], "z")) + "\n")
-            f.write("           vertex " + str(getattr(face[2], "x")) + " " + str(getattr(face[2], "y")) +
-                    " " + str(getattr(face[2], "z")) + "\n")
-            f.write("       endloop\n")
-            f.write("   endfacet\n")
-            if self.quit:
-                f.close()
-                return 0
-
-        for face in dem:
-            self.updateProgress.emit()
-            f.write("   facet normal " + str(getattr(face[3], "normal_x")) + " " +
-                    str(getattr(face[3], "normal_y")) + " " + str(getattr(face[3], "normal_z")) + "\n")
-            f.write("       outer loop\n")
-            f.write("           vertex " + str(getattr(face[0], "x")) + " " + str(getattr(face[0], "y")) +
-                    " " + str(getattr(face[0], "z")) + "\n")
-            f.write("           vertex " + str(getattr(face[1], "x")) + " " + str(getattr(face[1], "y")) +
-                    " " + str(getattr(face[1], "z")) + "\n")
-            f.write("           vertex " + str(getattr(face[2], "x")) + " " + str(getattr(face[2], "y")) +
-                    " " + str(getattr(face[2], "z")) + "\n")
-            f.write("       endloop\n")
-            f.write("   endfacet\n")
-            if self.quit:
-                f.close()
-                return 0
-
-        f.write("endsolid model\n")
-        f.close()
+        with open(fileName, "w", encoding="ascii") as stream:
+            stream.write("solid model\n")
+            for p1, p2, p3, normal in self._export_faces(demData):
+                if self.quit:
+                    return
+                self.updateProgress.emit()
+                stream.write("   facet normal {} {} {}\n".format(*normal))
+                stream.write("       outer loop\n")
+                for point in (p1, p2, p3):
+                    stream.write("           vertex {} {} {}\n".format(*point))
+                stream.write("       endloop\n   endfacet\n")
+            stream.write("endsolid model\n")
 
     def write_binary(self, fileName, demData):
         try:
-            counter = 0
-            stream = open(fileName, "wb")
-            stream.seek(0)
-            stream.write(struct.pack(BINARY_HEADER, b'Python Binary STL Writer', counter))
-
-            dem = self.face_dem_vector(demData)
-            for face in dem:
-                self.updateProgress.emit()
-                counter += 1
-                data = [
-                    0, 0, -1,
-                    getattr(face[1], "x"), getattr(face[1], "y"), 0,
-                    getattr(face[0], "x"), getattr(face[0], "y"), 0,
-                    getattr(face[2], "x"), getattr(face[2], "y"), 0,
-                    0
-                ]
-                stream.write(struct.pack(BINARY_FACET, *data))
-                if self.quit:
-                    stream.close()
-                    return 0
-
-            wall = self.face_wall_vector(demData)
-            for face in wall:
-                counter += 1
-                data = [
-                    getattr(face[3], "normal_x"), getattr(face[3], "normal_y"), getattr(face[3], "normal_z"),
-                    getattr(face[0], "x"), getattr(face[0], "y"), getattr(face[0], "z"),
-                    getattr(face[1], "x"), getattr(face[1], "y"), getattr(face[1], "z"),
-                    getattr(face[2], "x"), getattr(face[2], "y"), getattr(face[2], "z"),
-                    0
-                ]
-                stream.write(struct.pack(BINARY_FACET, *data))
-                if self.quit:
-                    stream.close()
-                    return 0
-
-            for face in dem:
-                self.updateProgress.emit()
-                counter += 1
-                data = [
-                    getattr(face[3], "normal_x"), getattr(face[3], "normal_y"), getattr(face[3], "normal_z"),
-                    getattr(face[0], "x"), getattr(face[0], "y"), getattr(face[0], "z"),
-                    getattr(face[1], "x"), getattr(face[1], "y"), getattr(face[1], "z"),
-                    getattr(face[2], "x"), getattr(face[2], "y"), getattr(face[2], "z"),
-                    0
-                ]
-                stream.write(struct.pack(BINARY_FACET, *data))
-                if self.quit:
-                    stream.close()
-                    return 0
-
-            stream.seek(0)
-            stream.write(struct.pack(BINARY_HEADER, b'Python Binary STL Writer', counter))
-            stream.close()
+            with open(fileName, "wb") as stream:
+                count = 0
+                stream.write(struct.pack(BINARY_HEADER, b"Python Binary STL Writer", count))
+                for p1, p2, p3, normal in self._export_faces(demData):
+                    if self.quit:
+                        return
+                    self.updateProgress.emit()
+                    stream.write(struct.pack(BINARY_FACET, *normal, *p1, *p2, *p3, 0))
+                    count += 1
+                stream.seek(0)
+                stream.write(struct.pack(BINARY_HEADER, b"Python Binary STL Writer", count))
         except (IOError, OSError):
-            stream.close()
+            return
 
     def face_wall_vector(self, matrix_dem):
+        if isinstance(matrix_dem, ClippedTerrain):
+            return self._clipped_walls(matrix_dem)
         borders = self.parameters["borders"]
         hasBorders = borders > 0
         if hasBorders:
             return self.face_wall_borders_vector(matrix_dem)
         else:
             return self.face_wall_No_borders_vector(matrix_dem)
+
+    def _clipped_walls(self, tile):
+        edges = tile.edges()
+        borders = self.parameters["borders"]
+        offsets = ((0, -borders), (borders, 0), (0, borders), (-borders, 0))
+        faces = []
+
+        def add_face(p1, p2, p3):
+            faces.append([p1, p2, p3, self.get_normal(p1, p2, p3)])
+
+        for edge, (ox, oy) in zip(edges, offsets):
+            for p1, p2 in zip(edge, edge[1:]):
+                outer1 = self.pto(p1.x + ox, p1.y + oy, 0)
+                outer2 = self.pto(p2.x + ox, p2.y + oy, 0)
+                add_face(outer1, outer2, p2)
+                add_face(outer1, p2, p1)
+                if borders > 0:
+                    base1, base2 = p1._replace(z=0), p2._replace(z=0)
+                    add_face(base1, outer2, outer1)
+                    add_face(base1, base2, outer2)
+
+        if borders > 0:
+            for i, edge in enumerate(edges):
+                corner = edge[0]
+                px, py = offsets[(i - 1) % 4]
+                ox, oy = offsets[i]
+                previous = self.pto(corner.x + px, corner.y + py, 0)
+                outer = self.pto(corner.x + px + ox, corner.y + py + oy, 0)
+                following = self.pto(corner.x + ox, corner.y + oy, 0)
+                add_face(corner, previous, outer)
+                add_face(corner, outer, following)
+                base = corner._replace(z=0)
+                add_face(base, outer, previous)
+                add_face(base, following, outer)
+        return faces
 
     def face_wall_No_borders_vector(self, matrix_dem):
         rows = matrix_dem.__len__()
@@ -397,6 +359,9 @@ class STL(QThread):
         return vector_face
 
     def face_dem_vector(self, matrix_dem):
+        if isinstance(matrix_dem, ClippedTerrain):
+            return [[p1, p2, p3, self.get_normal(p1, p2, p3)]
+                    for p1, p2, p3 in matrix_dem.triangles]
         rows = matrix_dem.__len__()
         cols = matrix_dem[0].__len__()
         vector_face = []
@@ -434,22 +399,5 @@ class STL(QThread):
 
     @staticmethod
     def cut_dem(matrix_dem_build, resolution, x_min, y_min, x_max, y_max):
-        rows = matrix_dem_build.__len__()
-        cols = matrix_dem_build[0].__len__()
-        dem = []
-        for i in range(rows):
-            aux = []
-            for j in range(cols):
-                x = getattr(matrix_dem_build[i][j], "x")
-                y = getattr(matrix_dem_build[i][j], "y")
-                if x_min <= x <= x_max and y_min <= y <= y_max:
-                    aux.append(matrix_dem_build[i][j])
-                elif 0 < (x - x_max) < resolution and y_min <= y <= y_max:
-                    aux.append(matrix_dem_build[i][j])
-                elif -resolution < (y - y_min) < 0 and x_min <= x <= x_max:
-                    aux.append(matrix_dem_build[i][j])
-                elif 0 < (x - x_max) < resolution and - resolution < (y - y_min) < 0:
-                    aux.append(matrix_dem_build[i][j])
-            if aux:
-                dem.append(aux)
-        return dem
+        # Keep the resolution argument for callers; cuts depend only on geometry.
+        return clip_grid(matrix_dem_build, x_min, y_min, x_max, y_max)

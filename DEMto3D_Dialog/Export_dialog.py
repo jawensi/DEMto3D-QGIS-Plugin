@@ -88,7 +88,9 @@ class Export(QDialog):
         self.prepareUi(False)
         self.mainDlg.ui.progressBar.setValue(0)
         if self.STL.quit:
-            os.remove(self.stl_file)
+            for path in self.STL.output_files:
+                if os.path.exists(path):
+                    os.remove(path)
             QMessageBox.information(self.mainDlg, self.mainDlg.tr("Attention"), self.mainDlg.tr("Process cancelled"))
         else:
             QMessageBox.information(self.mainDlg, self.mainDlg.tr("Attention"), self.mainDlg.tr("STL model generated"))
