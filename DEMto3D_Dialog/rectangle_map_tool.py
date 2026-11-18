@@ -31,7 +31,7 @@ class RectangleMapTool(QgsMapTool):
         self.rubberBand: QgsRubberBand = QgsRubberBand(self.canvas, geometryType)
         self.rubberBand.setColor(QColor(227, 26, 28, 255))
         self.rubberBand.setWidth(3)
-        self.rubberBand.setLineStyle(Qt.PenStyle(Qt.DashLine))
+        self.rubberBand.setLineStyle(Qt.PenStyle.DashLine)
         self.rotation: float = self.canvas.rotation() * math.pi / 180
         self.reset()
 
@@ -61,12 +61,12 @@ class RectangleMapTool(QgsMapTool):
             return
         self.endPoint = self.toMapCoordinates(e.pos())
         # Dynamically check shift key state
-        self.square_mode = bool(QApplication.keyboardModifiers() & Qt.ShiftModifier)
+        self.square_mode = bool(QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier)
         if self.startPoint is not None and self.endPoint is not None:
             self.showRect(self.startPoint, self.endPoint)
 
     def keyReleaseEvent(self, e: QKeyEvent) -> None:
-        if e.key() == Qt.Key_Shift and self.square_mode:
+        if e.key() == Qt.Key.Key_Shift and self.square_mode:
             self.square_mode = False
             # Redraw as rectangle if currently drawing
             if (

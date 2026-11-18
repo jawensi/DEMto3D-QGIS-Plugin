@@ -441,10 +441,10 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                         "The construction of the STL file could takes several minutes."
                         " Do you want to continue?"
                     ),
-                    QMessageBox.Yes | QMessageBox.No,
-                    QMessageBox.No,
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.No,
                 )
-                if reply == QMessageBox.Yes:
+                if reply == QMessageBox.StandardButton.Yes:
                     export(parameters)
             else:
                 export(parameters)
@@ -522,7 +522,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
     def layer_extent(self):
         select_layer_dialog = SelectLayer_dialog.Dialog()
-        if select_layer_dialog.exec_():
+        if select_layer_dialog.exec():
             layer = select_layer_dialog.get_layer()
             if layer:
                 rec = layer.extent()
@@ -695,7 +695,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.extent.setToGeometry(QgsGeometry.fromPolyline(points), None)
         self.extent.setColor(QColor(227, 26, 28, 255))
         self.extent.setWidth(3)
-        self.extent.setLineStyle(Qt.PenStyle(Qt.DashLine))
+        self.extent.setLineStyle(Qt.PenStyle.DashLine)
 
         self.paint_model_division()
 
@@ -746,7 +746,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.extent.setToGeometry(QgsGeometry.fromPolyline(points), None)
         self.extent.setColor(QColor(227, 26, 28, 255))
         self.extent.setWidth(3)
-        self.extent.setLineStyle(Qt.PenStyle(Qt.DashLine))
+        self.extent.setLineStyle(Qt.PenStyle.DashLine)
 
         self.paint_model_division()
 
@@ -793,12 +793,12 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             self.divisions = QgsRubberBand(self.canvas, Qgis.GeometryType.Polygon)
             self.divisions.setColor(QColor(227, 26, 28, 255))
             self.divisions.setWidth(3)
-            self.divisions.setLineStyle(Qt.PenStyle(Qt.DashDotLine))
+            self.divisions.setLineStyle(Qt.PenStyle.DashDotLine)
             self.divisions.setToGeometry(QgsGeometry.fromMultiPolylineXY(lines), None)
 
     def get_z_max_z_min(self):
         try:
-            QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+            QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
 
             points = getPointsFromRectangleParams(self.rect_Params)
             # Specify the geometry type
@@ -829,7 +829,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 self.layer,
                 "",
                 1,
-                QgsZonalStatistics.Min | QgsZonalStatistics.Max,  # type: ignore
+                QgsZonalStatistics.Statistic.Min | QgsZonalStatistics.Statistic.Max,
             )
             zoneStat.calculateStatistics(None)
 

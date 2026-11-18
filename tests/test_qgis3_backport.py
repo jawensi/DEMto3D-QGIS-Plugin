@@ -300,6 +300,49 @@ class ExportTests(unittest.TestCase):
 
 
 class Qgis3UiTests(unittest.TestCase):
+    def test_modal_dialogs_accept_and_release_plugin_running_state(self):
+        from qgis.PyQt.QtCore import QTimer, Qt
+        module = importlib.import_module(PACKAGE + ".DEMto3D")
+        selection = importlib.import_module(PACKAGE + ".DEMto3D_Dialog.SelectLayer_dialog")
+        dialog = selection.Dialog()
+        try:
+            self.assertTrue(dialog.windowFlags() & Qt.WindowType.WindowStaysOnTopHint)
+            plugin = module.DEMto3D(types.SimpleNamespace())
+            with patch.object(plugin, "_has_visible_raster", return_value=True), patch.object(
+                module.DEMto3D_dialog, "DEMto3DDialog", return_value=dialog
+            ), patch.object(plugin, "_cleanup_canvas_items"), patch.object(plugin, "_update_action_enabled"):
+                QTimer.singleShot(0, dialog.accept)
+                plugin.run()
+            self.assertEqual(dialog.result(), QDialog.DialogCode.Accepted)
+            self.assertFalse(plugin._running)
+        finally:
+            dialog.close()
+
+    def test_rectangle_shift_selection_and_release(self):
+        from qgis.core import QgsPointXY
+        from qgis.PyQt.QtCore import QEvent, Qt
+        from qgis.PyQt.QtGui import QKeyEvent
+        module = importlib.import_module(PACKAGE + ".DEMto3D_Dialog.rectangle_map_tool")
+        canvas = QgsMapCanvas()
+        tool = module.RectangleMapTool(canvas, Mock())
+        try:
+            tool.startPoint = QgsPointXY(1, 2)
+            tool.isEmittingPoint = True
+            event = types.SimpleNamespace(pos=lambda: object())
+            with patch.object(tool, "toMapCoordinates", return_value=QgsPointXY(5, 4)), patch.object(
+                module.QApplication, "keyboardModifiers", return_value=Qt.KeyboardModifier.ShiftModifier
+            ):
+                tool.canvasMoveEvent(event)
+            self.assertTrue(tool.square_mode)
+            square = tool.rectangle()
+            self.assertEqual(square["width"], square["height"])
+            tool.keyReleaseEvent(QKeyEvent(
+                QEvent.Type.KeyRelease, Qt.Key.Key_Shift, Qt.KeyboardModifier.NoModifier
+            ))
+            self.assertFalse(tool.square_mode)
+        finally:
+            canvas.scene().removeItem(tool.rubberBand)
+
     def test_form_resources_and_translations(self):
         from qgis.PyQt.QtCore import QT_VERSION_STR
         self.assertTrue(QT_VERSION_STR.startswith("5."))
@@ -344,10 +387,24 @@ class Qgis3UiTests(unittest.TestCase):
             canvas = QgsMapCanvas()
             canvas.setDestinationCrs(raster.crs())
             canvas.setLayers([raster])
-            iface = types.SimpleNamespace(mapCanvas=lambda: canvas, mainWindow=lambda: None)
+            iface = types.SimpleNamespace(
+                mapCanvas=lambda: canvas, mainWindow=lambda: None, actionPan=lambda: None
+            )
             dialog = module.DEMto3DDialog(iface)
             try:
                 dialog.full_extent()
+                self.assertEqual((dialog.z_min, dialog.z_max), (100, 115))
+                from qgis.PyQt.QtCore import QTimer
+                selection = importlib.import_module(PACKAGE + ".DEMto3D_Dialog.SelectLayer_dialog")
+                selection_dialog = selection.Dialog()
+                selection_dialog.ui.mMapLayerComboBox.setLayer(raster)
+                try:
+                    with patch.object(selection, "Dialog", return_value=selection_dialog):
+                        QTimer.singleShot(0, selection_dialog.accept)
+                        dialog.layer_extent()
+                    self.assertEqual(dialog.rect_Params["center"], [20, 20])
+                finally:
+                    selection_dialog.close()
                 dialog.ui.SpacingLineEdit.setText("10")
                 dialog.ui.WidthLineEdit.setText("40")
                 dialog.upload_size_from_width()

@@ -34,7 +34,7 @@ class Dialog(QDialog, Ui_SelectLayer_dialog_base):
 
     def __init__(self) -> None:
         """Constructor for the dialog."""
-        QDialog.__init__(self, None, Qt.WindowStaysOnTopHint)
+        QDialog.__init__(self, None, Qt.WindowType.WindowStaysOnTopHint)
         self.ui = Ui_SelectLayer_dialog_base()
         self.ui.setupUi(self)
 

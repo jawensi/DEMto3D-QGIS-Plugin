@@ -100,6 +100,10 @@ def main():
         # Normalize its output so the shipped file passes the repository lint.
         resource_path = stage / "resources.py"
         resource_code = resource_path.read_text(encoding="utf-8")
+        # Use QGIS's Qt compatibility layer in the generated module as well.
+        resource_code = resource_code.replace(
+            "from PyQt5 import QtCore", "from qgis.PyQt import QtCore"
+        )
         for declaration in ("def qInitResources():", "def qCleanupResources():",
                             "qInitResources()"):
             resource_code = resource_code.replace(

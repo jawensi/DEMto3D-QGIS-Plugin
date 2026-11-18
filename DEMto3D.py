@@ -197,7 +197,7 @@ class DEMto3D:
         demto3d_dlg = None
         try:
             demto3d_dlg = DEMto3D_dialog.DEMto3DDialog(self.iface)
-            demto3d_dlg.exec_()
+            demto3d_dlg.exec()
         finally:
             if demto3d_dlg is not None:
                 self._cleanup_canvas_items(demto3d_dlg)
