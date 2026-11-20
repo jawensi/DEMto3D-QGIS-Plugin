@@ -333,7 +333,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
                 'Export to STL'), self.lastSavingPath + layer_name, filter="*.stl")
             if stl_file[0] != '':
                 self.lastSavingPath = os.path.dirname(stl_file[0]) + '//'
-                Export_dialog.Export(self, parameters, stl_file[0])
+                self.export_dlg = Export_dialog.Export(self, parameters, stl_file[0])
 
         parameters = self.get_parameters()
         layer_name = self.layer.name() + '_model.stl'
