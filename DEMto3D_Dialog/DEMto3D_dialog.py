@@ -5,8 +5,8 @@
                                  A QGIS plugin
  Description
                              -------------------
-        copyright            : (C) 2022 by Javier
-        email                : demto3d@gmail.com
+        copyright            : (C) 2026 by Jawensi
+        email                : info@demto3d.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -24,8 +24,8 @@ import math
 import json
 
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog, QApplication, QMenu
-from qgis.PyQt.QtGui import QColor, QCursor
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtGui import QColor, QCursor, QDesktopServices
+from qgis.PyQt.QtCore import Qt, QUrl
 from qgis.gui import QgsRubberBand, QgsMapTool
 
 from . import Export_dialog
@@ -35,7 +35,7 @@ from qgis.core import QgsPointXY, QgsPoint, QgsRectangle, QgsFeature, QgsProject
 from qgis.core import Qgis, QgsMapLayerProxyModel, QgsCoordinateReferenceSystem, QgsVectorLayer, QgsVectorFileWriter
 from qgis.analysis import QgsZonalStatistics
 
-from qgis.core import QgsWkbTypes
+from qgis.core import QgsApplication, QgsWkbTypes
 
 
 class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
@@ -81,6 +81,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     def __init__(self, iface):
         """Constructor."""
         QDialog.__init__(self)
+        self.export_dlg = None
         self.ui = Ui_DEMto3DDialogBase()
         self.ui.setupUi(self)
         self.iface = iface
@@ -127,8 +128,6 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ui.WidthGeoLineEdit.returnPressed.connect(self.upload_extent_fromWH)
         self.ui.HeightGeoLineEdit.returnPressed.connect(self.upload_extent_fromWH)
 
-        self.ui.LimitsParamGframe.hide()
-
         # endregion
 
         # region DIMENSION ACTION
@@ -155,10 +154,25 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
 
         self.ui.CancelToolButton.clicked.connect(self.reject)
         self.ui.STLToolButton.clicked.connect(self.do_export)
+        self.ui.getProButton.clicked.connect(self.open_pro_page)
         self.rejected.connect(self.reject_func)
         # endregion
 
         self.ui.ProgressLabel.hide()
+        self.ui.groupBox.hide()
+        self.ui.groupBox_2.hide()
+
+    def done(self, result):
+        # Esc, window close, accept and reject must all keep active workers alive.
+        if self.export_dlg is not None and self.export_dlg.is_running():
+            return
+        super().done(result)
+
+    def open_pro_page(self):
+        locale = QgsApplication.locale() or "en"
+        language = locale.replace("-", "_").split("_", 1)[0].lower()
+        web_path = "es/comparar" if language == "es" else "en/compare"
+        QDesktopServices.openUrl(QUrl(f"https://demto3d.com/{web_path}/"))
 
     def setCanvasCRS(self):
         try:
@@ -380,7 +394,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.scale_h = 0
         self.scale_w = 0
         self.scale = 0
-        self.ui.RecomSpacinglabel.setText('0.2 mm')
+        # self.ui.RecomSpacinglabel.setText('0.2 mm')
         self.ui.BaseHeightLineEdit.clear()
         self.ui.HeightModelLabel.setText('0 mm')
 
@@ -690,10 +704,11 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
             else:                                 # data unit -> others. Meters, ...
                 width_roi = self.rect_Params["width"]
                 min_spacing = round(self.cell_size * self.width / width_roi, 2)
-        if min_spacing < 0.2:
-            self.ui.RecomSpacinglabel.setText('0.2 mm')
-        else:
-            self.ui.RecomSpacinglabel.setText(str(min_spacing) + ' mm')
+        _ = min_spacing
+        # if min_spacing < 0.2:
+        #     self.ui.RecomSpacinglabel.setText('0.2 mm')
+        # else:
+        #     self.ui.RecomSpacinglabel.setText(str(min_spacing) + ' mm')
 
     def upload_size_from_height(self):
         try:

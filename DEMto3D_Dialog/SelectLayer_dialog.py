@@ -5,8 +5,8 @@
                                  A QGIS plugin
  Description
                              -------------------
-        copyright            : (C) 2022 by Javier
-        email                : demto3d@gmail.com
+        copyright            : (C) 2026 by Jawensi
+        email                : info@demto3d.com
  ***************************************************************************/
 
 /***************************************************************************

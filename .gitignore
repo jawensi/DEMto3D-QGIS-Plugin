@@ -5,7 +5,7 @@
 
 \zip_build
 
-resourcesCompile.bat
+\scripts
 
 *.pyc
 *.pyo   

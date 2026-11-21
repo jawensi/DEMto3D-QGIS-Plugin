@@ -5,8 +5,8 @@
                                  A QGIS plugin
  Description
                              -------------------
-        copyright            : (C) 2022 by Javier
-        email                : demto3d@gmail.com
+        copyright            : (C) 2026 by Jawensi
+        email                : info@demto3d.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -28,7 +28,7 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from qgis.PyQt.QtWidgets import QAction, QMessageBox
 from qgis.PyQt.QtGui import QIcon
 # Initialize Qt resources from file resources.py
-from . import resources
+from . import resources  # noqa: F401
 # Import the code for the dialog
 from .DEMto3D_Dialog import DEMto3D_dialog
 
@@ -122,6 +122,14 @@ class DEMto3D(object):
                     canvas.scene().removeItem(demto3d_dlg.divisions)
                 self.window = True
             elif not raster:
-                QMessageBox.information(self.iface.mainWindow(), "DEMto3D", self.tr("No visible raster layer loaded"))
+                QMessageBox.information(
+                    self.iface.mainWindow(),
+                    "DEMto3D",
+                    self.tr("No visible raster layer loaded")
+                )
         elif not layers:
-            QMessageBox.information(self.iface.mainWindow(), "DEMto3D", self.tr("No visible raster layer loaded"))
+            QMessageBox.information(
+                self.iface.mainWindow(),
+                "DEMto3D",
+                self.tr("No visible raster layer loaded")
+            )

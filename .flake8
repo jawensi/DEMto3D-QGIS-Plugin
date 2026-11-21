@@ -1,0 +1,8 @@
+[flake8]
+exclude =
+    .git,
+    __pycache__,
+    zip_build,
+    scripts,
+    resources.py,
+    DEMto3D_Dialog/*_base.py

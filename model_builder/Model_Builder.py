@@ -5,8 +5,8 @@
                                  A QGIS plugin
  Description
                              -------------------
-        copyright            : (C) 2022 by Javier
-        email                : demto3d@gmail.com
+        copyright            : (C) 2026 by Jawensi
+        email                : info@demto3d.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -45,17 +45,19 @@ class Model(QThread):
     def run(self):
         dem_dataset = gdal.Open(self.parameters["layer"])
 
-        self.matrix_dem = self.matrix_dem_builder_interpolation(dem_dataset,
-                                                                self.parameters["height"], self.parameters["width"],
-                                                                self.parameters["scale"], self.parameters["scale_h"],
-                                                                self.parameters["scale_w"],
-                                                                self.parameters["spacing_mm"],
-                                                                self.parameters["roi_x_max"],
-                                                                self.parameters["roi_x_min"],
-                                                                self.parameters["roi_y_min"],
-                                                                self.parameters["z_base"],
-                                                                self.parameters["z_scale"],
-                                                                self.parameters["projected"])
+        self.matrix_dem = self.matrix_dem_builder(
+            dem_dataset,
+            self.parameters["height"], self.parameters["width"],
+            self.parameters["scale"],
+            self.parameters["spacing_mm"],
+            self.parameters["roi_x_max"],
+            self.parameters["roi_x_min"],
+            self.parameters["roi_y_min"],
+            self.parameters["z_base"],
+            self.parameters["z_scale"],
+            self.parameters["projected"]
+        )
+
         if self.parameters["z_inv"]:
             self.matrix_dem = self.matrix_dem_inverse_build(self.matrix_dem)
         dem_dataset = None
@@ -100,8 +102,8 @@ class Model(QThread):
             var_x = 0
             for j in range(col_stl):
                 # Model coordinate x(mm), y(mm)
-                x_model = round(var_x, 2)
-                y_model = round(var_y, 2)
+                x_model = width if j == col_stl - 1 else round(var_x, 2)
+                y_model = height if i == 0 else round(var_y, 2)
 
                 # Model maps geo_coordinates
                 if projected:
@@ -192,8 +194,8 @@ class Model(QThread):
             var_x = 0
             for j in range(col_stl):
                 # Model coordinate x(mm), y(mm)
-                x_model = round(var_x, 2)
-                y_model = round(var_y, 2)
+                x_model = width if j == col_stl - 1 else round(var_x, 2)
+                y_model = height if i == 0 else round(var_y, 2)
 
                 # Model maps geo_coordinates
                 if projected:

@@ -5,8 +5,8 @@
                                  A QGIS plugin
  Description
                              -------------------
-        copyright            : (C) 2022 by Javier
-        email                : demto3d@gmail.com
+        copyright            : (C) 2026 by Jawensi
+        email                : info@demto3d.com
  ***************************************************************************/
 
 /***************************************************************************
@@ -51,7 +51,7 @@ class Export(QDialog):
         self.mainDlg.ui.ProgressLabel.setText(self.tr("Building STL geometry"))
 
         self.Model = Model(self.parameters)
-        self.Model.updateProgress.connect(lambda: self.mainDlg.ui.progressBar.setValue(self.mainDlg.ui.progressBar.value() + 1))
+        self.Model.updateProgress.connect(self.increment_progress)
         self.Model.finished.connect(self.do_stl_model)
         self.Model.start()
 
@@ -73,23 +73,37 @@ class Export(QDialog):
             self.mainDlg.ui.progressBar.setMaximum(maxVal)
 
             self.STL = STL(self.parameters, self.stl_file, dem_matrix)
-            self.STL.updateProgress.connect(lambda: self.mainDlg.ui.progressBar.setValue(self.mainDlg.ui.progressBar.value() + 1))
+            self.STL.updateProgress.connect(self.increment_progress)
             self.STL.finished.connect(self.finish_model)
             self.STL.start()
 
+    def increment_progress(self):
+        progress_bar = self.mainDlg.ui.progressBar
+        progress_bar.setValue(progress_bar.value() + 1)
+
     def cancel_stl_model(self):
         self.STL.quit = True
+
+    def is_running(self):
+        # Keep the whole export active while finished signals are still queued.
+        return self._running or any(
+            worker is not None and worker.isRunning()
+            for worker in (self.Model, self.STL)
+        )
 
     def finish_model(self):
         self.prepareUi(False)
         self.mainDlg.ui.progressBar.setValue(0)
         if self.STL.quit:
-            os.remove(self.stl_file)
+            for path in self.STL.output_files:
+                if os.path.exists(path):
+                    os.remove(path)
             QMessageBox.information(self.mainDlg, self.mainDlg.tr("Attention"), self.mainDlg.tr("Process cancelled"))
         else:
             QMessageBox.information(self.mainDlg, self.mainDlg.tr("Attention"), self.mainDlg.tr("STL model generated"))
 
     def prepareUi(self, start):
+        self._running = start
         if start:
             self.mainDlg.ui.ProgressLabel.show()
         else:

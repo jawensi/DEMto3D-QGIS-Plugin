@@ -12,7 +12,7 @@ de la Ingeniería en Geodesía y Cartografía de la Universidad de Jaén.
 
 Desarrollado por: Fco Javier Venceslá Simón
 
-Contacto: demto3d@gmail.com
+Contacto: info@demto3d.com
 
 --------
 
@@ -28,4 +28,5 @@ of the Master Degree in Cartography and Geodesy of the University of Jaén
 
 Developed by: Francisco Javier Venceslá Simón
 
-Contact: demto3d@gmail.com
+Contact: info@demto3d.com
+

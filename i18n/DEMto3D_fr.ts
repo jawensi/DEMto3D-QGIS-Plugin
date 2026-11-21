@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="es_ES" sourcelanguage="en_US">
+<TS version="2.1" language="fr_FR" sourcelanguage="en_US">
 <context>
     <name>DEMto3D</name>
     <message>
@@ -17,6 +17,14 @@
 
 <context>
     <name>DEMto3DDialogBase</name>
+    <message>
+        <source>Discover DEMto3D PRO</source>
+        <translation>Découvrez DEMto3D PRO</translation>
+    </message>
+    <message>
+        <source>Explore new features with DEMto3D PRO</source>
+        <translation>Explorez de nouvelles fonctionnalités avec DEMto3D PRO</translation>
+    </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="364"/>
         <source>DEM 3D printing</source>
@@ -55,12 +63,12 @@
     <message>
         <location filename="DEMto3D_dialog_base.py" line="373"/>
         <source>Length:</source>
-        <translation>Longue:</translation>
+        <translation>Longueur:</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog_base.py" line="373"/>
         <source>Show width/length</source>
-        <translation>Afficher  largeur/longue</translation>
+        <translation>Afficher largeur/longueur</translation>
     </message>
 
 	<message>
@@ -81,7 +89,7 @@
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="386"/>
         <source>Length (mm):</source>
-        <translation>Longue (mm):</translation>
+        <translation>Longueur (mm):</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="387"/>
@@ -106,7 +114,7 @@
 	<message>
         <location filename="DEMto3D_dialog.py" line="401"/>
         <source>enable</source>
-        <translation>activer</translation>
+        <translation>Activer</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="401"/>
@@ -132,25 +140,19 @@
 	<message>
         <location filename="DEMto3D_dialog_base.py" line="394"/>
         <source>Height (m):</source>
-        <translation>Cote (m):</translation>
+        <translation>Côte (m):</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog.py" line="396"/>
         <source>Lowest point:</source>
-        <translation>Cote minimale:</translation>
+        <translation>Côte minimale:</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog.py" line="397"/>
         <source>Highest point:</source>
-        <translation>Cote maxime:</translation>
+        <translation>Côte maximale:</translation>
     </message>
     <message>
-        <location filename="DEMto3D_dialog.py" line="397"/>
-        <source>Base height (mm):</source>
-        <translation>Hauteur base (mm):</translation>
-    </message>
-	<message>
-        <location filename="DEMto3D_dialog.py" line="399"/>
         <source>Model height:</source>
         <translation>Hauteur du modèle:</translation>
     </message>
@@ -164,24 +166,38 @@
     <message>
         <location filename="DEMto3D_dialog.py" line="403"/>
         <source>Build sides</source>
-        <translation>Exporte les côtés</translation>
+        <translation>Générer les côtés</translation>
     </message>
     <message>
         <location filename="DEMto3D_dialog.py" line="403"/>
         <source>Border (mm):</source>
         <translation>Bord (mm):</translation>
     </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="479"/>
+        <source>Output Format</source>
+        <translation>Format de sortie</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="480"/>
+        <source>Binary Format</source>
+        <translation>Format binaire</translation>
+    </message>
+    <message>
+        <location filename="DEMto3D_dialog_base.py" line="481"/>
+        <source>ASCII Format</source>
+        <translation>Format ASCII</translation>
+    </message>
 
-
-	<message>
+    <message>
         <location filename="DEMto3D_dialog.py" line="48"/>
         <source>Settings</source>
-        <translation>paramètres</translation>
+        <translation>Paramètres</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog.py" line="402"/>
         <source>Export to STL</source>
-        <translation>Exporter STL</translation>
+        <translation>Exporter en STL</translation>
     </message>
 	<message>
         <location filename="DEMto3D_dialog.py" line="404"/>
@@ -191,7 +207,7 @@
     <message>
         <location filename="DEMto3D_dialog.py" line="404"/>
         <source>Close</source>
-        <translation>Fermer </translation>
+        <translation>Fermer</translation>
     </message>
 </context>
 

@@ -3,14 +3,14 @@
  <class>DEMto3DDialogBase</class>
  <widget class="QDialog" name="DEMto3DDialogBase">
   <property name="windowModality">
-   <enum>Qt::WindowModal</enum>
+   <enum>Qt::WindowModality::WindowModal</enum>
   </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>503</width>
-    <height>803</height>
+    <width>436</width>
+    <height>646</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,13 +24,13 @@
    <item>
     <widget class="QScrollArea" name="scrollArea">
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::Shape::Box</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
+      <enum>QFrame::Shadow::Sunken</enum>
      </property>
      <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
+      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
      </property>
      <property name="widgetResizable">
       <bool>true</bool>
@@ -40,8 +40,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>456</width>
-        <height>686</height>
+        <width>402</width>
+        <height>681</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -60,7 +60,7 @@
               </property>
              </widget>
             </item>
-            <item alignment="Qt::AlignVCenter">
+            <item alignment="Qt::AlignmentFlag::AlignVCenter">
              <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox">
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -114,17 +114,17 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap resource="../resources.qrc">:/plugins/DEMto3D/icons/downleft.png</pixmap>
+                  <pixmap resource="../resources.qrc">:/plugins/DEMto3D/icons/downleft.svg</pixmap>
                  </property>
                 </widget>
                </item>
                <item row="0" column="0">
                 <widget class="QLabel" name="label">
                  <property name="pixmap">
-                  <pixmap resource="../resources.qrc">:/plugins/DEMto3D/icons/upRight.png</pixmap>
+                  <pixmap resource="../resources.qrc">:/plugins/DEMto3D/icons/upRight.svg</pixmap>
                  </property>
                  <property name="alignment">
-                  <set>Qt::AlignCenter</set>
+                  <set>Qt::AlignmentFlag::AlignCenter</set>
                  </property>
                 </widget>
                </item>
@@ -214,16 +214,9 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
-             <widget class="QCheckBox" name="RotationCheckBox">
-              <property name="text">
-               <string>Show width/length</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <spacer name="horizontalSpacer">
               <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+               <enum>Qt::Orientation::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
@@ -249,7 +242,7 @@
               </property>
               <property name="icon">
                <iconset resource="../resources.qrc">
-                <normaloff>:/plugins/DEMto3D/icons/zoom-extent.png</normaloff>:/plugins/DEMto3D/icons/zoom-extent.png</iconset>
+                <normaloff>:/plugins/DEMto3D/icons/zoom-extent.svg</normaloff>:/plugins/DEMto3D/icons/zoom-extent.svg</iconset>
               </property>
              </widget>
             </item>
@@ -269,7 +262,7 @@
               </property>
               <property name="icon">
                <iconset resource="../resources.qrc">
-                <normaloff>:/plugins/DEMto3D/icons/zoom-layer.png</normaloff>:/plugins/DEMto3D/icons/zoom-layer.png</iconset>
+                <normaloff>:/plugins/DEMto3D/icons/zoom-layer.svg</normaloff>:/plugins/DEMto3D/icons/zoom-layer.svg</iconset>
               </property>
              </widget>
             </item>
@@ -292,7 +285,7 @@
               </property>
               <property name="icon">
                <iconset resource="../resources.qrc">
-                <normaloff>:/plugins/DEMto3D/icons/zoom-region.png</normaloff>:/plugins/DEMto3D/icons/zoom-region.png</iconset>
+                <normaloff>:/plugins/DEMto3D/icons/zoom-region.svg</normaloff>:/plugins/DEMto3D/icons/zoom-region.svg</iconset>
               </property>
              </widget>
             </item>
@@ -393,26 +386,6 @@
               <item>
                <widget class="QLineEdit" name="SpacingLineEdit"/>
               </item>
-              <item>
-               <widget class="QLabel" name="label18">
-                <property name="text">
-                 <string>Recommended</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="RecomSpacinglabel">
-                <property name="minimumSize">
-                 <size>
-                  <width>47</width>
-                  <height>20</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>0.2 mm</string>
-                </property>
-               </widget>
-              </item>
              </layout>
             </item>
             <item row="5" column="1">
@@ -473,7 +446,7 @@
                  <string>x</string>
                 </property>
                 <property name="alignment">
-                 <set>Qt::AlignCenter</set>
+                 <set>Qt::AlignmentFlag::AlignCenter</set>
                 </property>
                </widget>
               </item>
@@ -534,7 +507,7 @@
                <string>0 m</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
               </property>
              </widget>
             </item>
@@ -563,14 +536,14 @@
                <string>0 m</string>
               </property>
               <property name="alignment">
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
               </property>
              </widget>
             </item>
             <item row="0" column="0">
              <widget class="QLabel" name="label_17">
               <property name="text">
-               <string>Height (mm):</string>
+               <string>Height (m):</string>
               </property>
               <property name="buddy">
                <cstring>BaseHeightLineEdit</cstring>
@@ -604,6 +577,25 @@
            </layout>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="getProButton">
+         <property name="toolTip">
+          <string>Explore new features with DEMto3D PRO</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton { background-color: #00aeef; color: white; font-weight: bold; padding: 7px 12px; border: none; border-radius: 4px; }
+QPushButton:hover { background-color: #009bd6; }
+QPushButton:pressed { background-color: #0088bc; }
+QPushButton:focus { border: 1px solid #006c96; }</string>
+         </property>
+         <property name="text">
+          <string>Discover DEMto3D PRO</string>
+         </property>
+         <property name="autoDefault">
+          <bool>false</bool>
+         </property>
         </widget>
        </item>
        <item>
@@ -682,7 +674,7 @@
           <item>
            <spacer name="horizontalSpacer_2">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -698,7 +690,7 @@
        <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -777,10 +769,10 @@
      <item>
       <spacer name="spacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeType">
-        <enum>QSizePolicy::Expanding</enum>
+        <enum>QSizePolicy::Policy::Expanding</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -867,34 +859,18 @@
  </resources>
  <connections>
   <connection>
-   <sender>RotationCheckBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>LimitsParamGframe</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>109</x>
-     <y>207</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>111</x>
-     <y>176</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>SidesCheckBox</sender>
    <signal>clicked(bool)</signal>
    <receiver>borderModelLineEdit</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>653</y>
+     <x>116</x>
+     <y>602</y>
     </hint>
     <hint type="destinationlabel">
-     <x>410</x>
-     <y>655</y>
+     <x>475</x>
+     <y>603</y>
     </hint>
    </hints>
   </connection>
