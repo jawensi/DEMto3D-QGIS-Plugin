@@ -122,9 +122,10 @@ def main():
         # Run the existing integration tests against the staged release files.
         test_dir = stage / "tests"
         test_dir.mkdir()
-        shutil.copy2(ROOT / "tests" / "test_qgis3_backport.py", test_dir)
-        subprocess.run([sys.executable, str(test_dir / "test_qgis3_backport.py")],
-                       cwd=stage, check=True)
+        for test_name in ("test_qgis3_backport.py", "test_export_lifecycle.py"):
+            shutil.copy2(ROOT / "tests" / test_name, test_dir)
+            subprocess.run([sys.executable, str(test_dir / test_name)],
+                           cwd=stage, check=True)
 
         output_dir = ROOT / "zip_build"
         output_dir.mkdir(exist_ok=True)

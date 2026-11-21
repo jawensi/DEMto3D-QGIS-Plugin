@@ -27,6 +27,8 @@ repository=https://github.com/jawensi/DEMto3D-QGIS-Plugin
 
 # Uncomment the following line and add your changelog:
 changelog=
+    Keep the export controller alive to prevent QThread aborts when starting an STL export.
+    Prevent closing the export dialog while model or STL worker threads are active.
     Fix gaps and overlaps between STL tiles by clipping terrain at exact division boundaries and preserving the original terrain surface.
     Replace runtime assertions and handle optional signals and deleted canvas overlays explicitly.
     Clean up code-quality findings and improve STL file error handling.

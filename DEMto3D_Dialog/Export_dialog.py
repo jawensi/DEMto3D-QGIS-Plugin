@@ -106,6 +106,13 @@ class Export(QDialog):
     def cancel_stl_model(self) -> None:
         self.STLBuilder.quit = True
 
+    def is_running(self) -> bool:
+        # Keep the whole export active while finished signals are still queued.
+        return self._running or any(
+            worker is not None and worker.isRunning()
+            for worker in (self.ModelBuilder, self.STLBuilder)
+        )
+
     def finish_model(self) -> None:
         end_time = time.perf_counter()
         elapsed_time = end_time - self.start_time
@@ -129,6 +136,7 @@ class Export(QDialog):
             )
 
     def prepareUi(self, start: bool) -> None:
+        self._running = start
         if start:
             self.mainDlg.ui.ProgressLabel.show()
         else:
