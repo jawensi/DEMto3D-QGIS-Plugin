@@ -84,6 +84,13 @@ class Export(QDialog):
     def cancel_stl_model(self):
         self.STL.quit = True
 
+    def is_running(self):
+        # Keep the whole export active while finished signals are still queued.
+        return self._running or any(
+            worker is not None and worker.isRunning()
+            for worker in (self.Model, self.STL)
+        )
+
     def finish_model(self):
         self.prepareUi(False)
         self.mainDlg.ui.progressBar.setValue(0)
@@ -96,6 +103,7 @@ class Export(QDialog):
             QMessageBox.information(self.mainDlg, self.mainDlg.tr("Attention"), self.mainDlg.tr("STL model generated"))
 
     def prepareUi(self, start):
+        self._running = start
         if start:
             self.mainDlg.ui.ProgressLabel.show()
         else:

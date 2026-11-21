@@ -28,6 +28,7 @@ repository=https://github.com/jawensi/DEMto3D-QGIS-Plugin
 changelog=
     4.0.2
     - Fix gaps and overlaps between STL tiles by clipping terrain at exact division boundaries and honoring the configured mesh spacing.
+    - Prevent closing the export dialog while model or STL worker threads are active.
     4.0.1
     - Add a Discover DEMto3D PRO button with a localized website link.
     - Update Spanish and French translations.

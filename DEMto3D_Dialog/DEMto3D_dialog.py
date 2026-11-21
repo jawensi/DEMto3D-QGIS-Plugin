@@ -81,6 +81,7 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
     def __init__(self, iface):
         """Constructor."""
         QDialog.__init__(self)
+        self.export_dlg = None
         self.ui = Ui_DEMto3DDialogBase()
         self.ui.setupUi(self)
         self.iface = iface
@@ -160,6 +161,12 @@ class DEMto3DDialog(QDialog, Ui_DEMto3DDialogBase):
         self.ui.ProgressLabel.hide()
         self.ui.groupBox.hide()
         self.ui.groupBox_2.hide()
+
+    def done(self, result):
+        # Esc, window close, accept and reject must all keep active workers alive.
+        if self.export_dlg is not None and self.export_dlg.is_running():
+            return
+        super().done(result)
 
     def open_pro_page(self):
         locale = QgsApplication.locale() or "en"
